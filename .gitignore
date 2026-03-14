@@ -1,0 +1,8 @@
+changes/
+themes/default/css/.sass-cache/
+node_modules/
+upload/video/
+upload/photos/
+/config.php
+assets/import
+config.php
