@@ -186,7 +186,9 @@ $old_notifications = $db->where('recipient_id',0)->where('admin',1)->where('seen
     <script src="<?php echo(PT_LoadAdminLink('vendors/dataTable/datatables.min.js')) ?>"></script>
 
     <!-- Dashboard scripts -->
+    <?php if ($page == 'dashboard') { ?>
     <script src="<?php echo(PT_LoadAdminLink('assets/js/examples/pages/dashboard.js')) ?>"></script>
+    <?php } ?>
     <script src="<?php echo PT_LoadAdminLink('vendors/charts/chartjs/chart.min.js'); ?>"></script>
 
 <!-- App scripts -->
@@ -261,7 +263,7 @@ $old_notifications = $db->where('recipient_id',0)->where('admin',1)->where('seen
         });
     });
 </script>
-<body <?php echo ($pt->mode == 'night' || $pt->config->night_mode == 'night' ? 'class="dark"' : ''); ?>>
+<body data-page="<?php echo($page); ?>" <?php echo ($pt->mode == 'night' || $pt->config->night_mode == 'night' ? 'class="dark"' : ''); ?>>
     <div class="barloading" style="display: none;"></div>
     <a id="redirect_link" href="" data-ajax="" data-sent="0"></a>
     <div class="colors"> <!-- To use theme colors with Javascript -->

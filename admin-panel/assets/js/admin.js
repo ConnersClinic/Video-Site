@@ -3,6 +3,7 @@ if (typeof jQuery === "undefined") {
 }
 
 $.AdminBSB = {};
+var adminResizeTimer;
 $.AdminBSB.options = {
     colors: {
         red: '#F44336',
@@ -98,9 +99,12 @@ $.AdminBSB.leftSideBar = {
         //Set menu height
         _this.setMenuHeight();
         _this.checkStatuForResize(true);
-        $(window).resize(function () {
+        $(window).on('resize', function () {
+            clearTimeout(adminResizeTimer);
+            adminResizeTimer = setTimeout(function () {
             _this.setMenuHeight();
             _this.checkStatuForResize(false);
+            }, 150);
         });
 
         //Set Waves

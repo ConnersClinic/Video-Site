@@ -155,6 +155,51 @@ Author URL:   https://themeforest.net/user/laborasyon/portfolio
     $('.overlay').remove();
   };
 
+  function debounce(fn, wait) {
+    var timer;
+    return function () {
+      var context = this,
+          args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn.apply(context, args);
+      }, wait || 150);
+    };
+  }
+
+  function ensureNiceScroll($element, options) {
+    if (!$element.length) {
+      return;
+    }
+
+    if ($element.getNiceScroll && $element.getNiceScroll().length) {
+      $element.getNiceScroll().resize();
+      return;
+    }
+
+    if (options) {
+      $element.niceScroll(options);
+    } else {
+      $element.niceScroll();
+    }
+  }
+
+  function shouldPreferNativeContentScroll() {
+    var heavyPages = {
+      'manage-users': true,
+      'manage-videos': true,
+      'manage-comments': true,
+      'manage-payments': true,
+      'payment-requests': true,
+      'bank-receipts': true,
+      'verification-requests': true,
+      'monetization-requests': true,
+      'manage-user-ads': true
+    };
+    var page = body_.data('page');
+    return !!heavyPages[page];
+  }
+
   function flexTable() {
     if (wind_.width() < 768) {
       $(".table-responsive-stack").each(function (i) {
@@ -174,9 +219,9 @@ Author URL:   https://themeforest.net/user/laborasyon/portfolio
   } //------------------- Events -------------------
 
 
-  window.onresize = function () {
+  window.onresize = debounce(function () {
     flexTable();
-  };
+  }, 150);
 
   $(document).on('click', '[data-toggle="fullscreen"]', function () {
     $(this).toggleClass('active-fullscreen');
@@ -424,28 +469,33 @@ Author URL:   https://themeforest.net/user/laborasyon/portfolio
   });
 
   if (wind_.width() >= 1200) {
-    $('.layout-wrapper .content-wrapper .content-body .content').niceScroll();
+    var preferNativeContentScroll = shouldPreferNativeContentScroll();
+    if (!preferNativeContentScroll) {
+      ensureNiceScroll($('.layout-wrapper .content-wrapper .content-body .content'));
+    }
     setTimeout(function () {
-      $('.card-scroll').niceScroll({
-        overflowx: false
-      });
-      $('.dropdown-scroll').niceScroll({
-        overflowx: false
-      });
-      $('.table-responsive').niceScroll();
-      $('.app-block .app-content .app-lists').niceScroll({
-        overflowx: false
-      });
-      $('.app-block .app-sidebar').niceScroll({
-        overflowx: false
-      });
-      $('.chat-block .chat-sidebar .chat-sidebar-content').niceScroll({
+      if (!preferNativeContentScroll) {
+        ensureNiceScroll($('.card-scroll'), {
+          overflowx: false
+        });
+        ensureNiceScroll($('.dropdown-scroll'), {
+          overflowx: false
+        });
+        ensureNiceScroll($('.table-responsive'));
+        ensureNiceScroll($('.app-block .app-content .app-lists'), {
+          overflowx: false
+        });
+        ensureNiceScroll($('.app-block .app-sidebar'), {
+          overflowx: false
+        });
+      }
+      ensureNiceScroll($('.chat-block .chat-sidebar .chat-sidebar-content'), {
         overflowx: false
       });
       var chat_messages = $('.chat-block .chat-content .messages');
 
       if (chat_messages.length) {
-        chat_messages.niceScroll({
+        ensureNiceScroll(chat_messages, {
           overflowx: false
         });
         chat_messages.getNiceScroll(0).doScrollTop(chat_messages.get(0).scrollHeight, -1);
@@ -454,7 +504,7 @@ Author URL:   https://themeforest.net/user/laborasyon/portfolio
   }
 
   $(document).on('mouseenter', 'body.small-navigation:not(.scrollable-layout) .navigation', function (e) {
-    $(this).find('.navigation-menu-body').niceScroll();
+    ensureNiceScroll($(this).find('.navigation-menu-body'));
   });
   $(document).on('mouseleave', 'body.small-navigation:not(.scrollable-layout) .navigation', function (e) {
     $(this).find('.navigation-menu-body').getNiceScroll().remove();
@@ -466,7 +516,8 @@ Author URL:   https://themeforest.net/user/laborasyon/portfolio
   });
 
   if (!body_.hasClass('small-navigation') && !body_.hasClass('horizontal-navigation') && wind_.width() >= 1200) {
-    var navigation_scroll = $('.navigation .navigation-menu-body').niceScroll();
+    ensureNiceScroll($('.navigation .navigation-menu-body'));
+    var navigation_scroll = $('.navigation .navigation-menu-body').getNiceScroll();
     $(navigation_scroll.rail[0]).addClass("navigation-nicescroll");
   }
 
