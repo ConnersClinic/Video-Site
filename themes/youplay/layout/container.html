@@ -140,17 +140,26 @@
          }
            <?php if (IS_LOGGED == true && $pt->config->server == 'nodejs') {?>
               const socket = io('{{CONFIG hostname}}:{{CONFIG server_port}}');
+              var notificationsTimer = null;
               socket.on('connect_error', function (error) {
                  console.log(error);
               });
               setTimeout(function () {
                 getNotifications();
-              }, 500);
+              }, 1500);
+              document.addEventListener('visibilitychange', function () {
+                scheduleNotifications();
+              });
+              function scheduleNotifications() {
+                  clearTimeout(notificationsTimer);
+                  var interval = document.hidden ? 10000 : 2000;
+                  notificationsTimer = setTimeout(function () {
+                    getNotifications();
+                  }, interval);
+              }
               function getNotifications() {
                   socket.emit('get notifications and messages');
-                  setTimeout(function () {
-                    getNotifications();
-                  }, 500);
+                  scheduleNotifications();
               }
               socket.on('get notifications results', function (data) {
                  if (data.status == 200) {

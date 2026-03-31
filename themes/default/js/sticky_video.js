@@ -60,6 +60,7 @@
     if (!this.container) return
     var that = this
     var wrapDiv = document.createElement('div')
+    var scrollTicking = false
 
     function onWindowScroll () {
       that.fixElementHeight()
@@ -72,6 +73,21 @@
         StickyVideo.addClass(parent, 'sticky-container_in-content')
       }
     }
+    function onWindowScrollRaf () {
+      if (scrollTicking) return
+      scrollTicking = true
+      if (window.requestAnimationFrame) {
+        window.requestAnimationFrame(function () {
+          onWindowScroll()
+          scrollTicking = false
+        })
+      } else {
+        setTimeout(function () {
+          onWindowScroll()
+          scrollTicking = false
+        }, 100)
+      }
+    }
 
     wrapDiv.className = 'sticky-container__wrap'
     this.container.parentElement.insertBefore(wrapDiv, this.container)
@@ -80,7 +96,11 @@
     StickyVideo.addClass(wrapDiv, 'sticky-container_in-content')
     StickyVideo.addClass(that.container, 'sticky-container__video')
 
-    window.addEventListener ? window.addEventListener('scroll', onWindowScroll) : window.onscroll = onWindowScroll
+    if (window.addEventListener) {
+      window.addEventListener('scroll', onWindowScrollRaf, { passive: true })
+    } else {
+      window.onscroll = onWindowScroll
+    }
   }
 
   // AMD support
