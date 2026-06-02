@@ -715,7 +715,15 @@ INSERT INTO `config` (`id`, `name`, `value`) VALUES
 (420, 'qiwi_public_key', ''),
 (421, 'qiwi_private_key', ''),
 (422, 'm3u8_import', 'off'),
-(423, 'who_can_m3u8_import', 'all');
+(423, 'who_can_m3u8_import', 'all'),
+(424, 'transcript_system', 'off'),
+(425, 'whisper_command', 'python3'),
+(426, 'whisper_script', 'scripts/transcribe_whisper.py'),
+(427, 'whisper_model', 'base'),
+(428, 'transcript_queue_count', '1'),
+(429, 'transcript_max_duration', '7200'),
+(430, 'transcript_language', 'en'),
+(431, 'transcript_cron_last_run', '');
 
 -- --------------------------------------------------------
 
@@ -2192,6 +2200,38 @@ CREATE TABLE `queue` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `transcript_queue`
+--
+
+CREATE TABLE `transcript_queue` (
+  `id` int(11) NOT NULL,
+  `video_id` int(11) NOT NULL DEFAULT '0',
+  `processing` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `video_transcripts`
+--
+
+CREATE TABLE `video_transcripts` (
+  `id` int(11) NOT NULL,
+  `video_id` int(11) NOT NULL DEFAULT '0',
+  `status` varchar(20) NOT NULL DEFAULT 'pending',
+  `plain_text` mediumtext,
+  `vtt_path` varchar(500) NOT NULL DEFAULT '',
+  `language` varchar(10) NOT NULL DEFAULT 'en',
+  `error_message` text,
+  `attempts` tinyint(3) NOT NULL DEFAULT '0',
+  `created_at` int(11) NOT NULL DEFAULT '0',
+  `updated_at` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `reports`
 --
 
@@ -3053,6 +3093,22 @@ ALTER TABLE `queue`
   ADD KEY `video_res` (`video_res`);
 
 --
+-- Indexes for table `transcript_queue`
+--
+ALTER TABLE `transcript_queue`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `video_id` (`video_id`),
+  ADD KEY `processing` (`processing`);
+
+--
+-- Indexes for table `video_transcripts`
+--
+ALTER TABLE `video_transcripts`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `video_id` (`video_id`),
+  ADD KEY `status` (`status`);
+
+--
 -- Indexes for table `reports`
 --
 ALTER TABLE `reports`
@@ -3544,6 +3600,18 @@ ALTER TABLE `pt_posts`
 -- AUTO_INCREMENT for table `queue`
 --
 ALTER TABLE `queue`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `transcript_queue`
+--
+ALTER TABLE `transcript_queue`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `video_transcripts`
+--
+ALTER TABLE `video_transcripts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

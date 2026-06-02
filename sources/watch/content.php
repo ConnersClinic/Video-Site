@@ -116,6 +116,7 @@ $desc = str_replace("\r", "", $desc);
 
 $desc = mb_substr($desc, 0, 220, "UTF-8");
 
+$get_video = PT_AttachTranscriptToVideo($get_video);
 $pt->get_video   = $get_video;
 $pt->page        = 'watch';
 $pt->title       = $get_video->title;
@@ -1176,6 +1177,9 @@ $pt->content = PT_LoadPage("watch/$content_page", array(
     'COUNTRIES' => $countries,
     'NOTIFY_BUTTON' => PT_GetNotifyButton($get_video->user_id),
     'PLEASE_LOGIN_LINK' => PT_Link("login?red=" . urlencode(PT_Link("v/$get_video->short_id"))),
-    'SUBS' => $user_data->privacy->show_subscriptions_count == 'yes' && $SUBS > 0 ? number_format($SUBS) : ''
+    'SUBS' => $user_data->privacy->show_subscriptions_count == 'yes' && $SUBS > 0 ? number_format($SUBS) : '',
+    'TRANSCRIPT_VTT_TRACK' => (!empty($get_video->transcript_vtt_url) && empty($get_video->youtube) && empty($get_video->vimeo) && empty($get_video->daily))
+        ? '<track kind="captions" src="' . htmlspecialchars($get_video->transcript_vtt_url, ENT_QUOTES, 'UTF-8') . '" srclang="' . htmlspecialchars($get_video->transcript_language, ENT_QUOTES, 'UTF-8') . '" label="Captions" default>'
+        : ''
 
 ));

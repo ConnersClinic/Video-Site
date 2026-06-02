@@ -75,6 +75,7 @@ $pages = array(
     'newsletters',
     'ads-settings',
     'clean-videos',
+    'transcribe-videos',
     'edit-terms-pages',
     'seo',
     'manage-invitation',
@@ -994,6 +995,11 @@ $old_notifications = $db->where('recipient_id',0)->where('admin',1)->where('seen
                             <?php if ($pt->user->admin == 1 || CheckHavePermission('clean-videos')) { ?>
                             <li>
                                 <a <?php echo ($page == 'clean-videos') ? 'class="active"' : ''; ?> href="<?php echo PT_LoadAdminLinkSettings('clean-videos'); ?>" data-ajax="?path=clean-videos">Clean Dead Videos</a>
+                            </li>
+                            <?php } ?>
+                            <?php if ($pt->user->admin == 1 || CheckHavePermission('transcribe-videos')) { ?>
+                            <li>
+                                <a <?php echo ($page == 'transcribe-videos') ? 'class="active"' : ''; ?> href="<?php echo PT_LoadAdminLinkSettings('transcribe-videos'); ?>" data-ajax="?path=transcribe-videos">Transcribe Videos</a>
                             </li>
                             <?php } ?>
                             <?php if ($pt->user->admin == 1 || CheckHavePermission('newsletters')) { ?>

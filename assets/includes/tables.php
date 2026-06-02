@@ -72,5 +72,7 @@ define('T_HASHTAGS', 'hashtags');
 define('T_MANAGE_PRO', 'manage_pro');
 define('T_DASHBOARD_REPORTS', 'dashboard_reports');
 define('T_BACKUP_CODES', 'backup_codes');
+define('T_VIDEO_TRANSCRIPTS', 'video_transcripts');
+define('T_TRANSCRIPT_QUEUE', 'transcript_queue');
 
 ?>

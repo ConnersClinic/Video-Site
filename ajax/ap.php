@@ -4837,3 +4837,114 @@ if ($first == 'select_pro_package') {
 //         }
 //     }
 // }
+
+if ($first == 'transcribe_settings') {
+    $allowed = array(
+        'transcript_system',
+        'whisper_command',
+        'whisper_script',
+        'whisper_model',
+        'transcript_queue_count',
+        'transcript_max_duration',
+        'transcript_language',
+    );
+    if (!empty($_POST)) {
+        foreach ($allowed as $key) {
+            if (isset($_POST[$key])) {
+                $val = PT_Secure($_POST[$key]);
+                if ($key == 'transcript_system') {
+                    $val = ($val == 'on') ? 'on' : 'off';
+                }
+                $exists = $db->where('name', $key)->getValue(T_CONFIG, 'COUNT(*)');
+                if ($exists) {
+                    $db->where('name', $key)->update(T_CONFIG, array('value' => $val));
+                } else {
+                    $db->insert(T_CONFIG, array('name' => $key, 'value' => $val));
+                }
+            }
+        }
+        $data = array('status' => 200, 'message' => 'Transcription settings saved');
+    } else {
+        $data = array('status' => 400, 'message' => 'No settings submitted');
+    }
+}
+
+if ($first == 'transcribe_status') {
+    $user_id = !empty($_GET['channel_id']) ? (int) $_GET['channel_id'] : 0;
+    if ($user_id < 1) {
+        $data = array('status' => 400, 'message' => 'Select a channel');
+    } else {
+        $status = PT_TranscriptStatusForChannel($user_id);
+        $data = array(
+            'status' => 200,
+            'counts' => $status['counts'],
+            'recent' => $status['recent'],
+        );
+    }
+}
+
+if ($first == 'transcribe_enqueue') {
+    $user_id = !empty($_POST['channel_id']) ? (int) $_POST['channel_id'] : 0;
+    $batch_limit = !empty($_POST['batch_limit']) ? $_POST['batch_limit'] : '10';
+    $skip_completed = !empty($_POST['skip_completed']);
+    $failed_only = !empty($_POST['failed_only']);
+    $selected_time = !empty($_POST['selected_time']) ? PT_Secure($_POST['selected_time']) : 'all';
+
+    if ($user_id < 1) {
+        $data = array('status' => 400, 'message' => 'Select a channel');
+    } elseif ($pt->config->transcript_system != 'on') {
+        $data = array('status' => 400, 'message' => 'Enable transcription in settings first');
+    } else {
+        $options = array(
+            'require_converted' => true,
+            'skip_completed' => $skip_completed && !$failed_only,
+            'failed_only' => $failed_only,
+        );
+        if ($batch_limit != 'all' && is_numeric($batch_limit)) {
+            $options['limit'] = (int) $batch_limit;
+        } elseif ($batch_limit == 'all') {
+            $options['limit'] = 0;
+        } else {
+            $options['limit'] = 10;
+        }
+        if ($selected_time != 'all' && in_array($selected_time, array('today', 'this_week', 'this_month', 'this_year'))) {
+            $range = PT_TranscriptTimeRange($selected_time);
+            if (!empty($range['time_start']) && !empty($range['time_end'])) {
+                $options['time_start'] = $range['time_start'];
+                $options['time_end'] = $range['time_end'];
+            }
+        }
+        if ($failed_only) {
+            $db->rawQuery(
+                "DELETE q FROM " . T_TRANSCRIPT_QUEUE . " q
+                 INNER JOIN " . T_VIDEOS . " v ON v.id = q.video_id
+                 WHERE v.user_id = " . $user_id
+            );
+        }
+        $videos = PT_GetTranscribableVideosQuery($user_id, $options);
+        $enqueued = 0;
+        $skipped = 0;
+        if (!empty($videos)) {
+            foreach ($videos as $video) {
+                if ($failed_only) {
+                    PT_UpsertVideoTranscript($video->id, array(
+                        'status' => 'pending',
+                        'error_message' => '',
+                        'attempts' => 0,
+                    ));
+                }
+                if (PT_EnqueueTranscript($video->id)) {
+                    $enqueued++;
+                } else {
+                    $skipped++;
+                }
+            }
+        }
+        $data = array(
+            'status' => 200,
+            'enqueued' => $enqueued,
+            'skipped' => $skipped,
+            'message' => $enqueued . ' video(s) queued for transcription',
+        );
+    }
+}

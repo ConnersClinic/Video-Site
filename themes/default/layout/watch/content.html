@@ -230,6 +230,7 @@
                   <?php if (!empty($pt->get_video->youtube) || (!empty($pt->get_video->video_location) && empty($pt->video_240))) { ?>
                   <source src="{{VIDEO_LOCATION}}" type="{{VIDEO_TYPE}}" data-quality="HD" title='HD' label='HD' res='<?php echo(!empty($pt->video_res) ? $pt->video_res : '360') ?>'>
                   <?php } ?>
+                  {{TRANSCRIPT_VTT_TRACK}}
                   Your browser does not support HTML5 video.
                   <!-- //src="http://www.youtube.com/watch?v=nOEw9iiopwI" type="video/youtube" -->
                </video>
