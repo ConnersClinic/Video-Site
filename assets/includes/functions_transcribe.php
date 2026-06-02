@@ -161,7 +161,14 @@ function PT_BuildWatchDescriptionTabsHtml($video) {
 
     $transcript_html = '';
     if ($has_transcript) {
-        $body = PT_FormatTranscriptForDisplay($row->plain_text);
+        $display_text = $row->plain_text;
+        if (function_exists('PT_GetDisplayTranscriptForVideo')) {
+            $cleaned = PT_GetDisplayTranscriptForVideo($video->id);
+            if ($cleaned !== '') {
+                $display_text = $cleaned;
+            }
+        }
+        $body = PT_FormatTranscriptForDisplay($display_text);
         $transcript_html = '<h4 class="watch-transcript-heading">Transcript</h4>'
             . '<div class="watch-transcript-body watch-video-description" style="max-height:100px;overflow:hidden;">' . $body . '</div>';
     }

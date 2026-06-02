@@ -2239,6 +2239,103 @@ CREATE TABLE `video_transcripts` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `video_seo_articles`
+--
+
+CREATE TABLE `video_seo_articles` (
+  `id` int(11) NOT NULL,
+  `video_id` int(11) NOT NULL,
+  `raw_transcript` mediumtext,
+  `cleaned_transcript` mediumtext,
+  `transcript_quality` text,
+  `transcript_version` int(11) NOT NULL DEFAULT '1',
+  `pass_0_prompt_version` int(11) NOT NULL DEFAULT '1',
+  `editorial_standards_version` int(11) NOT NULL DEFAULT '1',
+  `entity_extraction_output` mediumtext,
+  `entity_comparison_output` mediumtext,
+  `entity_review_queue_output` mediumtext,
+  `seo_blueprint` mediumtext,
+  `draft_article_markdown` mediumtext,
+  `seo_audit` mediumtext,
+  `final_article_markdown` mediumtext,
+  `seo_title` varchar(500) DEFAULT NULL,
+  `meta_description` varchar(500) DEFAULT NULL,
+  `primary_keyword` varchar(255) DEFAULT NULL,
+  `url_slug` varchar(255) DEFAULT NULL,
+  `status` varchar(64) NOT NULL DEFAULT 'transcript_ready',
+  `failed_pass` varchar(64) DEFAULT NULL,
+  `error_message` text,
+  `failed_raw_response` mediumtext,
+  `prompt_versions` text,
+  `standards_versions` text,
+  `created_at` int(11) NOT NULL DEFAULT '0',
+  `updated_at` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `seo_pipeline_queue`
+--
+
+CREATE TABLE `seo_pipeline_queue` (
+  `id` int(11) NOT NULL,
+  `video_id` int(11) NOT NULL,
+  `processing` tinyint(1) NOT NULL DEFAULT '0',
+  `rerun_from` varchar(32) DEFAULT NULL,
+  `priority` int(11) NOT NULL DEFAULT '0',
+  `created_at` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `seo_pipeline_logs`
+--
+
+CREATE TABLE `seo_pipeline_logs` (
+  `id` bigint(20) NOT NULL,
+  `video_id` int(11) NOT NULL DEFAULT '0',
+  `pass_name` varchar(64) NOT NULL DEFAULT '',
+  `model_used` varchar(64) DEFAULT NULL,
+  `input_tokens` int(11) DEFAULT NULL,
+  `output_tokens` int(11) DEFAULT NULL,
+  `started_at` int(11) NOT NULL DEFAULT '0',
+  `completed_at` int(11) DEFAULT NULL,
+  `status` varchar(32) NOT NULL DEFAULT '',
+  `error_message` text,
+  `raw_response` mediumtext
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `entity_review_queue`
+--
+
+CREATE TABLE `entity_review_queue` (
+  `id` int(11) NOT NULL,
+  `review_id` varchar(64) NOT NULL,
+  `video_id` int(11) NOT NULL DEFAULT '0',
+  `entity_name` varchar(255) NOT NULL DEFAULT '',
+  `category` varchar(64) DEFAULT NULL,
+  `priority` varchar(32) DEFAULT NULL,
+  `recommended_action` varchar(64) DEFAULT NULL,
+  `confidence` decimal(5,4) DEFAULT NULL,
+  `reason` text,
+  `possible_existing_match` varchar(255) DEFAULT NULL,
+  `suggested_slug` varchar(255) DEFAULT NULL,
+  `trigger_phrases` text,
+  `notes` text,
+  `status` varchar(32) NOT NULL DEFAULT 'pending',
+  `created_at` int(11) NOT NULL DEFAULT '0',
+  `reviewed_at` int(11) DEFAULT NULL,
+  `reviewed_by` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `reports`
 --
 
@@ -3116,6 +3213,39 @@ ALTER TABLE `video_transcripts`
   ADD KEY `status` (`status`);
 
 --
+-- Indexes for table `video_seo_articles`
+--
+ALTER TABLE `video_seo_articles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `video_id` (`video_id`),
+  ADD KEY `status` (`status`);
+
+--
+-- Indexes for table `seo_pipeline_queue`
+--
+ALTER TABLE `seo_pipeline_queue`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `video_id` (`video_id`),
+  ADD KEY `processing` (`processing`);
+
+--
+-- Indexes for table `seo_pipeline_logs`
+--
+ALTER TABLE `seo_pipeline_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `video_id` (`video_id`),
+  ADD KEY `pass_name` (`pass_name`);
+
+--
+-- Indexes for table `entity_review_queue`
+--
+ALTER TABLE `entity_review_queue`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `review_id` (`review_id`),
+  ADD KEY `status` (`status`),
+  ADD KEY `video_id` (`video_id`);
+
+--
 -- Indexes for table `reports`
 --
 ALTER TABLE `reports`
@@ -3619,6 +3749,30 @@ ALTER TABLE `transcript_queue`
 -- AUTO_INCREMENT for table `video_transcripts`
 --
 ALTER TABLE `video_transcripts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `video_seo_articles`
+--
+ALTER TABLE `video_seo_articles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `seo_pipeline_queue`
+--
+ALTER TABLE `seo_pipeline_queue`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `seo_pipeline_logs`
+--
+ALTER TABLE `seo_pipeline_logs`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `entity_review_queue`
+--
+ALTER TABLE `entity_review_queue`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

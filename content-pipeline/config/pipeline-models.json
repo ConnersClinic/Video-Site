@@ -1,0 +1,12 @@
+{
+  "pass_0": "gpt-4o-mini",
+  "entity_extraction": "gpt-4o-mini",
+  "entity_comparison": "gpt-4o-mini",
+  "entity_auto_merge": "deterministic",
+  "entity_review_queue": "gpt-4o-mini",
+  "pass_1": "gpt-4o-mini",
+  "pass_2": "gpt-4o",
+  "pass_3": "gpt-4o-mini",
+  "pass_4": "gpt-4o",
+  "json_repair": "gpt-4o-mini"
+}

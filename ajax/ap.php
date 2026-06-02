@@ -5059,3 +5059,293 @@ if ($first == 'transcribe_enqueue') {
         );
     }
 }
+
+if ($first == 'seo_pipeline_settings') {
+    $allowed = array(
+        'seo_pipeline_system',
+        'seo_pipeline_queue_count',
+        'seo_pipeline_max_concurrent',
+    );
+    $model_keys = array('pass_0', 'entity_extraction', 'entity_comparison', 'entity_review_queue', 'pass_1', 'pass_2', 'pass_3', 'pass_4');
+    foreach ($model_keys as $mk) {
+        $allowed[] = 'seo_pipeline_model_' . $mk;
+    }
+    if (!empty($_POST)) {
+        foreach ($allowed as $key) {
+            if (!isset($_POST[$key])) {
+                continue;
+            }
+            $val = PT_Secure($_POST[$key], 0, false);
+            if ($key == 'seo_pipeline_system') {
+                $val = ($val == 'on') ? 'on' : 'off';
+            }
+            $exists = $db->where('name', $key)->getValue(T_CONFIG, 'COUNT(*)');
+            if ($exists) {
+                $db->where('name', $key)->update(T_CONFIG, array('value' => $val));
+            } else {
+                $db->insert(T_CONFIG, array('name' => $key, 'value' => $val));
+            }
+        }
+        $data = array('status' => 200, 'message' => 'SEO pipeline settings saved');
+    } else {
+        $data = array('status' => 400, 'message' => 'No settings submitted');
+    }
+}
+
+if ($first == 'seo_pipeline_list_videos') {
+    $channel_id = !empty($_GET['channel_id']) ? (int) $_GET['channel_id'] : 0;
+    $page = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+    $per = 25;
+    $offset = ($page - 1) * $per;
+    $rows = PT_ListVideosForSeoPipeline(array('channel_id' => $channel_id, 'limit' => $per, 'offset' => $offset));
+    $data = array('status' => 200, 'videos' => $rows ? $rows : array(), 'page' => $page);
+}
+
+if ($first == 'seo_pipeline_get_article') {
+    $video_id = !empty($_GET['video_id']) ? (int) $_GET['video_id'] : 0;
+    if ($video_id < 1) {
+        $data = array('status' => 400, 'message' => 'Invalid video');
+    } else {
+        $article = PT_GetVideoSeoArticle($video_id);
+        $video = $db->where('id', $video_id)->getOne(T_VIDEOS, 'id,title,video_id');
+        $transcript = PT_GetVideoTranscript($video_id);
+        $logs = $db->where('video_id', $video_id)->orderBy('id', 'DESC')->get(T_SEO_PIPELINE_LOGS, 30);
+        $data = array(
+            'status' => 200,
+            'article' => PT_SeoArticleToArray($article),
+            'video' => $video,
+            'transcript_status' => !empty($transcript) ? $transcript->status : null,
+            'logs' => $logs ? $logs : array(),
+        );
+    }
+}
+
+if ($first == 'seo_pipeline_generate') {
+    $video_id = !empty($_POST['video_id']) ? (int) $_POST['video_id'] : 0;
+    $rerun_from = !empty($_POST['rerun_from']) ? PT_Secure($_POST['rerun_from']) : null;
+    $force = !empty($_POST['force']);
+    if ($video_id < 1) {
+        $data = array('status' => 400, 'message' => 'Invalid video');
+    } elseif (empty(trim($pt->config->openai_api_key))) {
+        $data = array('status' => 400, 'message' => 'Set OpenAI API key in Transcribe Videos settings first');
+    } else {
+        $existing = PT_GetVideoSeoArticle($video_id);
+        if (!empty($existing) && !$rerun_from && !$force && !in_array($existing->status, array('failed', 'transcript_ready'), true)) {
+            $data = array(
+                'status' => 409,
+                'message' => 'Article pipeline already exists for this video',
+                'current_status' => $existing->status,
+                'needs_rerun_choice' => true,
+            );
+        } else {
+            if ($existing && $existing->status === 'failed' && empty($rerun_from) && !empty($existing->failed_pass)) {
+                $rerun_map = array(
+                    'pass_0' => 'pass_0',
+                    'entity_extraction' => 'pass_0',
+                    'entity_comparison' => 'pass_0',
+                    'entity_review_queue' => 'pass_1',
+                    'pass_1' => 'pass_1',
+                    'pass_2' => 'pass_2',
+                    'pass_3' => 'pass_4',
+                    'pass_4' => 'pass_4',
+                );
+                $rerun_from = !empty($rerun_map[$existing->failed_pass]) ? $rerun_map[$existing->failed_pass] : 'pass_0';
+            }
+            if (PT_EnqueueSeoPipeline($video_id, $rerun_from)) {
+                $data = array('status' => 200, 'message' => 'SEO article pipeline queued');
+            } else {
+                $data = array('status' => 400, 'message' => 'Could not queue pipeline (missing transcript?)');
+            }
+        }
+    }
+}
+
+if ($first == 'seo_pipeline_batch') {
+    $user_id = !empty($_POST['channel_id']) ? (int) $_POST['channel_id'] : 0;
+    $limit = !empty($_POST['batch_limit']) ? (int) $_POST['batch_limit'] : 5;
+    if ($limit < 1) {
+        $limit = 5;
+    }
+    if ($limit > 25) {
+        $limit = 25;
+    }
+    if ($user_id < 1) {
+        $data = array('status' => 400, 'message' => 'Select a channel');
+    } elseif (empty(trim($pt->config->openai_api_key))) {
+        $data = array('status' => 400, 'message' => 'Set OpenAI API key first');
+    } else {
+        $rows = $db->rawQuery(
+            "SELECT t.video_id FROM " . T_VIDEO_TRANSCRIPTS . " t
+             INNER JOIN " . T_VIDEOS . " v ON v.id = t.video_id
+             LEFT JOIN " . T_VIDEO_SEO_ARTICLES . " a ON a.video_id = t.video_id
+             WHERE v.user_id = " . $user_id . " AND t.status = 'completed'
+             AND t.plain_text IS NOT NULL AND t.plain_text <> ''
+             AND (a.id IS NULL OR a.status IN ('failed','transcript_ready'))
+             ORDER BY t.updated_at DESC LIMIT " . $limit
+        );
+        $enqueued = 0;
+        $skipped = 0;
+        if (!empty($rows)) {
+            foreach ($rows as $row) {
+                if (PT_IsVideoInSeoPipelineQueue((int) $row->video_id)) {
+                    $skipped++;
+                    continue;
+                }
+                if (PT_EnqueueSeoPipeline((int) $row->video_id)) {
+                    $enqueued++;
+                } else {
+                    $skipped++;
+                }
+            }
+        }
+        $data = array(
+            'status' => 200,
+            'message' => $enqueued . ' video(s) queued, ' . $skipped . ' skipped',
+            'enqueued' => $enqueued,
+            'skipped' => $skipped,
+        );
+    }
+}
+
+if ($first == 'seo_pipeline_run_step') {
+    $video_id = !empty($_POST['video_id']) ? (int) $_POST['video_id'] : 0;
+    if ($video_id < 1) {
+        $data = array('status' => 400, 'message' => 'Invalid video');
+    } elseif (empty(trim($pt->config->openai_api_key))) {
+        $data = array('status' => 400, 'message' => 'Set OpenAI API key first');
+    } else {
+        $result = PT_SeoPipelineRunSingleStep($video_id);
+        $article = PT_GetVideoSeoArticle($video_id);
+        $data = array_merge(array('status' => !empty($result['ok']) ? 200 : 400), $result, array(
+            'article_status' => !empty($article) ? $article->status : null,
+        ));
+    }
+}
+
+if ($first == 'seo_pipeline_save_article') {
+    $video_id = !empty($_POST['video_id']) ? (int) $_POST['video_id'] : 0;
+    if ($video_id < 1) {
+        $data = array('status' => 400, 'message' => 'Invalid video');
+    } else {
+        $fields = array();
+        if (isset($_POST['final_article_markdown'])) {
+            $fields['final_article_markdown'] = $_POST['final_article_markdown'];
+        }
+        if (isset($_POST['seo_title'])) {
+            $fields['seo_title'] = PT_Secure($_POST['seo_title']);
+        }
+        if (isset($_POST['meta_description'])) {
+            $fields['meta_description'] = PT_Secure($_POST['meta_description']);
+        }
+        if (isset($_POST['primary_keyword'])) {
+            $fields['primary_keyword'] = PT_Secure($_POST['primary_keyword']);
+        }
+        if (isset($_POST['url_slug'])) {
+            $fields['url_slug'] = PT_Secure($_POST['url_slug']);
+        }
+        if (!empty($fields)) {
+            PT_UpsertVideoSeoArticle($video_id, $fields);
+        }
+        $data = array('status' => 200, 'message' => 'Article saved');
+    }
+}
+
+if ($first == 'seo_pipeline_rerun_pass0') {
+    $video_id = !empty($_POST['video_id']) ? (int) $_POST['video_id'] : 0;
+    if ($video_id < 1) {
+        $data = array('status' => 400, 'message' => 'Invalid video');
+    } elseif (PT_EnqueueSeoPipeline($video_id, 'pass_0')) {
+        $data = array('status' => 200, 'message' => 'Pass 0 re-run queued');
+    } else {
+        $data = array('status' => 400, 'message' => 'Could not queue');
+    }
+}
+
+if ($first == 'seo_pipeline_get_config_files') {
+    $type = !empty($_GET['type']) ? $_GET['type'] : 'standards';
+    $files = array();
+    if ($type === 'prompts') {
+        foreach (PT_ListSeoPromptFiles() as $slug => $label) {
+            $files[] = array('slug' => $slug, 'label' => $label, 'content' => PT_LoadPromptTemplate($slug));
+        }
+    } elseif ($type === 'standards') {
+        foreach (array('brand-standards', 'medical-terminology-standards', 'seo-standards') as $slug) {
+            $path = 'standards/' . $slug . '.json';
+            $files[] = array('slug' => $slug, 'content' => file_get_contents(PT_SeoPipelineRootDir() . $path));
+        }
+    } elseif ($type === 'entity_library') {
+        $files[] = array('slug' => 'entity-library', 'content' => json_encode(PT_LoadEntityLibrary(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    } elseif ($type === 'models') {
+        $files[] = array('slug' => 'pipeline-models', 'content' => json_encode(PT_LoadSeoPipelineModels(), JSON_PRETTY_PRINT));
+    }
+    $data = array('status' => 200, 'files' => $files);
+}
+
+if ($first == 'seo_pipeline_save_config_file') {
+    $type = !empty($_POST['type']) ? $_POST['type'] : '';
+    $slug = !empty($_POST['slug']) ? PT_Secure($_POST['slug']) : '';
+    $content = isset($_POST['content']) ? $_POST['content'] : '';
+    if ($type === 'prompts') {
+        if (PT_SavePromptTemplate($slug, $content)) {
+            $data = array('status' => 200, 'message' => 'Prompt saved');
+        } else {
+            $data = array('status' => 400, 'message' => 'Could not save prompt');
+        }
+    } elseif ($type === 'standards' && in_array($slug, array('brand-standards', 'medical-terminology-standards', 'seo-standards'), true)) {
+        $decoded = json_decode($content, true);
+        if (!is_array($decoded)) {
+            $data = array('status' => 400, 'message' => 'Invalid JSON');
+        } elseif (PT_SeoPipelineWriteJsonFile('standards/' . $slug . '.json', $decoded)) {
+            PT_BumpSeoFileVersion('standards', $slug);
+            $data = array('status' => 200, 'message' => 'Standards saved');
+        } else {
+            $data = array('status' => 400, 'message' => 'Write failed');
+        }
+    } elseif ($type === 'entity_library') {
+        $decoded = json_decode($content, true);
+        if (!is_array($decoded)) {
+            $data = array('status' => 400, 'message' => 'Invalid JSON');
+        } elseif (PT_SaveEntityLibrary($decoded)) {
+            $data = array('status' => 200, 'message' => 'Entity library saved');
+        } else {
+            $data = array('status' => 400, 'message' => 'Write failed');
+        }
+    } elseif ($type === 'models') {
+        $decoded = json_decode($content, true);
+        if (!is_array($decoded)) {
+            $data = array('status' => 400, 'message' => 'Invalid JSON');
+        } elseif (PT_SeoPipelineWriteJsonFile('config/pipeline-models.json', $decoded)) {
+            $data = array('status' => 200, 'message' => 'Models config saved');
+        } else {
+            $data = array('status' => 400, 'message' => 'Write failed');
+        }
+    } else {
+        $data = array('status' => 400, 'message' => 'Unknown file type');
+    }
+}
+
+if ($first == 'seo_pipeline_review_list') {
+    $status = !empty($_GET['status']) ? PT_Secure($_GET['status']) : 'pending';
+    $rows = $db->where('status', $status)->orderBy('created_at', 'DESC')->get(T_ENTITY_REVIEW_QUEUE, 100);
+    $data = array('status' => 200, 'items' => $rows ? $rows : array());
+}
+
+if ($first == 'seo_pipeline_review_action') {
+    $review_id = !empty($_POST['review_id']) ? $_POST['review_id'] : '';
+    $action = !empty($_POST['action']) ? $_POST['action'] : '';
+    $extra = array();
+    if (!empty($_POST['existing_entity'])) {
+        $extra['existing_entity'] = $_POST['existing_entity'];
+    }
+    if (!empty($_POST['slug'])) {
+        $extra['slug'] = $_POST['slug'];
+    }
+    $result = PT_ApproveEntityReviewItem($review_id, $action, (int) $pt->user->id, $extra);
+    $data = array_merge(array('status' => !empty($result['ok']) ? 200 : 400), $result);
+}
+
+if ($first == 'seo_pipeline_queue_status') {
+    $pending = (int) $db->where('processing', 0)->getValue(T_SEO_PIPELINE_QUEUE, 'COUNT(*)');
+    $running = (int) $db->where('processing', 1)->getValue(T_SEO_PIPELINE_QUEUE, 'COUNT(*)');
+    $data = array('status' => 200, 'pending' => $pending, 'running' => $running);
+}

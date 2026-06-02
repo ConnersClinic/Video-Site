@@ -74,5 +74,9 @@ define('T_DASHBOARD_REPORTS', 'dashboard_reports');
 define('T_BACKUP_CODES', 'backup_codes');
 define('T_VIDEO_TRANSCRIPTS', 'video_transcripts');
 define('T_TRANSCRIPT_QUEUE', 'transcript_queue');
+define('T_VIDEO_SEO_ARTICLES', 'video_seo_articles');
+define('T_SEO_PIPELINE_QUEUE', 'seo_pipeline_queue');
+define('T_SEO_PIPELINE_LOGS', 'seo_pipeline_logs');
+define('T_ENTITY_REVIEW_QUEUE', 'entity_review_queue');
 
 ?>
