@@ -53,12 +53,305 @@ function PT_GetTranscriptVttUrl($video) {
 function PT_AttachTranscriptToVideo($video) {
     $video->transcript_vtt_url = '';
     $video->transcript_language = 'en';
+    $video->transcript_row = null;
+    $video->has_completed_transcript = false;
     $row = PT_GetVideoTranscript($video->id);
-    if (!empty($row) && $row->status === 'completed' && !empty($row->vtt_path)) {
-        $video->transcript_vtt_url = PT_GetTranscriptVttUrl($video);
-        $video->transcript_language = !empty($row->language) ? $row->language : 'en';
+    if (!empty($row) && $row->status === 'completed') {
+        $video->transcript_row = $row;
+        $video->has_completed_transcript = true;
+        if (!empty($row->vtt_path)) {
+            $video->transcript_vtt_url = PT_GetTranscriptVttUrl($video);
+            $video->transcript_language = !empty($row->language) ? $row->language : 'en';
+        }
     }
     return $video;
+}
+
+function PT_GetClinicCtaHtmlDefault() {
+    return '<p><strong>Have you or a loved one been diagnosed with cancer?</strong></p>'
+        . '<p>At Conners Clinic, we help people look beyond the diagnosis and explore potential underlying factors that may be contributing to their condition. Through personalized coaching, advanced testing, education, programmed rife machines, and custom wellness plans, we work with patients seeking a more comprehensive approach to their health journey.</p>'
+        . '<p>Schedule a free 15-minute discovery call with Dr. Conners to learn about your options at <a href="https://www.connersclinic.com" target="_blank" rel="noopener">https://www.connersclinic.com</a></p>';
+}
+
+function PT_GetDefaultClinicCtaHtml() {
+    global $pt;
+    if (!empty($pt->config->clinic_cta_html)) {
+        return $pt->config->clinic_cta_html;
+    }
+    return PT_GetClinicCtaHtmlDefault();
+}
+
+function PT_GetTranscriptDescriptionMode() {
+    global $pt;
+    $mode = !empty($pt->config->transcript_description_mode) ? $pt->config->transcript_description_mode : 'replace_description';
+    if (!in_array($mode, array('display_only', 'replace_description', 'append_summary'), true)) {
+        return 'replace_description';
+    }
+    return $mode;
+}
+
+function PT_TruncateForMeta($text, $max = 160) {
+    $text = trim(strip_tags($text));
+    $text = preg_replace('/\s+/', ' ', $text);
+    if (mb_strlen($text, 'UTF-8') <= $max) {
+        return $text;
+    }
+    return mb_substr($text, 0, $max - 3, 'UTF-8') . '...';
+}
+
+function PT_FormatTranscriptForDisplay($plain_text) {
+    $plain_text = trim(strip_tags($plain_text));
+    if ($plain_text === '') {
+        return '';
+    }
+    $chunks = preg_split('/(?<=[.!?])\s+/', $plain_text, -1, PREG_SPLIT_NO_EMPTY);
+    if (empty($chunks)) {
+        return '<p>' . htmlspecialchars($plain_text) . '</p>';
+    }
+    $paragraphs = array();
+    $buffer = '';
+    foreach ($chunks as $sentence) {
+        $buffer .= ($buffer === '' ? '' : ' ') . $sentence;
+        if (strlen($buffer) > 400) {
+            $paragraphs[] = '<p>' . htmlspecialchars($buffer) . '</p>';
+            $buffer = '';
+        }
+    }
+    if ($buffer !== '') {
+        $paragraphs[] = '<p>' . htmlspecialchars($buffer) . '</p>';
+    }
+    return implode("\n", $paragraphs);
+}
+
+function PT_BuildSeoSummaryHtml($seo_summary) {
+    $seo_summary = trim(strip_tags($seo_summary));
+    if ($seo_summary === '') {
+        return '';
+    }
+    $parts = preg_split('/\n\s*\n/', $seo_summary);
+    $html = '';
+    foreach ($parts as $part) {
+        $part = trim($part);
+        if ($part !== '') {
+            $html .= '<p>' . nl2br(htmlspecialchars($part)) . '</p>';
+        }
+    }
+    if ($html === '') {
+        $html = '<p>' . nl2br(htmlspecialchars($seo_summary)) . '</p>';
+    }
+    return $html;
+}
+
+function PT_BuildWatchDescriptionTabsHtml($video) {
+    $row = !empty($video->transcript_row) ? $video->transcript_row : PT_GetVideoTranscript($video->id);
+    $has_transcript = !empty($row) && $row->status === 'completed' && !empty($row->plain_text);
+    $seo_summary = (!empty($row->seo_summary)) ? $row->seo_summary : '';
+
+    $about_parts = array();
+    if ($seo_summary !== '') {
+        $about_parts[] = '<div class="watch-seo-summary" itemprop="description">' . PT_BuildSeoSummaryHtml($seo_summary) . '</div>';
+    } elseif (!$has_transcript) {
+        $about_parts[] = '<div class="watch-video-description"><p dir="auto" itemprop="description">' . $video->markup_description . '</p></div>';
+    }
+    $about_parts[] = '<div class="watch-clinic-cta">' . PT_GetDefaultClinicCtaHtml() . '</div>';
+    if ($seo_summary === '' && $has_transcript && !empty($video->markup_description)) {
+        $about_parts[] = '<div class="watch-legacy-description watch-video-description"><p dir="auto">' . $video->markup_description . '</p></div>';
+    }
+    $about_html = implode("\n", $about_parts);
+
+    $transcript_html = '';
+    if ($has_transcript) {
+        $body = PT_FormatTranscriptForDisplay($row->plain_text);
+        $transcript_html = '<h4 class="watch-transcript-heading">Transcript</h4>'
+            . '<div class="watch-transcript-body watch-video-description" style="max-height:100px;overflow:hidden;">' . $body . '</div>';
+    }
+
+    if (!$has_transcript) {
+        return '<div class="watch-video-desc-single">' . $about_html
+            . '<div class="watch-video-show-more desc pt_mn_wtch_rdmre">Show more</div></div>';
+    }
+
+    return '<div class="watch-video-desc-tabs">'
+        . '<ul class="nav nav-tabs watch-desc-nav" role="tablist">'
+        . '<li class="active"><a href="#watch-tab-about" data-toggle="tab" role="tab">About</a></li>'
+        . '<li><a href="#watch-tab-transcript" data-toggle="tab" role="tab">Transcript</a></li>'
+        . '</ul>'
+        . '<div class="tab-content watch-desc-tab-content">'
+        . '<div class="tab-pane active" id="watch-tab-about" role="tabpanel">' . $about_html
+        . '<div class="watch-video-show-more desc pt_mn_wtch_rdmre">Show more</div></div>'
+        . '<div class="tab-pane" id="watch-tab-transcript" role="tabpanel">' . $transcript_html
+        . '<div class="watch-video-show-more transcript-show-more desc pt_mn_wtch_rdmre">Show more</div></div>'
+        . '</div></div>';
+}
+
+function PT_GenerateTranscriptSeoSummary($video, $plain_text) {
+    global $pt;
+    $api_key = !empty($pt->config->openai_api_key) ? trim($pt->config->openai_api_key) : '';
+    if ($api_key === '') {
+        return array('ok' => false, 'summary' => '', 'error' => 'OpenAI API key is not configured');
+    }
+    $model = !empty($pt->config->openai_model) ? $pt->config->openai_model : 'gpt-4o-mini';
+    $title = !empty($video->title) ? strip_tags($video->title) : '';
+    $tags = !empty($video->tags) ? strip_tags($video->tags) : '';
+    $excerpt = mb_substr(trim($plain_text), 0, 6000, 'UTF-8');
+    $system = !empty($pt->config->openai_summary_prompt) ? $pt->config->openai_summary_prompt : (
+        'You write concise, SEO-friendly video descriptions for a health clinic website. '
+        . 'Return 2 to 4 plain sentences. No markdown, no bullet points, no hashtags. '
+        . 'Focus on what the video covers and who it helps.'
+    );
+    $user = "Video title: {$title}\nTags: {$tags}\n\nTranscript excerpt:\n{$excerpt}";
+    $payload = array(
+        'model' => $model,
+        'messages' => array(
+            array('role' => 'system', 'content' => $system),
+            array('role' => 'user', 'content' => $user),
+        ),
+        'temperature' => 0.5,
+        'max_tokens' => 300,
+    );
+    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    curl_setopt_array($ch, array(
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 90,
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $api_key,
+        ),
+        CURLOPT_POSTFIELDS => json_encode($payload),
+    ));
+    $response = curl_exec($ch);
+    $http_code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
+    if ($response === false) {
+        return array('ok' => false, 'summary' => '', 'error' => 'OpenAI request failed: ' . $curl_error);
+    }
+    $data = json_decode($response, true);
+    if ($http_code < 200 || $http_code >= 300) {
+        $msg = !empty($data['error']['message']) ? $data['error']['message'] : substr($response, 0, 500);
+        return array('ok' => false, 'summary' => '', 'error' => 'OpenAI HTTP ' . $http_code . ': ' . $msg);
+    }
+    $summary = '';
+    if (!empty($data['choices'][0]['message']['content'])) {
+        $summary = trim($data['choices'][0]['message']['content']);
+        $summary = preg_replace('/^["\']+|["\']+$/', '', $summary);
+    }
+    if ($summary === '') {
+        return array('ok' => false, 'summary' => '', 'error' => 'OpenAI returned an empty summary');
+    }
+    return array('ok' => true, 'summary' => $summary, 'error' => '');
+}
+
+function PT_ComposeVideoDescriptionFromTranscript($seo_summary) {
+    $parts = array();
+    $summary_html = PT_BuildSeoSummaryHtml($seo_summary);
+    if ($summary_html !== '') {
+        $parts[] = $summary_html;
+    }
+    $parts[] = PT_GetDefaultClinicCtaHtml();
+    return trim(implode("\n\n", $parts));
+}
+
+function PT_ApplyTranscriptToVideoDescription($video_id, $seo_summary) {
+    global $db, $pt;
+    $video_id = (int) $video_id;
+    $mode = PT_GetTranscriptDescriptionMode();
+    if ($mode === 'display_only' || trim($seo_summary) === '') {
+        return false;
+    }
+    $video = $db->where('id', $video_id)->getOne(T_VIDEOS);
+    if (empty($video)) {
+        return false;
+    }
+    $composed = PT_ComposeVideoDescriptionFromTranscript($seo_summary);
+    if ($mode === 'append_summary') {
+        $existing = trim($video->description);
+        $composed = $composed . ($existing !== '' ? "\n\n" . $existing : '');
+    }
+    $db->where('id', $video_id)->update(T_VIDEOS, array('description' => $composed));
+    PT_UpsertVideoTranscript($video_id, array('description_applied' => 1));
+    return true;
+}
+
+function PT_FinalizeTranscriptWithSeo($video, $plain_text, $dest_rel, $language) {
+    global $db;
+    $video_id = (int) $video->id;
+    $summary_result = PT_GenerateTranscriptSeoSummary($video, $plain_text);
+    $seo_summary = '';
+    $extra_error = '';
+    if (!empty($summary_result['ok'])) {
+        $seo_summary = $summary_result['summary'];
+    } else {
+        $extra_error = !empty($summary_result['error']) ? $summary_result['error'] : 'SEO summary failed';
+    }
+    PT_UpsertVideoTranscript($video_id, array(
+        'status' => 'completed',
+        'plain_text' => $plain_text,
+        'vtt_path' => $dest_rel,
+        'language' => $language,
+        'seo_summary' => $seo_summary,
+        'error_message' => $extra_error,
+    ));
+    if ($seo_summary !== '') {
+        PT_ApplyTranscriptToVideoDescription($video_id, $seo_summary);
+    }
+}
+
+function PT_RegenerateSeoSummaryForVideo($video_id) {
+    global $db;
+    $video_id = (int) $video_id;
+    $row = PT_GetVideoTranscript($video_id);
+    $video = $db->where('id', $video_id)->getOne(T_VIDEOS);
+    if (empty($row) || empty($video) || $row->status !== 'completed' || empty($row->plain_text)) {
+        return array('ok' => false, 'error' => 'No completed transcript for this video');
+    }
+    $summary_result = PT_GenerateTranscriptSeoSummary($video, $row->plain_text);
+    if (empty($summary_result['ok'])) {
+        return $summary_result;
+    }
+    PT_UpsertVideoTranscript($video_id, array(
+        'seo_summary' => $summary_result['summary'],
+        'error_message' => '',
+    ));
+    PT_ApplyTranscriptToVideoDescription($video_id, $summary_result['summary']);
+    return array('ok' => true, 'summary' => $summary_result['summary']);
+}
+
+function PT_TestOpenAiConnection() {
+    global $pt;
+    $api_key = !empty($pt->config->openai_api_key) ? trim($pt->config->openai_api_key) : '';
+    if ($api_key === '') {
+        return array('ok' => false, 'error' => 'OpenAI API key is empty');
+    }
+    $model = !empty($pt->config->openai_model) ? $pt->config->openai_model : 'gpt-4o-mini';
+    $payload = array(
+        'model' => $model,
+        'messages' => array(
+            array('role' => 'user', 'content' => 'Reply with exactly: OK'),
+        ),
+        'max_tokens' => 5,
+    );
+    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    curl_setopt_array($ch, array(
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $api_key,
+        ),
+        CURLOPT_POSTFIELDS => json_encode($payload),
+    ));
+    $response = curl_exec($ch);
+    $http_code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($http_code >= 200 && $http_code < 300) {
+        return array('ok' => true, 'message' => 'OpenAI connection successful');
+    }
+    $data = json_decode($response, true);
+    $msg = !empty($data['error']['message']) ? $data['error']['message'] : 'HTTP ' . $http_code;
+    return array('ok' => false, 'error' => $msg);
 }
 
 function PT_VttToPlainText($vtt_content) {
@@ -428,13 +721,7 @@ function PT_ProcessTranscriptJob($queue_row) {
     }
 
     $language = !empty($pt->config->transcript_language) ? $pt->config->transcript_language : 'en';
-    PT_UpsertVideoTranscript($video_id, array(
-        'status' => 'completed',
-        'plain_text' => $plain,
-        'vtt_path' => $dest_rel,
-        'language' => $language,
-        'error_message' => '',
-    ));
+    PT_FinalizeTranscriptWithSeo($video, $plain, $dest_rel, $language);
     $db->where('id', (int) $queue_row->id)->delete(T_TRANSCRIPT_QUEUE);
     PT_CleanupTranscriptTemp($temp_files);
     if (is_dir($whisper_out)) {

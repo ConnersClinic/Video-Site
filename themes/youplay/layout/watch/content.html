@@ -715,12 +715,7 @@
             / <span>{{LANG <?php echo $pt->get_video->license; ?>}}</span>
             <?php } ?>
          </div>
-         <div class="watch-video-description">
-            <p dir="auto" itemprop="description">{{DESC}}</p>
-         </div>
-         <div class="watch-video-show-more desc">
-            {{LANG show_more}}
-         </div>
+         {{VIDEO_DESC_TABS}}
       </div>
       <?php } else{ ?>
          <br>
@@ -963,8 +958,7 @@
                         {{LANG published_on}} {{TIME}} / {{LANG in}}
                         <a href="{{LINK movies?category_={{CATEGORY_ID}}}}" data-load="?link1=movies&category_={{CATEGORY_ID}}"><?php echo $pt->movies_categories[$pt->get_video->category_id]; ?></a>
                      </div>
-                     <div class="watch-video-description">
-                        <p dir="auto" itemprop="description">{{DESC}}</p>
+                     {{VIDEO_DESC_TABS}}
                         <ul class="list-unstyled vid_mov_e_info">
                            <li>
                               <h4 class="title">{{LANG stars}}</h4>
@@ -2343,8 +2337,10 @@ $('.mejs__jump-forward-button').each(function() {
       });
       $('.desc').on('click', function(event) {
          event.preventDefault();
+         var $pane = $(this).closest('.tab-pane, .watch-video-desc-single');
+         var $targets = $pane.find('.watch-video-description, .watch-transcript-body, .watch-seo-summary');
          if ($(this).hasClass('expended')) {
-           $('.watch-video-description').css({
+           $targets.css({
               'max-height': '100px',
               'height': '100px',
               'overflow': 'hidden'
@@ -2352,7 +2348,7 @@ $('.mejs__jump-forward-button').each(function() {
            $(this).removeClass('expended');
            $(this).text("{{LANG show_more}}");
          } else {
-           $('.watch-video-description').css({
+           $targets.css({
               'max-height': '4000px',
               'height': 'auto',
               'overflow': 'auto'

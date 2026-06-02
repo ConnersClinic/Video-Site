@@ -1035,10 +1035,7 @@
          </div>
          <?php */ ?>
          <div class="without_moview_div">
-         <div class="watch-video-description ">
-            <p dir="auto" itemprop="description">{{DESC}}</p>
-         </div>
-         <div class="watch-video-show-more desc pt_mn_wtch_rdmre">{{LANG show_more}}</div>
+         {{VIDEO_DESC_TABS}}
       </div>
 
          
@@ -1502,10 +1499,7 @@
             </div>
             <div class=""> 
               
-               <div class="watch-video-description ">
-                  <p dir="auto" itemprop="description">{{DESC}}</p>
-               </div>
-               <div class="watch-video-show-more desc pt_mn_wtch_rdmre">{{LANG show_more}}</div>
+               {{VIDEO_DESC_TABS}}
             </div>
          </div>
 
@@ -2519,8 +2513,12 @@ var swiper = new Swiper('.pt_sec_nav_slide_prnt', {
       });
       $('.desc').on('click', function(event) {
          event.preventDefault();
+         var $pane = $(this).closest('.tab-pane, .watch-video-desc-single');
+         var $targets = $pane.find('.watch-video-description, .watch-transcript-body, .watch-seo-summary').filter(function() {
+            return $(this).closest('.watch-clinic-cta').length === 0;
+         });
          if ($(this).hasClass('expended')) {
-           $('.watch-video-description').css({
+           $targets.css({
               'max-height': '100px',
               'height': '100px',
               'overflow': 'hidden'
@@ -2528,7 +2526,7 @@ var swiper = new Swiper('.pt_sec_nav_slide_prnt', {
            $(this).removeClass('expended');
            $(this).text("{{LANG show_more}}");
          } else {
-           $('.watch-video-description').css({
+           $targets.css({
               'max-height': '4000px',
               'height': 'auto',
               'overflow': 'auto'

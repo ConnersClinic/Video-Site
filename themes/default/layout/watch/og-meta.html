@@ -24,7 +24,13 @@
     "name": "<?php echo FilterStripTags($pt->get_video->title); ?>",
     "subjectOf": {
         "@type": "VideoObject",
-        "description": "<?php echo FilterStripTags($pt->get_video->markup_description); ?>",
+        "description": "<?php
+        $schema_desc = strip_tags($pt->get_video->markup_description);
+        if (!empty($pt->get_video->transcript_row) && !empty($pt->get_video->transcript_row->seo_summary)) {
+            $schema_desc = $pt->get_video->transcript_row->seo_summary;
+        }
+        echo FilterStripTags($schema_desc);
+        ?>",
         "duration": "<?php echo time_to_iso8601_duration(strtotime($pt->get_video->duration)); ?>",
         "name": "<?php echo FilterStripTags($pt->get_video->title); ?>",
         "thumbnailUrl": "<?php echo $pt->get_video->thumbnail; ?>",

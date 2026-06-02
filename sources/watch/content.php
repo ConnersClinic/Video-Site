@@ -108,15 +108,20 @@ if ($get_video->owner->subscriber_price > 0) {
 }
 $user_data = $get_video->owner;
 
+$get_video = PT_AttachTranscriptToVideo($get_video);
+
 $desc = strip_tags($get_video->edit_description);
+if (!empty($get_video->transcript_row) && !empty($get_video->transcript_row->seo_summary)) {
+    $desc = strip_tags($get_video->transcript_row->seo_summary);
+}
 $desc = str_replace('"', "'", $desc);
 $desc = str_replace('<br>', "", $desc);
 $desc = str_replace("\n", "", $desc);
 $desc = str_replace("\r", "", $desc);
-
 $desc = mb_substr($desc, 0, 220, "UTF-8");
 
-$get_video = PT_AttachTranscriptToVideo($get_video);
+$video_desc_tabs_html = PT_BuildWatchDescriptionTabsHtml($get_video);
+
 $pt->get_video   = $get_video;
 $pt->page        = 'watch';
 $pt->title       = $get_video->title;
@@ -1108,6 +1113,7 @@ $pt->content = PT_LoadPage("watch/$content_page", array(
     'THUMBNAIL' => $get_video->thumbnail,
     'TITLE' => $get_video->markup_title,
     'DESC' => $get_video->markup_description,
+    'VIDEO_DESC_TABS' => $video_desc_tabs_html,
     'URL' => $get_video->url,
     'VIDEO_LOCATION_240' => $pt->video_240,
     'VIDEO_LOCATION' => $get_video->video_location,

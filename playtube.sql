@@ -723,7 +723,12 @@ INSERT INTO `config` (`id`, `name`, `value`) VALUES
 (428, 'transcript_queue_count', '1'),
 (429, 'transcript_max_duration', '7200'),
 (430, 'transcript_language', 'en'),
-(431, 'transcript_cron_last_run', '');
+(431, 'transcript_cron_last_run', ''),
+(432, 'openai_api_key', ''),
+(433, 'openai_model', 'gpt-4o-mini'),
+(434, 'clinic_cta_html', '<p><strong>Have you or a loved one been diagnosed with cancer?</strong></p><p>At Conners Clinic, we help people look beyond the diagnosis and explore potential underlying factors that may be contributing to their condition. Through personalized coaching, advanced testing, education, programmed rife machines, and custom wellness plans, we work with patients seeking a more comprehensive approach to their health journey.</p><p>Schedule a free 15-minute discovery call with Dr. Conners to learn about your options at <a href=\"https://www.connersclinic.com\" target=\"_blank\" rel=\"noopener\">https://www.connersclinic.com</a></p>'),
+(435, 'transcript_description_mode', 'replace_description'),
+(436, 'openai_summary_prompt', '');
 
 -- --------------------------------------------------------
 
@@ -2221,6 +2226,8 @@ CREATE TABLE `video_transcripts` (
   `video_id` int(11) NOT NULL DEFAULT '0',
   `status` varchar(20) NOT NULL DEFAULT 'pending',
   `plain_text` mediumtext,
+  `seo_summary` mediumtext,
+  `description_applied` tinyint(1) NOT NULL DEFAULT '0',
   `vtt_path` varchar(500) NOT NULL DEFAULT '',
   `language` varchar(10) NOT NULL DEFAULT 'en',
   `error_message` text,

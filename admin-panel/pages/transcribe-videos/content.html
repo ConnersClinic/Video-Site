@@ -48,7 +48,40 @@
                             <label>Max video duration (seconds, 0 = no limit)</label>
                             <input type="number" class="form-control" name="transcript_max_duration" value="<?php echo (int) ($pt->config->transcript_max_duration ?? 7200); ?>">
                         </div>
+                        <hr>
+                        <h6>SEO summary (OpenAI)</h6>
+                        <div class="form-group">
+                            <label>OpenAI API key</label>
+                            <input type="password" class="form-control" name="openai_api_key" value="<?php echo htmlspecialchars($pt->config->openai_api_key ?? ''); ?>" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>OpenAI model</label>
+                            <input type="text" class="form-control" name="openai_model" value="<?php echo htmlspecialchars($pt->config->openai_model ?? 'gpt-4o-mini'); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Custom system prompt (optional)</label>
+                            <textarea class="form-control" name="openai_summary_prompt" rows="3"><?php echo htmlspecialchars($pt->config->openai_summary_prompt ?? ''); ?></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Video description mode</label>
+                            <select class="form-control" name="transcript_description_mode">
+                                <?php
+                                $desc_mode = $pt->config->transcript_description_mode ?? 'replace_description';
+                                foreach (array('replace_description' => 'Replace description with summary + CTA', 'append_summary' => 'Prepend summary + CTA to existing description', 'display_only' => 'Display only (do not change database description)') as $val => $label) {
+                                    echo '<option value="' . $val . '"' . ($desc_mode == $val ? ' selected' : '') . '>' . htmlspecialchars($label) . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Clinic CTA (HTML)</label>
+                            <textarea class="form-control" name="clinic_cta_html" rows="10"><?php
+                            $cta_val = !empty($pt->config->clinic_cta_html) ? $pt->config->clinic_cta_html : PT_GetClinicCtaHtmlDefault();
+                            echo htmlspecialchars($cta_val);
+                            ?></textarea>
+                        </div>
                         <button type="submit" class="btn btn-primary">Save settings</button>
+                        <button type="button" class="btn btn-default m-l-10" id="test-openai-btn">Test OpenAI</button>
                     </form>
                     <div class="alert alert-info m-t-20">
                         Install on the server: <code>pip install faster-whisper</code>. Add cron:
@@ -99,6 +132,17 @@
                     <br><br>
                     <button type="button" class="btn btn-success" id="enqueue-btn">Enqueue batch</button>
                     <button type="button" class="btn btn-default m-l-10" id="refresh-status-btn">Refresh status</button>
+                    <br><br>
+                    <label for="seo_batch_limit">SEO batch limit</label>
+                    <select class="form-control" id="seo_batch_limit">
+                        <option value="5">5 videos</option>
+                        <option value="10" selected>10 videos</option>
+                        <option value="25">25 videos</option>
+                    </select>
+                    <br>
+                    <button type="button" class="btn btn-warning" id="regenerate-seo-btn">Generate SEO summaries</button>
+                    <button type="button" class="btn btn-info m-l-10" id="apply-desc-btn">Apply descriptions (has summary)</button>
+                    <p class="text-muted m-t-10">Use after transcripts are completed. Requires OpenAI key. Does not re-run Whisper.</p>
                 </div>
             </div>
         </div>
@@ -177,4 +221,46 @@ $('#enqueue-btn').on('click', function() {
 
 $('#refresh-status-btn').on('click', refreshTranscriptStatus);
 $('#channel_id').on('change', refreshTranscriptStatus);
+
+$('#test-openai-btn').on('click', function() {
+    $.post('{{LINK aj/ap/transcribe_test_openai}}', {}, function(res) {
+        var cls = res.ok ? 'alert-success' : 'alert-danger';
+        $('.transcribe-settings-alert').html('<div class="alert ' + cls + '">' + (res.message || res.error || '') + '</div>');
+    }, 'json');
+});
+
+$('#regenerate-seo-btn').on('click', function() {
+    var channelId = $('#channel_id').val();
+    if (!channelId) {
+        $('.transcribe-batch-alert').html('<div class="alert alert-warning">Select a channel.</div>');
+        return;
+    }
+    $('#regenerate-seo-btn').prop('disabled', true).text('Working…');
+    $.post('{{LINK aj/ap/transcribe_regenerate_summaries}}', {
+        channel_id: channelId,
+        batch_limit: $('#seo_batch_limit').val()
+    }, function(res) {
+        $('#regenerate-seo-btn').prop('disabled', false).text('Generate SEO summaries');
+        var cls = res.status == 200 ? 'alert-success' : 'alert-danger';
+        $('.transcribe-batch-alert').html('<div class="alert ' + cls + '">' + (res.message || '') + '</div>');
+        refreshTranscriptStatus();
+    }, 'json');
+});
+
+$('#apply-desc-btn').on('click', function() {
+    var channelId = $('#channel_id').val();
+    if (!channelId) {
+        $('.transcribe-batch-alert').html('<div class="alert alert-warning">Select a channel.</div>');
+        return;
+    }
+    $('#apply-desc-btn').prop('disabled', true).text('Working…');
+    $.post('{{LINK aj/ap/transcribe_apply_descriptions}}', {
+        channel_id: channelId,
+        batch_limit: $('#seo_batch_limit').val()
+    }, function(res) {
+        $('#apply-desc-btn').prop('disabled', false).text('Apply descriptions (has summary)');
+        var cls = res.status == 200 ? 'alert-success' : 'alert-danger';
+        $('.transcribe-batch-alert').html('<div class="alert ' + cls + '">' + (res.message || '') + '</div>');
+    }, 'json');
+});
 </script>

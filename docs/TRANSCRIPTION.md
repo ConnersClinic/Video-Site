@@ -1,36 +1,23 @@
-# Video transcription (local Whisper)
+# Video transcription (local Whisper + OpenAI SEO)
 
-Batch transcription for self-hosted videos using [faster-whisper](https://github.com/SYSTRAN/faster-whisper), FFmpeg, and PlayTube’s cron + admin tools.
+Batch transcription for self-hosted videos, optional SEO summaries via OpenAI, and watch-page **About / Transcript** tabs.
 
 ## Database setup
 
-On an existing site, run once:
+Run once in phpMyAdmin (**select database `3595_connersclinic` first**):
 
-```bash
-mysql -u USER -p DATABASE < migrations/2026_transcription.sql
-```
+1. `migrations/2026_transcription.sql` — queue + transcript tables  
+2. `migrations/2027_transcript_seo.sql` — `seo_summary`, description modes, OpenAI config  
 
-Fresh installs include the tables in `playtube.sql`.
+Fresh installs include both in `playtube.sql`.
 
 ## Server requirements
 
-- PHP `shell_exec` enabled (same as FFmpeg)
-- FFmpeg binary configured in Admin → Import & Upload
-- Python 3.10+
-- `pip install faster-whisper`
-
-Optional: use a virtualenv and set **Python command** in admin to e.g. `/var/www/venv/bin/python3`.
-
-Test the script manually:
-
-```bash
-cd /path/to/site
-python3 scripts/transcribe_whisper.py --input /path/to/sample.wav --output_dir /tmp/out --model base --language en
-```
-
-## Cron
-
-Add alongside `cronjob.php`:
+| Component | Requirement |
+|-----------|-------------|
+| Whisper (audio → text) | Python 3, `faster-whisper`, `shell_exec`, FFmpeg — typically needs SSH |
+| OpenAI (SEO summary) | PHP `curl` + outbound HTTPS — often works on shared hosting |
+| Cron | `transcribe-cron.php` every 10 minutes |
 
 ```cron
 */10 * * * * curl -s https://yoursite.com/transcribe-cron.php >/dev/null
@@ -38,29 +25,40 @@ Add alongside `cronjob.php`:
 
 ## Admin workflow
 
-1. **Admin Panel → Tools → Transcribe Videos**
-2. Enable **Transcription system**, set Python path / model / language.
-3. Choose a **channel** (user with uploaded videos).
-4. Set batch size and optional date filter → **Enqueue batch**.
-5. Monitor status on the same page; cron processes the queue.
+**Admin Panel → Tools → Transcribe Videos**
 
-## What gets transcribed
+1. Enable **Transcription system**; configure Whisper/Python if available on server.  
+2. Set **OpenAI API key** and model (`gpt-4o-mini` recommended).  
+3. Set **Clinic CTA** HTML and **description mode** (see below).  
+4. **Test OpenAI** to confirm API access.  
+5. Enqueue videos by **channel**; cron runs Whisper.  
+6. After transcripts complete: **Generate SEO summaries** (OpenAI batch).  
+7. Optionally **Apply descriptions** for rows that already have summaries.
 
-- Self-hosted files only (`video_location` on disk or remote storage).
-- Skips YouTube, Vimeo, Dailymotion, Facebook, Twitch, Instagram, OK embeds.
-- Default: `converted = 1`, `active = 1`, `approved = 1`.
+## Description modes
 
-## Output
+| Mode | `videos.description` in database |
+|------|----------------------------------|
+| `replace_description` | Summary + clinic CTA only (replaces generic CTA text) |
+| `append_summary` | Prepends summary + CTA above existing description |
+| `display_only` | Unchanged; tabs on watch page only |
 
-- **WebVTT** at `upload/transcripts/{video_id}.vtt` (uploaded to S3 if configured).
-- **Plain text** in `video_transcripts.plain_text` for search/admin.
-- Captions on the watch page via `/vtt/{public_video_id}`.
+Full transcript is **never** written to `videos.description`.
+
+## Watch page layout
+
+- **About tab:** SEO summary → clinic CTA → (legacy description if no summary yet)  
+- **Transcript tab:** Full plain-text transcript (when transcription completed)  
+- **Captions:** WebVTT at `/vtt/{public_video_id}`  
+
+Meta / Open Graph descriptions use the SEO summary when available (~220 chars).
 
 ## Troubleshooting
 
 | Issue | Check |
 |-------|--------|
-| Jobs stay queued | Cron URL reachable; `transcript_system` = on |
-| FFmpeg errors | `ffmpeg_binary_file` path; video file exists or S3 URL downloadable |
-| Whisper errors | `pip install faster-whisper`; run script manually; inspect `video_transcripts.error_message` |
-| No CC on player | Transcript `status = completed`; video is not an embed |
+| `#1046 No database selected` | Click database in phpMyAdmin sidebar before SQL |
+| Jobs stay queued | Cron URL; `transcript_system` = on |
+| No SEO summary | OpenAI key; **Test OpenAI**; `video_transcripts.error_message` |
+| Tabs not showing | Transcript `status = completed`; deploy latest theme files |
+| Description not updated | Mode not `display_only`; run **Apply descriptions** |

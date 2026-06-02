@@ -4847,25 +4847,136 @@ if ($first == 'transcribe_settings') {
         'transcript_queue_count',
         'transcript_max_duration',
         'transcript_language',
+        'openai_api_key',
+        'openai_model',
+        'clinic_cta_html',
+        'transcript_description_mode',
+        'openai_summary_prompt',
     );
     if (!empty($_POST)) {
         foreach ($allowed as $key) {
-            if (isset($_POST[$key])) {
-                $val = PT_Secure($_POST[$key]);
-                if ($key == 'transcript_system') {
-                    $val = ($val == 'on') ? 'on' : 'off';
-                }
-                $exists = $db->where('name', $key)->getValue(T_CONFIG, 'COUNT(*)');
-                if ($exists) {
-                    $db->where('name', $key)->update(T_CONFIG, array('value' => $val));
-                } else {
-                    $db->insert(T_CONFIG, array('name' => $key, 'value' => $val));
-                }
+            if (!isset($_POST[$key])) {
+                continue;
+            }
+            if ($key == 'openai_api_key') {
+                $val = trim($_POST[$key]);
+            } elseif ($key == 'clinic_cta_html' || $key == 'openai_summary_prompt') {
+                $val = $_POST[$key];
+            } else {
+                $val = PT_Secure($_POST[$key], 0, false);
+            }
+            if ($key == 'transcript_system') {
+                $val = ($val == 'on') ? 'on' : 'off';
+            }
+            if ($key == 'transcript_description_mode' && !in_array($val, array('display_only', 'replace_description', 'append_summary'), true)) {
+                $val = 'replace_description';
+            }
+            $exists = $db->where('name', $key)->getValue(T_CONFIG, 'COUNT(*)');
+            if ($exists) {
+                $db->where('name', $key)->update(T_CONFIG, array('value' => $val));
+            } else {
+                $db->insert(T_CONFIG, array('name' => $key, 'value' => $val));
             }
         }
         $data = array('status' => 200, 'message' => 'Transcription settings saved');
     } else {
         $data = array('status' => 400, 'message' => 'No settings submitted');
+    }
+}
+
+if ($first == 'transcribe_test_openai') {
+    $test = PT_TestOpenAiConnection();
+    $data = array(
+        'ok' => !empty($test['ok']),
+        'message' => !empty($test['message']) ? $test['message'] : '',
+        'error' => !empty($test['error']) ? $test['error'] : '',
+    );
+}
+
+if ($first == 'transcribe_regenerate_summaries') {
+    $user_id = !empty($_POST['channel_id']) ? (int) $_POST['channel_id'] : 0;
+    $limit = !empty($_POST['batch_limit']) ? (int) $_POST['batch_limit'] : 10;
+    if ($limit < 1) {
+        $limit = 10;
+    }
+    if ($limit > 25) {
+        $limit = 25;
+    }
+    if ($user_id < 1) {
+        $data = array('status' => 400, 'message' => 'Select a channel');
+    } elseif (empty(trim($pt->config->openai_api_key))) {
+        $data = array('status' => 400, 'message' => 'Set OpenAI API key in settings first');
+    } else {
+        $rows = $db->rawQuery(
+            "SELECT t.video_id FROM " . T_VIDEO_TRANSCRIPTS . " t
+             INNER JOIN " . T_VIDEOS . " v ON v.id = t.video_id
+             WHERE v.user_id = " . $user_id . " AND t.status = 'completed'
+             AND t.plain_text IS NOT NULL AND t.plain_text <> ''
+             AND (t.seo_summary IS NULL OR t.seo_summary = '')
+             ORDER BY t.updated_at DESC LIMIT " . $limit
+        );
+        $ok = 0;
+        $fail = 0;
+        $errors = array();
+        if (!empty($rows)) {
+            foreach ($rows as $row) {
+                $result = PT_RegenerateSeoSummaryForVideo((int) $row->video_id);
+                if (!empty($result['ok'])) {
+                    $ok++;
+                } else {
+                    $fail++;
+                    if (!empty($result['error'])) {
+                        $errors[] = $result['error'];
+                    }
+                }
+                usleep(300000);
+            }
+        }
+        $msg = $ok . ' SEO summary(s) generated';
+        if ($fail > 0) {
+            $msg .= ', ' . $fail . ' failed';
+        }
+        if ($ok === 0 && $fail === 0) {
+            $msg = 'No completed transcripts missing SEO summary for this channel';
+        }
+        $data = array('status' => 200, 'message' => $msg, 'errors' => array_slice($errors, 0, 3));
+    }
+}
+
+if ($first == 'transcribe_apply_descriptions') {
+    $user_id = !empty($_POST['channel_id']) ? (int) $_POST['channel_id'] : 0;
+    $limit = !empty($_POST['batch_limit']) ? (int) $_POST['batch_limit'] : 10;
+    if ($limit < 1) {
+        $limit = 10;
+    }
+    if ($limit > 50) {
+        $limit = 50;
+    }
+    if ($user_id < 1) {
+        $data = array('status' => 400, 'message' => 'Select a channel');
+    } elseif (PT_GetTranscriptDescriptionMode() === 'display_only') {
+        $data = array('status' => 400, 'message' => 'Description mode is display_only; change settings to update videos.description');
+    } else {
+        $rows = $db->rawQuery(
+            "SELECT t.video_id, t.seo_summary FROM " . T_VIDEO_TRANSCRIPTS . " t
+             INNER JOIN " . T_VIDEOS . " v ON v.id = t.video_id
+             WHERE v.user_id = " . $user_id . " AND t.status = 'completed'
+             AND t.seo_summary IS NOT NULL AND t.seo_summary <> ''
+             AND t.description_applied = 0
+             ORDER BY t.updated_at DESC LIMIT " . $limit
+        );
+        $applied = 0;
+        if (!empty($rows)) {
+            foreach ($rows as $row) {
+                if (PT_ApplyTranscriptToVideoDescription((int) $row->video_id, $row->seo_summary)) {
+                    $applied++;
+                }
+            }
+        }
+        $data = array(
+            'status' => 200,
+            'message' => $applied > 0 ? $applied . ' video description(s) updated' : 'No videos pending description update for this channel',
+        );
     }
 }
 
