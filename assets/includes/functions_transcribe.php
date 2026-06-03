@@ -5,29 +5,61 @@ function PT_TranscriptRootDir() {
     return ($root ? $root : dirname(__DIR__, 2)) . '/';
 }
 
-function PT_IsTranscribableVideo($video) {
-    if (empty($video) || empty($video->id)) {
-        return false;
-    }
+/**
+ * Self-hosted upload eligible for Whisper (matches public channel listings, not import embeds).
+ */
+function PT_VideoHasExternalEmbed($video) {
     $embed_fields = array('youtube', 'vimeo', 'daily', 'facebook', 'twitch', 'instagram', 'ok');
     foreach ($embed_fields as $field) {
         if (!empty($video->{$field})) {
-            return false;
+            return true;
         }
     }
-    if (empty($video->video_location)) {
+    return false;
+}
+
+function PT_VideoHasRemoteOnlyLocation($location) {
+    $location = trim((string) $location);
+    if ($location === '') {
+        return true;
+    }
+    $decoded = urldecode($location);
+    foreach (array($location, $decoded) as $path) {
+        if (stripos($path, 'http://') === 0 || stripos($path, 'https://') === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function PT_VideoIsSelfHostedUpload($video) {
+    if (empty($video) || empty($video->id)) {
         return false;
     }
-    if (strpos($video->video_location, 'http') === 0) {
+    if (PT_VideoHasExternalEmbed($video)) {
         return false;
     }
-    if (!empty($video->active) && (int) $video->active !== 1) {
+    if (PT_VideoHasRemoteOnlyLocation($video->video_location ?? '')) {
         return false;
     }
-    if (isset($video->approved) && (int) $video->approved !== 1) {
+    if (isset($video->converted) && (int) $video->converted === 2) {
         return false;
     }
     return true;
+}
+
+function PT_IsTranscribableVideo($video) {
+    return PT_VideoIsSelfHostedUpload($video);
+}
+
+function PT_TranscribableVideoSqlCase($alias = 'v') {
+    return "CASE WHEN {$alias}.youtube = '' AND {$alias}.vimeo = '' AND {$alias}.daily = '' AND {$alias}.facebook = ''
+        AND {$alias}.twitch = '' AND {$alias}.instagram = '' AND {$alias}.ok = ''
+        AND {$alias}.video_location IS NOT NULL AND TRIM({$alias}.video_location) <> ''
+        AND {$alias}.video_location NOT LIKE 'http%' AND {$alias}.video_location NOT LIKE 'https%'
+        AND {$alias}.converted <> 2
+        AND {$alias}.is_movie = 0 AND {$alias}.is_short = 0
+        THEN 1 ELSE 0 END";
 }
 
 function PT_GetVideoTranscript($video_id) {
@@ -577,11 +609,11 @@ function PT_GetTranscribableVideosQuery($user_id, $options = array()) {
     $db->where('twitch', '');
     $db->where('instagram', '');
     $db->where('ok', '');
-    $db->where('active', 1);
-    $db->where('approved', 1);
+    $db->where('is_movie', 0);
+    $db->where('is_short', 0);
     $db->where('video_location', '', '!=');
     if (!empty($options['require_converted'])) {
-        $db->where('converted', 1);
+        $db->where('converted', 2, '!=');
     }
     if (!empty($options['time_start']) && !empty($options['time_end'])) {
         $db->where('time', $options['time_start'], '>=');
@@ -627,28 +659,25 @@ function PT_GetTranscriptChannels($options = array()) {
         }
     }
 
+    $transcribable_case = PT_TranscribableVideoSqlCase('v');
     if ($purpose === 'seo') {
         $rows = $db->rawQuery(
             "SELECT u.id, u.username, COUNT(DISTINCT t.video_id) AS video_count,
-                SUM(CASE WHEN t.plain_text IS NOT NULL AND t.plain_text <> '' THEN 1 ELSE 0 END) AS transcribable_count
+                COUNT(DISTINCT t.video_id) AS transcribable_count
              FROM " . T_USERS . " u
              INNER JOIN " . T_VIDEOS . " v ON v.user_id = u.id
              INNER JOIN " . T_VIDEO_TRANSCRIPTS . " t ON t.video_id = v.id AND t.status = 'completed'
-             WHERE v.active = 1 AND v.approved = 1
+             WHERE t.plain_text IS NOT NULL AND t.plain_text <> ''
              GROUP BY u.id
              ORDER BY u.username ASC"
         );
     } else {
         $rows = $db->rawQuery(
             "SELECT u.id, u.username, COUNT(v.id) AS video_count,
-                SUM(CASE WHEN v.youtube = '' AND v.vimeo = '' AND v.daily = '' AND v.facebook = ''
-                    AND v.twitch = '' AND v.instagram = '' AND v.ok = ''
-                    AND v.video_location IS NOT NULL AND v.video_location <> ''
-                    AND v.video_location NOT LIKE 'http%'
-                    THEN 1 ELSE 0 END) AS transcribable_count
+                SUM(" . $transcribable_case . ") AS transcribable_count
              FROM " . T_USERS . " u
              INNER JOIN " . T_VIDEOS . " v ON v.user_id = u.id
-             WHERE v.active = 1 AND v.approved = 1
+             WHERE v.is_movie = 0 AND v.is_short = 0
              GROUP BY u.id
              HAVING video_count > 0
              ORDER BY u.username ASC"
@@ -682,12 +711,12 @@ function PT_FormatTranscriptChannelLabel($channel, $purpose = 'batch') {
         return $label . ' (' . $total . ' with transcript' . ($total === 1 ? '' : 's') . ')';
     }
     if ($transcribable > 0 && $transcribable < $total) {
-        return $label . ' (' . $total . ' videos, ' . $transcribable . ' self-hosted for Whisper)';
+        return $label . ' (' . $transcribable . ' ready to transcribe, ' . $total . ' on channel)';
     }
     if ($transcribable > 0) {
-        return $label . ' (' . $transcribable . ' video' . ($transcribable === 1 ? '' : 's') . ')';
+        return $label . ' (' . $transcribable . ' self-hosted upload' . ($transcribable === 1 ? '' : 's') . ')';
     }
-    return $label . ' (' . $total . ' video' . ($total === 1 ? '' : 's') . ', 0 self-hosted)';
+    return $label . ' (' . $total . ' on channel, 0 ready — check FFmpeg conversion or embed imports)';
 }
 
 function PT_TranscriptStatusForChannel($user_id) {
