@@ -4847,6 +4847,7 @@ if ($first == 'transcribe_settings') {
         'transcript_queue_count',
         'transcript_max_duration',
         'transcript_language',
+        'transcript_channel_usernames',
         'openai_api_key',
         'openai_model',
         'clinic_cta_html',

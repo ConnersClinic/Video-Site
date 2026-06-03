@@ -1,5 +1,5 @@
 <?php
-$channels = PT_GetTranscriptChannels();
+$channels = PT_GetTranscriptChannels(array('purpose' => 'seo'));
 $models = PT_LoadSeoPipelineModels();
 ?>
 <div class="container-fluid seo-articles-admin">
@@ -33,7 +33,7 @@ $models = PT_LoadSeoPipelineModels();
                             <select id="seo-channel-id" class="form-control">
                                 <option value="">All channels</option>
                                 <?php if (!empty($channels)) { foreach ($channels as $ch) { ?>
-                                <option value="<?php echo (int) $ch->id; ?>"><?php echo htmlspecialchars($ch->username); ?> (<?php echo (int) $ch->video_count; ?>)</option>
+                                <option value="<?php echo (int) $ch->id; ?>"><?php echo htmlspecialchars(PT_FormatTranscriptChannelLabel($ch, 'seo')); ?></option>
                                 <?php } } ?>
                             </select>
                         </div>

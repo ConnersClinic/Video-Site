@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS `entity_review_queue` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT IGNORE INTO `config` (`name`, `value`) VALUES
+('transcript_channel_usernames', 'DrKevinConners,ConnersClinic'),
 ('seo_pipeline_system', 'on'),
 ('seo_pipeline_queue_count', '1'),
 ('seo_pipeline_max_concurrent', '1'),

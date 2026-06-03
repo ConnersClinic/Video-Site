@@ -594,17 +594,100 @@ function PT_GetTranscribableVideosQuery($user_id, $options = array()) {
     return $db->orderBy('time', 'DESC')->get(T_VIDEOS);
 }
 
-function PT_GetTranscriptChannels() {
+function PT_GetDefaultTranscriptChannelUsernames() {
+    global $pt;
+    $raw = !empty($pt->config->transcript_channel_usernames)
+        ? $pt->config->transcript_channel_usernames
+        : 'DrKevinConners,ConnersClinic';
+    $names = array_filter(array_map('trim', explode(',', $raw)));
+    return !empty($names) ? $names : array('DrKevinConners', 'ConnersClinic');
+}
+
+function PT_GetTranscriptChannels($options = array()) {
     global $db;
-    $sql = "SELECT u.id, u.username, COUNT(v.id) AS video_count
-        FROM " . T_USERS . " u
-        INNER JOIN " . T_VIDEOS . " v ON v.user_id = u.id
-        WHERE v.youtube = '' AND v.vimeo = '' AND v.daily = '' AND v.facebook = ''
-          AND v.twitch = '' AND v.instagram = '' AND v.ok = ''
-          AND v.active = 1 AND v.approved = 1 AND v.video_location <> ''
-        GROUP BY u.id
-        ORDER BY u.username ASC";
-    return $db->rawQuery($sql);
+    $purpose = !empty($options['purpose']) ? $options['purpose'] : 'batch';
+    $channels_by_id = array();
+
+    foreach (PT_GetDefaultTranscriptChannelUsernames() as $username) {
+        $user = $db->where('username', $username)->getOne(T_USERS);
+        if (empty($user)) {
+            $found = $db->rawQuery(
+                'SELECT * FROM ' . T_USERS . ' WHERE LOWER(username) = ? LIMIT 1',
+                array(strtolower($username))
+            );
+            $user = !empty($found[0]) ? $found[0] : null;
+        }
+        if (!empty($user)) {
+            $channels_by_id[(int) $user->id] = (object) array(
+                'id' => (int) $user->id,
+                'username' => $user->username,
+                'video_count' => 0,
+                'transcribable_count' => 0,
+            );
+        }
+    }
+
+    if ($purpose === 'seo') {
+        $rows = $db->rawQuery(
+            "SELECT u.id, u.username, COUNT(DISTINCT t.video_id) AS video_count,
+                SUM(CASE WHEN t.plain_text IS NOT NULL AND t.plain_text <> '' THEN 1 ELSE 0 END) AS transcribable_count
+             FROM " . T_USERS . " u
+             INNER JOIN " . T_VIDEOS . " v ON v.user_id = u.id
+             INNER JOIN " . T_VIDEO_TRANSCRIPTS . " t ON t.video_id = v.id AND t.status = 'completed'
+             WHERE v.active = 1 AND v.approved = 1
+             GROUP BY u.id
+             ORDER BY u.username ASC"
+        );
+    } else {
+        $rows = $db->rawQuery(
+            "SELECT u.id, u.username, COUNT(v.id) AS video_count,
+                SUM(CASE WHEN v.youtube = '' AND v.vimeo = '' AND v.daily = '' AND v.facebook = ''
+                    AND v.twitch = '' AND v.instagram = '' AND v.ok = ''
+                    AND v.video_location IS NOT NULL AND v.video_location <> ''
+                    AND v.video_location NOT LIKE 'http%'
+                    THEN 1 ELSE 0 END) AS transcribable_count
+             FROM " . T_USERS . " u
+             INNER JOIN " . T_VIDEOS . " v ON v.user_id = u.id
+             WHERE v.active = 1 AND v.approved = 1
+             GROUP BY u.id
+             HAVING video_count > 0
+             ORDER BY u.username ASC"
+        );
+    }
+
+    if (!empty($rows)) {
+        foreach ($rows as $row) {
+            $id = (int) $row->id;
+            if (!empty($channels_by_id[$id])) {
+                $channels_by_id[$id]->video_count = (int) $row->video_count;
+                $channels_by_id[$id]->transcribable_count = (int) ($row->transcribable_count ?? 0);
+            } else {
+                $channels_by_id[$id] = $row;
+            }
+        }
+    }
+
+    $channels = array_values($channels_by_id);
+    usort($channels, function ($a, $b) {
+        return strcasecmp($a->username, $b->username);
+    });
+    return $channels;
+}
+
+function PT_FormatTranscriptChannelLabel($channel, $purpose = 'batch') {
+    $total = (int) ($channel->video_count ?? 0);
+    $transcribable = (int) ($channel->transcribable_count ?? 0);
+    $label = '@' . $channel->username;
+    if ($purpose === 'seo') {
+        return $label . ' (' . $total . ' with transcript' . ($total === 1 ? '' : 's') . ')';
+    }
+    if ($transcribable > 0 && $transcribable < $total) {
+        return $label . ' (' . $total . ' videos, ' . $transcribable . ' self-hosted for Whisper)';
+    }
+    if ($transcribable > 0) {
+        return $label . ' (' . $transcribable . ' video' . ($transcribable === 1 ? '' : 's') . ')';
+    }
+    return $label . ' (' . $total . ' video' . ($total === 1 ? '' : 's') . ', 0 self-hosted)';
 }
 
 function PT_TranscriptStatusForChannel($user_id) {
