@@ -612,6 +612,8 @@ function PT_GetTranscribableVideosQuery($user_id, $options = array()) {
     $db->where('is_movie', 0);
     $db->where('is_short', 0);
     $db->where('video_location', '', '!=');
+    $db->where('video_location', 'http%', 'NOT LIKE');
+    $db->where('video_location', 'https%', 'NOT LIKE');
     if (!empty($options['require_converted'])) {
         $db->where('converted', 2, '!=');
     }
@@ -872,6 +874,43 @@ function PT_TranscriptJobFailed($queue_row, $video_id, $error, $max_attempts) {
         ));
         PT_UpsertVideoTranscript($video_id, array('status' => 'pending'));
     }
+}
+
+function PT_FormatTranscribeEnqueueMessage($enqueued, $skipped, $matched, $context = array()) {
+    $enqueued = (int) $enqueued;
+    $skipped = (int) $skipped;
+    $matched = (int) $matched;
+    if ($enqueued > 0) {
+        $message = $enqueued . ' video(s) queued for transcription';
+        if ($skipped > 0) {
+            $message .= ', ' . $skipped . ' skipped';
+        }
+        return $message;
+    }
+    if ($matched > 0 && $skipped > 0) {
+        return '0 video(s) queued for transcription (' . $skipped . ' matched but skipped — already queued, processing, completed, or not eligible).';
+    }
+    $parts = array('0 video(s) queued for transcription.');
+    $hints = array();
+    if (!empty($context['date_filtered'])) {
+        $range = '';
+        if (!empty($context['time_start']) && !empty($context['time_end'])) {
+            $range = date('M j, Y', $context['time_start']) . ' – ' . date('M j, Y', $context['time_end']);
+        }
+        $hints[] = 'No self-hosted uploads on this channel fall in the selected date range'
+            . ($range ? ' (' . $range . ', week runs Saturday–Friday)' : '');
+    } else {
+        $hints[] = 'No self-hosted uploads on this channel match the batch filters';
+    }
+    if (!empty($context['skip_completed'])) {
+        $hints[] = 'try unchecking "Skip already transcribed" or use "All time"';
+    }
+    if (!empty($context['failed_only'])) {
+        $hints[] = 'there are no failed transcripts for this channel';
+    }
+    $hints[] = 'YouTube/Vimeo imports, shorts, movies, and videos still converting (FFmpeg) are not eligible';
+    $parts[] = implode('; ', $hints) . '.';
+    return implode(' ', $parts);
 }
 
 function PT_TranscriptTimeRange($selected_time) {

@@ -5019,11 +5019,17 @@ if ($first == 'transcribe_enqueue') {
         } else {
             $options['limit'] = 10;
         }
+        $date_filtered = false;
+        $time_start = 0;
+        $time_end = 0;
         if ($selected_time != 'all' && in_array($selected_time, array('today', 'this_week', 'this_month', 'this_year'))) {
             $range = PT_TranscriptTimeRange($selected_time);
             if (!empty($range['time_start']) && !empty($range['time_end'])) {
                 $options['time_start'] = $range['time_start'];
                 $options['time_end'] = $range['time_end'];
+                $time_start = $range['time_start'];
+                $time_end = $range['time_end'];
+                $date_filtered = true;
             }
         }
         if ($failed_only) {
@@ -5034,6 +5040,7 @@ if ($first == 'transcribe_enqueue') {
             );
         }
         $videos = PT_GetTranscribableVideosQuery($user_id, $options);
+        $matched = !empty($videos) ? count($videos) : 0;
         $enqueued = 0;
         $skipped = 0;
         if (!empty($videos)) {
@@ -5056,7 +5063,14 @@ if ($first == 'transcribe_enqueue') {
             'status' => 200,
             'enqueued' => $enqueued,
             'skipped' => $skipped,
-            'message' => $enqueued . ' video(s) queued for transcription',
+            'matched' => $matched,
+            'message' => PT_FormatTranscribeEnqueueMessage($enqueued, $skipped, $matched, array(
+                'date_filtered' => $date_filtered,
+                'time_start' => $time_start,
+                'time_end' => $time_end,
+                'skip_completed' => $skip_completed && !$failed_only,
+                'failed_only' => $failed_only,
+            )),
         );
     }
 }
