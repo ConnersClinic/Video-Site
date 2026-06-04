@@ -1,5 +1,15 @@
 <?php
 
+function PT_DbVal($row, $key, $default = null) {
+    if (is_array($row)) {
+        return array_key_exists($key, $row) ? $row[$key] : $default;
+    }
+    if (is_object($row)) {
+        return isset($row->{$key}) ? $row->{$key} : $default;
+    }
+    return $default;
+}
+
 function PT_TranscriptRootDir() {
     $root = realpath(__DIR__ . '/../..');
     return ($root ? $root : dirname(__DIR__, 2)) . '/';
@@ -11,7 +21,7 @@ function PT_TranscriptRootDir() {
 function PT_VideoHasExternalEmbed($video) {
     $embed_fields = array('youtube', 'vimeo', 'daily', 'facebook', 'twitch', 'instagram', 'ok');
     foreach ($embed_fields as $field) {
-        if (!empty($video->{$field})) {
+        if (!empty(PT_DbVal($video, $field))) {
             return true;
         }
     }
@@ -33,16 +43,16 @@ function PT_VideoHasRemoteOnlyLocation($location) {
 }
 
 function PT_VideoIsSelfHostedUpload($video) {
-    if (empty($video) || empty($video->id)) {
+    if (empty($video) || empty(PT_DbVal($video, 'id'))) {
         return false;
     }
     if (PT_VideoHasExternalEmbed($video)) {
         return false;
     }
-    if (PT_VideoHasRemoteOnlyLocation($video->video_location ?? '')) {
+    if (PT_VideoHasRemoteOnlyLocation(PT_DbVal($video, 'video_location', ''))) {
         return false;
     }
-    if (isset($video->converted) && (int) $video->converted === 2) {
+    if ((int) PT_DbVal($video, 'converted', 0) === 2) {
         return false;
     }
     return true;
@@ -68,7 +78,7 @@ function PT_GetVideoTranscript($video_id) {
     if ($video_id < 1) {
         return null;
     }
-    return $db->where('video_id', $video_id)->getOne(T_VIDEO_TRANSCRIPTS);
+    return $db->arraybuilder()->where('video_id', $video_id)->getOne(T_VIDEO_TRANSCRIPTS);
 }
 
 function PT_GetTranscriptVttUrl($video) {
@@ -76,7 +86,7 @@ function PT_GetTranscriptVttUrl($video) {
         return '';
     }
     $row = PT_GetVideoTranscript($video->id);
-    if (empty($row) || $row->status !== 'completed' || empty($row->vtt_path)) {
+    if (empty($row) || PT_DbVal($row, 'status') !== 'completed' || empty(PT_DbVal($row, 'vtt_path'))) {
         return '';
     }
     return PT_Link('vtt/' . $video->video_id);
@@ -88,12 +98,12 @@ function PT_AttachTranscriptToVideo($video) {
     $video->transcript_row = null;
     $video->has_completed_transcript = false;
     $row = PT_GetVideoTranscript($video->id);
-    if (!empty($row) && $row->status === 'completed') {
+    if (!empty($row) && PT_DbVal($row, 'status') === 'completed') {
         $video->transcript_row = $row;
         $video->has_completed_transcript = true;
-        if (!empty($row->vtt_path)) {
+        if (!empty(PT_DbVal($row, 'vtt_path'))) {
             $video->transcript_vtt_url = PT_GetTranscriptVttUrl($video);
-            $video->transcript_language = !empty($row->language) ? $row->language : 'en';
+            $video->transcript_language = !empty(PT_DbVal($row, 'language')) ? PT_DbVal($row, 'language') : 'en';
         }
     }
     return $video;
@@ -176,8 +186,8 @@ function PT_BuildSeoSummaryHtml($seo_summary) {
 
 function PT_BuildWatchDescriptionTabsHtml($video) {
     $row = !empty($video->transcript_row) ? $video->transcript_row : PT_GetVideoTranscript($video->id);
-    $has_transcript = !empty($row) && $row->status === 'completed' && !empty($row->plain_text);
-    $seo_summary = (!empty($row->seo_summary)) ? $row->seo_summary : '';
+    $has_transcript = !empty($row) && PT_DbVal($row, 'status') === 'completed' && !empty(PT_DbVal($row, 'plain_text'));
+    $seo_summary = PT_DbVal($row, 'seo_summary', '');
 
     $about_parts = array();
     if ($seo_summary !== '') {
@@ -193,7 +203,7 @@ function PT_BuildWatchDescriptionTabsHtml($video) {
 
     $transcript_html = '';
     if ($has_transcript) {
-        $display_text = $row->plain_text;
+        $display_text = PT_DbVal($row, 'plain_text', '');
         if (function_exists('PT_GetDisplayTranscriptForVideo')) {
             $cleaned = PT_GetDisplayTranscriptForVideo($video->id);
             if ($cleaned !== '') {
@@ -230,8 +240,8 @@ function PT_GenerateTranscriptSeoSummary($video, $plain_text) {
         return array('ok' => false, 'summary' => '', 'error' => 'OpenAI API key is not configured');
     }
     $model = !empty($pt->config->openai_model) ? $pt->config->openai_model : 'gpt-4o-mini';
-    $title = !empty($video->title) ? strip_tags($video->title) : '';
-    $tags = !empty($video->tags) ? strip_tags($video->tags) : '';
+    $title = !empty(PT_DbVal($video, 'title')) ? strip_tags(PT_DbVal($video, 'title')) : '';
+    $tags = !empty(PT_DbVal($video, 'tags')) ? strip_tags(PT_DbVal($video, 'tags')) : '';
     $excerpt = mb_substr(trim($plain_text), 0, 6000, 'UTF-8');
     $system = !empty($pt->config->openai_summary_prompt) ? $pt->config->openai_summary_prompt : (
         'You write concise, SEO-friendly video descriptions for a health clinic website. '
@@ -299,13 +309,13 @@ function PT_ApplyTranscriptToVideoDescription($video_id, $seo_summary) {
     if ($mode === 'display_only' || trim($seo_summary) === '') {
         return false;
     }
-    $video = $db->where('id', $video_id)->getOne(T_VIDEOS);
+    $video = $db->arraybuilder()->where('id', $video_id)->getOne(T_VIDEOS);
     if (empty($video)) {
         return false;
     }
     $composed = PT_ComposeVideoDescriptionFromTranscript($seo_summary);
     if ($mode === 'append_summary') {
-        $existing = trim($video->description);
+        $existing = trim(PT_DbVal($video, 'description', ''));
         $composed = $composed . ($existing !== '' ? "\n\n" . $existing : '');
     }
     $db->where('id', $video_id)->update(T_VIDEOS, array('description' => $composed));
@@ -315,7 +325,7 @@ function PT_ApplyTranscriptToVideoDescription($video_id, $seo_summary) {
 
 function PT_FinalizeTranscriptWithSeo($video, $plain_text, $dest_rel, $language) {
     global $db;
-    $video_id = (int) $video->id;
+    $video_id = (int) PT_DbVal($video, 'id');
     $summary_result = PT_GenerateTranscriptSeoSummary($video, $plain_text);
     $seo_summary = '';
     $extra_error = '';
@@ -341,11 +351,11 @@ function PT_RegenerateSeoSummaryForVideo($video_id) {
     global $db;
     $video_id = (int) $video_id;
     $row = PT_GetVideoTranscript($video_id);
-    $video = $db->where('id', $video_id)->getOne(T_VIDEOS);
-    if (empty($row) || empty($video) || $row->status !== 'completed' || empty($row->plain_text)) {
+    $video = $db->arraybuilder()->where('id', $video_id)->getOne(T_VIDEOS);
+    if (empty($row) || empty($video) || PT_DbVal($row, 'status') !== 'completed' || empty(PT_DbVal($row, 'plain_text'))) {
         return array('ok' => false, 'error' => 'No completed transcript for this video');
     }
-    $summary_result = PT_GenerateTranscriptSeoSummary($video, $row->plain_text);
+    $summary_result = PT_GenerateTranscriptSeoSummary($video, PT_DbVal($row, 'plain_text'));
     if (empty($summary_result['ok'])) {
         return $summary_result;
     }
@@ -431,7 +441,7 @@ function PT_UpsertVideoTranscript($video_id, $fields) {
 
 function PT_IsVideoInTranscriptQueue($video_id) {
     global $db;
-    return $db->where('video_id', (int) $video_id)->getValue(T_TRANSCRIPT_QUEUE, 'COUNT(*)') > 0;
+    return $db->arraybuilder()->where('video_id', (int) $video_id)->getValue(T_TRANSCRIPT_QUEUE, 'COUNT(*)') > 0;
 }
 
 function PT_EnqueueTranscript($video_id) {
@@ -440,7 +450,7 @@ function PT_EnqueueTranscript($video_id) {
     if ($video_id < 1) {
         return false;
     }
-    $video = $db->where('id', $video_id)->getOne(T_VIDEOS);
+    $video = $db->arraybuilder()->where('id', $video_id)->getOne(T_VIDEOS);
     if (!PT_IsTranscribableVideo($video)) {
         return false;
     }
@@ -448,10 +458,10 @@ function PT_EnqueueTranscript($video_id) {
         return true;
     }
     $row = PT_GetVideoTranscript($video_id);
-    if (!empty($row) && $row->status === 'completed') {
+    if (!empty($row) && PT_DbVal($row, 'status') === 'completed') {
         return false;
     }
-    if (!empty($row) && $row->status === 'processing') {
+    if (!empty($row) && PT_DbVal($row, 'status') === 'processing') {
         return false;
     }
     PT_UpsertVideoTranscript($video_id, array(
@@ -484,7 +494,7 @@ function PT_TranscriptStorageDir() {
 function PT_ResolveVideoFileForTranscript($video) {
     global $pt;
     $root = PT_TranscriptRootDir();
-    $relative = $video->video_location;
+    $relative = PT_DbVal($video, 'video_location', '');
     $local = $root . $relative;
     if (file_exists($local)) {
         return array('path' => $local, 'temp' => false);
@@ -493,7 +503,7 @@ function PT_ResolveVideoFileForTranscript($video) {
     if (empty($url)) {
         return array('path' => '', 'temp' => false, 'error' => 'Could not resolve video URL');
     }
-    $temp = PT_TranscriptTempDir() . '/video_' . (int) $video->id . '_' . time() . '.mp4';
+    $temp = PT_TranscriptTempDir() . '/video_' . (int) PT_DbVal($video, 'id') . '_' . time() . '.mp4';
     $data = @file_get_contents($url);
     if ($data === false || $data === '') {
         return array('path' => '', 'temp' => false, 'error' => 'Could not download video from storage');
@@ -505,8 +515,8 @@ function PT_ResolveVideoFileForTranscript($video) {
 }
 
 function PT_VideoDurationSeconds($video) {
-    if (!empty($video->duration) && function_exists('durationToSeconds')) {
-        $sec = durationToSeconds($video->duration);
+    if (!empty(PT_DbVal($video, 'duration')) && function_exists('durationToSeconds')) {
+        $sec = durationToSeconds(PT_DbVal($video, 'duration'));
         if ($sec > 0) {
             return $sec;
         }
@@ -573,13 +583,13 @@ function PT_GetTranscribableVideosQuery($user_id, $options = array()) {
     $user_id = (int) $user_id;
 
     if (!empty($options['failed_only'])) {
-        $failed_rows = $db->rawQuery(
+        $failed_rows = $db->arraybuilder()->rawQuery(
             "SELECT video_id FROM " . T_VIDEO_TRANSCRIPTS . " WHERE status = 'failed'"
         );
         $failed_ids = array();
         if (!empty($failed_rows)) {
             foreach ($failed_rows as $r) {
-                $failed_ids[] = (int) $r->video_id;
+                $failed_ids[] = (int) PT_DbVal($r, 'video_id');
             }
         }
         if (empty($failed_ids)) {
@@ -587,13 +597,13 @@ function PT_GetTranscribableVideosQuery($user_id, $options = array()) {
         }
         $db->where('id', $failed_ids, 'IN');
     } elseif (!empty($options['skip_completed'])) {
-        $completed_rows = $db->rawQuery(
+        $completed_rows = $db->arraybuilder()->rawQuery(
             "SELECT video_id FROM " . T_VIDEO_TRANSCRIPTS . " WHERE status = 'completed'"
         );
         $completed_ids = array();
         if (!empty($completed_rows)) {
             foreach ($completed_rows as $r) {
-                $completed_ids[] = (int) $r->video_id;
+                $completed_ids[] = (int) PT_DbVal($r, 'video_id');
             }
         }
         if (!empty($completed_ids)) {
@@ -623,9 +633,9 @@ function PT_GetTranscribableVideosQuery($user_id, $options = array()) {
     }
     $limit = !empty($options['limit']) ? (int) $options['limit'] : 0;
     if ($limit > 0) {
-        return $db->orderBy('time', 'DESC')->get(T_VIDEOS, $limit);
+        return $db->arraybuilder()->orderBy('time', 'DESC')->get(T_VIDEOS, $limit);
     }
-    return $db->orderBy('time', 'DESC')->get(T_VIDEOS);
+    return $db->arraybuilder()->orderBy('time', 'DESC')->get(T_VIDEOS);
 }
 
 function PT_GetDefaultTranscriptChannelUsernames() {
@@ -643,18 +653,18 @@ function PT_GetTranscriptChannels($options = array()) {
     $channels_by_id = array();
 
     foreach (PT_GetDefaultTranscriptChannelUsernames() as $username) {
-        $user = $db->where('username', $username)->getOne(T_USERS);
+        $user = $db->arraybuilder()->where('username', $username)->getOne(T_USERS);
         if (empty($user)) {
-            $found = $db->rawQuery(
+            $found = $db->arraybuilder()->rawQuery(
                 'SELECT * FROM ' . T_USERS . ' WHERE LOWER(username) = ? LIMIT 1',
                 array(strtolower($username))
             );
             $user = !empty($found[0]) ? $found[0] : null;
         }
         if (!empty($user)) {
-            $channels_by_id[(int) $user->id] = (object) array(
-                'id' => (int) $user->id,
-                'username' => $user->username,
+            $channels_by_id[(int) PT_DbVal($user, 'id')] = (object) array(
+                'id' => (int) PT_DbVal($user, 'id'),
+                'username' => PT_DbVal($user, 'username'),
                 'video_count' => 0,
                 'transcribable_count' => 0,
             );
@@ -663,7 +673,7 @@ function PT_GetTranscriptChannels($options = array()) {
 
     $transcribable_case = PT_TranscribableVideoSqlCase('v');
     if ($purpose === 'seo') {
-        $rows = $db->rawQuery(
+        $rows = $db->arraybuilder()->rawQuery(
             "SELECT u.id, u.username, COUNT(DISTINCT t.video_id) AS video_count,
                 COUNT(DISTINCT t.video_id) AS transcribable_count
              FROM " . T_USERS . " u
@@ -674,7 +684,7 @@ function PT_GetTranscriptChannels($options = array()) {
              ORDER BY u.username ASC"
         );
     } else {
-        $rows = $db->rawQuery(
+        $rows = $db->arraybuilder()->rawQuery(
             "SELECT u.id, u.username, COUNT(v.id) AS video_count,
                 SUM(" . $transcribable_case . ") AS transcribable_count
              FROM " . T_USERS . " u
@@ -688,12 +698,17 @@ function PT_GetTranscriptChannels($options = array()) {
 
     if (!empty($rows)) {
         foreach ($rows as $row) {
-            $id = (int) $row->id;
+            $id = (int) PT_DbVal($row, 'id');
             if (!empty($channels_by_id[$id])) {
-                $channels_by_id[$id]->video_count = (int) $row->video_count;
-                $channels_by_id[$id]->transcribable_count = (int) ($row->transcribable_count ?? 0);
+                $channels_by_id[$id]->video_count = (int) PT_DbVal($row, 'video_count', 0);
+                $channels_by_id[$id]->transcribable_count = (int) PT_DbVal($row, 'transcribable_count', 0);
             } else {
-                $channels_by_id[$id] = $row;
+                $channels_by_id[$id] = (object) array(
+                    'id' => $id,
+                    'username' => PT_DbVal($row, 'username'),
+                    'video_count' => (int) PT_DbVal($row, 'video_count', 0),
+                    'transcribable_count' => (int) PT_DbVal($row, 'transcribable_count', 0),
+                );
             }
         }
     }
@@ -706,9 +721,9 @@ function PT_GetTranscriptChannels($options = array()) {
 }
 
 function PT_FormatTranscriptChannelLabel($channel, $purpose = 'batch') {
-    $total = (int) ($channel->video_count ?? 0);
-    $transcribable = (int) ($channel->transcribable_count ?? 0);
-    $label = '@' . $channel->username;
+    $total = (int) PT_DbVal($channel, 'video_count', 0);
+    $transcribable = (int) PT_DbVal($channel, 'transcribable_count', 0);
+    $label = '@' . PT_DbVal($channel, 'username');
     if ($purpose === 'seo') {
         return $label . ' (' . $total . ' with transcript' . ($total === 1 ? '' : 's') . ')';
     }
@@ -732,24 +747,25 @@ function PT_TranscriptStatusForChannel($user_id) {
         'skipped' => 0,
         'queued' => 0,
     );
-    $rows = $db->rawQuery(
+    $rows = $db->arraybuilder()->rawQuery(
         "SELECT t.status, COUNT(*) AS cnt FROM " . T_VIDEO_TRANSCRIPTS . " t
          INNER JOIN " . T_VIDEOS . " v ON v.id = t.video_id
          WHERE v.user_id = " . $user_id . " GROUP BY t.status"
     );
     if (!empty($rows)) {
         foreach ($rows as $r) {
-            if (isset($counts[$r->status])) {
-                $counts[$r->status] = (int) $r->cnt;
+            $status_key = PT_DbVal($r, 'status');
+            if (isset($counts[$status_key])) {
+                $counts[$status_key] = (int) PT_DbVal($r, 'cnt', 0);
             }
         }
     }
-    $counts['queued'] = (int) $db->rawQueryValue(
+    $counts['queued'] = (int) $db->arraybuilder()->rawQueryValue(
         "SELECT COUNT(*) FROM " . T_TRANSCRIPT_QUEUE . " q
          INNER JOIN " . T_VIDEOS . " v ON v.id = q.video_id
          WHERE v.user_id = " . $user_id . " AND q.processing = 0"
     );
-    $recent = $db->rawQuery(
+    $recent = $db->arraybuilder()->rawQuery(
         "SELECT t.video_id, t.status, t.error_message, v.title FROM " . T_VIDEO_TRANSCRIPTS . " t
          INNER JOIN " . T_VIDEOS . " v ON v.id = t.video_id
          WHERE v.user_id = " . $user_id . " AND t.status IN ('failed','processing')
@@ -768,8 +784,8 @@ function PT_CleanupTranscriptTemp($paths) {
 
 function PT_ProcessTranscriptJob($queue_row) {
     global $db, $pt;
-    $video_id = (int) $queue_row->video_id;
-    $video = $db->where('id', $video_id)->getOne(T_VIDEOS);
+    $video_id = (int) PT_DbVal($queue_row, 'video_id');
+    $video = $db->arraybuilder()->where('id', $video_id)->getOne(T_VIDEOS);
     $temp_files = array();
     $max_attempts = 3;
 
@@ -778,7 +794,7 @@ function PT_ProcessTranscriptJob($queue_row) {
             'status' => 'skipped',
             'error_message' => 'Video is not eligible for transcription',
         ));
-        $db->where('id', (int) $queue_row->id)->delete(T_TRANSCRIPT_QUEUE);
+        $db->where('id', (int) PT_DbVal($queue_row, 'id'))->delete(T_TRANSCRIPT_QUEUE);
         return;
     }
 
@@ -789,7 +805,7 @@ function PT_ProcessTranscriptJob($queue_row) {
             'status' => 'skipped',
             'error_message' => 'Video exceeds max duration (' . $max_duration . 's)',
         ));
-        $db->where('id', (int) $queue_row->id)->delete(T_TRANSCRIPT_QUEUE);
+        $db->where('id', (int) PT_DbVal($queue_row, 'id'))->delete(T_TRANSCRIPT_QUEUE);
         return;
     }
 
@@ -827,7 +843,7 @@ function PT_ProcessTranscriptJob($queue_row) {
 
     $vtt_content = file_get_contents($whisper['vtt_path']);
     $plain = PT_VttToPlainText($vtt_content);
-    $dest_rel = 'upload/transcripts/' . $video->video_id . '.vtt';
+    $dest_rel = 'upload/transcripts/' . PT_DbVal($video, 'video_id') . '.vtt';
     $dest_abs = PT_TranscriptRootDir() . $dest_rel;
     PT_TranscriptStorageDir();
     if (!@copy($whisper['vtt_path'], $dest_abs)) {
@@ -843,7 +859,7 @@ function PT_ProcessTranscriptJob($queue_row) {
 
     $language = !empty($pt->config->transcript_language) ? $pt->config->transcript_language : 'en';
     PT_FinalizeTranscriptWithSeo($video, $plain, $dest_rel, $language);
-    $db->where('id', (int) $queue_row->id)->delete(T_TRANSCRIPT_QUEUE);
+    $db->where('id', (int) PT_DbVal($queue_row, 'id'))->delete(T_TRANSCRIPT_QUEUE);
     PT_CleanupTranscriptTemp($temp_files);
     if (is_dir($whisper_out)) {
         $files = glob($whisper_out . '/*');
@@ -859,13 +875,13 @@ function PT_ProcessTranscriptJob($queue_row) {
 function PT_TranscriptJobFailed($queue_row, $video_id, $error, $max_attempts) {
     global $db;
     $row = PT_GetVideoTranscript($video_id);
-    $attempts = !empty($row->attempts) ? (int) $row->attempts + 1 : 1;
+    $attempts = !empty(PT_DbVal($row, 'attempts')) ? (int) PT_DbVal($row, 'attempts') + 1 : 1;
     PT_UpsertVideoTranscript($video_id, array(
         'status' => 'failed',
         'error_message' => substr($error, 0, 2000),
         'attempts' => $attempts,
     ));
-    $db->where('id', (int) $queue_row->id)->delete(T_TRANSCRIPT_QUEUE);
+    $db->where('id', (int) PT_DbVal($queue_row, 'id'))->delete(T_TRANSCRIPT_QUEUE);
     if ($attempts < $max_attempts) {
         $db->insert(T_TRANSCRIPT_QUEUE, array(
             'video_id' => (int) $video_id,

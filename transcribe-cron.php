@@ -14,7 +14,7 @@ if ($queue_count < 1) {
     $queue_count = 1;
 }
 
-$process_queue = $db->where('processing', 0)->orderBy('created_at', 'ASC')->get(T_TRANSCRIPT_QUEUE, $queue_count);
+$process_queue = $db->arraybuilder()->where('processing', 0)->orderBy('created_at', 'ASC')->get(T_TRANSCRIPT_QUEUE, $queue_count);
 
 if (empty($process_queue)) {
     header('Content-Type: application/json');
@@ -43,14 +43,14 @@ if (is_callable('litespeed_finish_request')) {
 }
 
 foreach ($process_queue as $queue_row) {
-    $db->where('id', (int) $queue_row->id)->update(T_TRANSCRIPT_QUEUE, array('processing' => 1));
+    $db->where('id', (int) $queue_row['id'])->update(T_TRANSCRIPT_QUEUE, array('processing' => 1));
     try {
         PT_ProcessTranscriptJob($queue_row);
     } catch (Exception $e) {
-        PT_TranscriptJobFailed($queue_row, (int) $queue_row->video_id, $e->getMessage(), 3);
+        PT_TranscriptJobFailed($queue_row, (int) $queue_row['video_id'], $e->getMessage(), 3);
     }
-    $stuck = $db->where('id', (int) $queue_row->id)->getOne(T_TRANSCRIPT_QUEUE);
-    if (!empty($stuck) && $stuck->processing == 1) {
-        $db->where('id', (int) $queue_row->id)->delete(T_TRANSCRIPT_QUEUE);
+    $stuck = $db->arraybuilder()->where('id', (int) $queue_row['id'])->getOne(T_TRANSCRIPT_QUEUE);
+    if (!empty($stuck) && !empty($stuck['processing'])) {
+        $db->where('id', (int) $queue_row['id'])->delete(T_TRANSCRIPT_QUEUE);
     }
 }

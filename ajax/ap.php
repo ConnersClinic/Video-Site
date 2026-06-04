@@ -4908,7 +4908,7 @@ if ($first == 'transcribe_regenerate_summaries') {
     } elseif (empty(trim($pt->config->openai_api_key))) {
         $data = array('status' => 400, 'message' => 'Set OpenAI API key in settings first');
     } else {
-        $rows = $db->rawQuery(
+        $rows = $db->arraybuilder()->rawQuery(
             "SELECT t.video_id FROM " . T_VIDEO_TRANSCRIPTS . " t
              INNER JOIN " . T_VIDEOS . " v ON v.id = t.video_id
              WHERE v.user_id = " . $user_id . " AND t.status = 'completed'
@@ -4921,7 +4921,7 @@ if ($first == 'transcribe_regenerate_summaries') {
         $errors = array();
         if (!empty($rows)) {
             foreach ($rows as $row) {
-                $result = PT_RegenerateSeoSummaryForVideo((int) $row->video_id);
+                $result = PT_RegenerateSeoSummaryForVideo((int) $row['video_id']);
                 if (!empty($result['ok'])) {
                     $ok++;
                 } else {
@@ -4958,7 +4958,7 @@ if ($first == 'transcribe_apply_descriptions') {
     } elseif (PT_GetTranscriptDescriptionMode() === 'display_only') {
         $data = array('status' => 400, 'message' => 'Description mode is display_only; change settings to update videos.description');
     } else {
-        $rows = $db->rawQuery(
+        $rows = $db->arraybuilder()->rawQuery(
             "SELECT t.video_id, t.seo_summary FROM " . T_VIDEO_TRANSCRIPTS . " t
              INNER JOIN " . T_VIDEOS . " v ON v.id = t.video_id
              WHERE v.user_id = " . $user_id . " AND t.status = 'completed'
@@ -4969,7 +4969,7 @@ if ($first == 'transcribe_apply_descriptions') {
         $applied = 0;
         if (!empty($rows)) {
             foreach ($rows as $row) {
-                if (PT_ApplyTranscriptToVideoDescription((int) $row->video_id, $row->seo_summary)) {
+                if (PT_ApplyTranscriptToVideoDescription((int) $row['video_id'], $row['seo_summary'])) {
                     $applied++;
                 }
             }
@@ -5053,13 +5053,13 @@ if ($first == 'transcribe_enqueue') {
         if (!empty($videos)) {
             foreach ($videos as $video) {
                 if ($failed_only) {
-                    PT_UpsertVideoTranscript($video->id, array(
+                    PT_UpsertVideoTranscript((int) $video['id'], array(
                         'status' => 'pending',
                         'error_message' => '',
                         'attempts' => 0,
                     ));
                 }
-                if (PT_EnqueueTranscript($video->id)) {
+                if (PT_EnqueueTranscript((int) $video['id'])) {
                     $enqueued++;
                 } else {
                     $skipped++;
