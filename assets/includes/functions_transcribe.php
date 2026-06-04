@@ -318,6 +318,14 @@ function PT_ParseWatchCtaTrustLabels($raw) {
     return $labels;
 }
 
+function PT_IsWatchCtaHtmlOverride($html) {
+    $html = trim((string) $html);
+    if ($html === '') {
+        return false;
+    }
+    return strpos($html, '<') !== false;
+}
+
 function PT_BuildWatchCtaTrustHtml($labels) {
     if (empty($labels)) {
         return '';
@@ -331,7 +339,7 @@ function PT_BuildWatchCtaTrustHtml($labels) {
 
 function PT_BuildWatchPrimaryCtaHtml() {
     $cfg = PT_GetWatchCtaConfig();
-    if ($cfg['html_override'] !== '') {
+    if (PT_IsWatchCtaHtmlOverride($cfg['html_override'])) {
         $html = $cfg['html_override'];
         if (stripos($html, 'watch-cta-strip') !== false) {
             return $html;
@@ -349,14 +357,14 @@ function PT_BuildWatchPrimaryCtaHtml() {
         . '<p class="watch-cta-strip-headline">' . $headline . '</p>'
         . '<p class="watch-cta-strip-body">' . $body . '</p>'
         . '</div>'
-        . '<a class="watch-cta-strip-btn" href="' . $button_url . '" target="_blank" rel="noopener noreferrer">' . $button_text . '</a>'
+        . '<a class="btn btn-main watch-cta-strip-btn" href="' . $button_url . '" target="_blank" rel="noopener noreferrer">' . $button_text . '</a>'
         . '</div>'
         . '</aside>';
 }
 
 function PT_BuildWatchSecondaryCtaHtml() {
     $cfg = PT_GetWatchSecondaryCtaConfig();
-    if ($cfg['html_override'] !== '') {
+    if (PT_IsWatchCtaHtmlOverride($cfg['html_override'])) {
         $html = $cfg['html_override'];
         if (stripos($html, 'watch-cta-secondary') !== false) {
             return $html;
@@ -368,7 +376,7 @@ function PT_BuildWatchSecondaryCtaHtml() {
     $button_text = htmlspecialchars($cfg['button_text']);
     $button_url = htmlspecialchars($cfg['button_url'], ENT_QUOTES, 'UTF-8');
     return '<section class="watch-cta-secondary" aria-label="Schedule a discovery call">'
-        . '<h2 class="watch-section-heading watch-cta-secondary-heading">' . $headline . '</h2>'
+        . '<h3 class="watch-section-heading watch-cta-secondary-heading">' . $headline . '</h3>'
         . '<p class="watch-cta-secondary-body">' . $body . '</p>'
         . '<a class="btn btn-main watch-cta-secondary-btn" href="' . $button_url . '" target="_blank" rel="noopener noreferrer">' . $button_text . '</a>'
         . '</section>';
@@ -384,7 +392,7 @@ function PT_BuildWatchKeyTakeawaysHtml($takeaways) {
         $lis .= '<li>' . htmlspecialchars($item) . '</li>';
     }
     return '<section class="watch-section watch-section-takeaways">'
-        . '<h2 class="watch-section-heading">Key Takeaways</h2>'
+        . '<h3 class="watch-section-heading">Key Takeaways</h3>'
         . '<ul class="watch-takeaways-list">' . $lis . '</ul>'
         . '</section>';
 }
@@ -398,14 +406,14 @@ function PT_BuildWatchAboutVideoHtml($seo_summary, $fallback_markup = '') {
             : '';
         $long_class = $long ? ' watch-about-body--collapsible' : '';
         return '<section class="watch-section watch-section-about" itemprop="description">'
-            . '<h2 class="watch-section-heading">About This Video</h2>'
+            . '<h3 class="watch-section-heading">About This Video</h3>'
             . '<div class="watch-about-body' . $long_class . '">' . $summary_html . '</div>'
             . $expand
             . '</section>';
     }
     if (trim(strip_tags($fallback_markup)) !== '') {
         return '<section class="watch-section watch-section-about watch-section-legacy" itemprop="description">'
-            . '<h2 class="watch-section-heading">About This Video</h2>'
+            . '<h3 class="watch-section-heading">About This Video</h3>'
             . '<div class="watch-about-body"><p dir="auto">' . $fallback_markup . '</p></div>'
             . '</section>';
     }
@@ -429,7 +437,7 @@ function PT_BuildWatchTranscriptSectionHtml($video, $row) {
         return '';
     }
     return '<section class="watch-section watch-section-transcript">'
-        . '<h2 class="watch-section-heading">Transcript</h2>'
+        . '<h3 class="watch-section-heading">Transcript</h3>'
         . '<button type="button" class="watch-transcript-toggle" aria-expanded="false" aria-controls="watch-transcript-panel">Show Full Transcript</button>'
         . '<div id="watch-transcript-panel" class="watch-transcript-panel" hidden>'
         . '<div class="watch-transcript-body">' . $body . '</div>'

@@ -351,8 +351,12 @@ background: #2f2f2f;}
 	border-color: #3d4a32 !important;
 	color: #e8ece4 !important;
 }
-.video-player-page .watch-channel-authority {
+.video-player-page .watch-channel-meta,
+.video-player-page .watch-channel-meta a {
 	color: #a8b0a0;
+}
+.video-player-page .watch-channel-meta a {
+	color: #b5d89a;
 }
 .tp_vid_fltr_tabs ul {
 	box-shadow:  0 1px 0 0 #000, 0 0 0 1px #222;

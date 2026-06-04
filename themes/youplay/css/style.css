@@ -4532,6 +4532,16 @@ body span.icon_pro svg {
 	margin-top: 15px;
 }
 
+/* Watch page content (fallback if watch-content.css fails to load) */
+.video-player-page .watch-cta-strip{display:flex!important;background:#fafcf8;border:1px solid #c5db9e;border-radius:12px;margin:0 0 24px;overflow:hidden}
+.video-player-page .watch-cta-strip-accent{flex:0 0 4px;background:#95c655}
+.video-player-page .watch-cta-strip-inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;flex:1}
+.video-player-page .watch-cta-strip-headline{margin:0 0 4px;font-size:17px;font-weight:700;color:#1a1f16}
+.video-player-page .watch-cta-strip-body{margin:0;font-size:14px;color:#3d4538}
+.video-player-page a.watch-cta-strip-btn{display:inline-block!important;padding:10px 20px!important;background:#95c655!important;color:#fff!important;border-radius:8px!important;text-decoration:none!important;font-weight:600!important}
+.video-player-page .watch-content-below-video h3.watch-section-heading{font-size:1.5rem;font-weight:700;margin:0 0 12px}
+.video-player-page .watch-cta-secondary{padding:22px 24px;background:#fff;border:1px solid #dce8cc;border-radius:12px;box-shadow:0 2px 8px rgba(45,62,30,.06);margin:12px 0 32px}
+
 
 
 

@@ -1022,17 +1022,13 @@
             </div>
             <div class="publisher-name">
                <a href="{{USER url}}" data-load="?link1=timeline&id={{USER username}}">{{USER name_v}}</a>
-               <p class="watch-channel-authority"><strong>Dr. Kevin Conners</strong> — Cancer &amp; chronic illness support through personalized education, testing, and coaching.</p>
+               <div class="watch-channel-meta">
+                  <a href="{{LINK videos/category/{{CATEGORY_ID}}}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}">{{CATEGORY}}</a><?php if (!empty($pt->sub_category)) { ?> <span class="watch-channel-meta-sep">/</span> <a href="{{LINK videos/category/{{CATEGORY_ID}}/<?php echo($pt->get_video->sub_category) ?>}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}&sub_id=<?php echo($pt->get_video->sub_category) ?>">{{SUB_CATEGORY}}</a><?php } ?>
+               </div>
             </div>
             <div class="publisher-subscribe-button watch-channel-actions">{{NOTIFY_BUTTON}}{{SUBSCIBE_BUTTON}}</div>
          </div>
          <div class="clear"></div>
-         <?php /* ?>
-         <div class="video-published">
-            {{LANG published_on}} {{TIME}} / {{LANG in}}
-            <a href="{{LINK videos/category/{{CATEGORY_ID}}}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}">{{CATEGORY}}</a> <?php if (!empty($pt->sub_category)) { ?>/ <a href="{{LINK videos/category/{{CATEGORY_ID}}/<?php echo($pt->get_video->sub_category) ?>}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}&sub_id=<?php echo($pt->get_video->sub_category) ?>">{{SUB_CATEGORY}}</a><?php  } ?>
-         </div>
-         <?php */ ?>
          <div class="without_moview_div">
          {{VIDEO_DESC_TABS}}
       </div>
@@ -1476,17 +1472,13 @@
             </div>
             <div class="publisher-name">
                <a href="{{USER url}}" data-load="?link1=timeline&id={{USER username}}">{{USER name_v}}</a>
-               <p class="watch-channel-authority"><strong>Dr. Kevin Conners</strong> — Cancer &amp; chronic illness support through personalized education, testing, and coaching.</p>
+               <div class="watch-channel-meta">
+                  <a href="{{LINK videos/category/{{CATEGORY_ID}}}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}">{{CATEGORY}}</a><?php if (!empty($pt->sub_category)) { ?> <span class="watch-channel-meta-sep">/</span> <a href="{{LINK videos/category/{{CATEGORY_ID}}/<?php echo($pt->get_video->sub_category) ?>}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}&sub_id=<?php echo($pt->get_video->sub_category) ?>">{{SUB_CATEGORY}}</a><?php } ?>
+               </div>
             </div>
             <div class="publisher-subscribe-button watch-channel-actions">{{NOTIFY_BUTTON}}{{SUBSCIBE_BUTTON}}</div>
          </div>
          <div class="clear"></div>
-         <?php /* ?>
-         <div class="video-published">
-            {{LANG published_on}} {{TIME}} / {{LANG in}}
-            <a href="{{LINK videos/category/{{CATEGORY_ID}}}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}">{{CATEGORY}}</a> <?php if (!empty($pt->sub_category)) { ?>/ <a href="{{LINK videos/category/{{CATEGORY_ID}}/<?php echo($pt->get_video->sub_category) ?>}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}&sub_id=<?php echo($pt->get_video->sub_category) ?>">{{SUB_CATEGORY}}</a><?php  } ?>
-         </div>
-         <?php */ ?>
 
          <div class="moview_vide_dsc">
             <div class="image_left_moview">
