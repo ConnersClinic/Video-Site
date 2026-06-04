@@ -20,11 +20,7 @@ Fresh installs include both in `playtube.sql`.
 | Cron | `transcribe-cron.php` on a schedule you choose (often every 2–5 minutes) |
 
 ```cron
-# Typical when each batch finishes in a few minutes (3 jobs/run, sequential):
-*/2 * * * * curl -s https://yoursite.com/transcribe-cron.php >/dev/null
-
-# Lighter load:
-*/5 * * * * curl -s https://yoursite.com/transcribe-cron.php >/dev/null
+*/2 * * * * curl -s "https://test-videos.connersclinic.com/transcribe-cron.php" > /dev/null 2>&1
 ```
 
 There is no minimum interval in code. Avoid `* * * * *` (every minute) unless the server can handle overlapping runs while Whisper is still busy.
@@ -75,7 +71,7 @@ Config keys are in `migrations/2028_transcript_load_monitor.sql` for existing in
 |-------|--------|
 | `#1046 No database selected` | Click database in phpMyAdmin sidebar before SQL |
 | Jobs stay queued | Admin **Transcription cron** panel: last hit time, stuck count; **Run cron now**; server `curl` to `/transcribe-cron.php` |
-| Jobs stay queued | `transcript_system` = on; crontab `*/2 * * * * curl -s https://yoursite.com/transcribe-cron.php` |
+| Jobs stay queued | `transcript_system` = on; crontab line above on the server |
 | No SEO summary | OpenAI key; **Test OpenAI**; `video_transcripts.error_message` |
 | Tabs not showing | Transcript `status = completed`; deploy latest theme files |
 | Description not updated | Mode not `display_only`; run **Apply descriptions** |

@@ -31,7 +31,7 @@
                         <div class="form-group form-float">
                             <div class="form-line">
                                 <label class="form-label">Video transcription (recommended: every 2–5 minutes)</label>
-                                <p class="form-control">*/2 * * * * curl -s <?php echo $pt->config->site_url ;?>/transcribe-cron.php &>/dev/null</p>
+                                <p class="form-control">*/2 * * * * curl -s "https://test-videos.connersclinic.com/transcribe-cron.php" &gt; /dev/null 2&gt;&amp;1</p>
                                 <small class="text-muted">Use <code>*/2</code>, <code>*/5</code>, or <code>*/10</code> as needed. Each hit processes up to <code>transcript_queue_count</code> jobs sequentially. Requires faster-whisper and <code>transcript_system</code> on in Admin → Tools → Transcribe Videos.</small>
                             </div>
                         </div>

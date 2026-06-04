@@ -121,12 +121,8 @@
                     </form>
                     <div class="alert alert-info m-t-20">
                         Install on the server: <code>pip install faster-whisper</code> (same interpreter as <strong>Python command</strong> above, e.g. <code>python3.13 -m pip install faster-whisper</code>).<br>
-                        Cron (pick a frequency — code does not enforce 10 minutes):
-                        <ul class="m-t-10 m-b-0">
-                            <li><strong>Every 2 min</strong> (typical when jobs finish quickly): <code>*/2 * * * * curl -s <?php echo $pt->config->site_url; ?>/transcribe-cron.php &>/dev/null</code></li>
-                            <li><strong>Every 5 min</strong> (lighter load): <code>*/5 * * * * curl -s <?php echo $pt->config->site_url; ?>/transcribe-cron.php &>/dev/null</code></li>
-                            <li><strong>Every 10 min</strong> (default docs): <code>*/10 * * * * curl -s <?php echo $pt->config->site_url; ?>/transcribe-cron.php &>/dev/null</code></li>
-                        </ul>
+                        Cron (add to server crontab):
+                        <p class="m-t-10 m-b-0"><code>*/2 * * * * curl -s "https://test-videos.connersclinic.com/transcribe-cron.php" &gt; /dev/null 2&gt;&amp;1</code></p>
                         <small class="text-muted">If a run is still processing when the next cron fires, another batch may start (separate PHP processes). Use a slower interval or fewer jobs per run if CPU spikes.</small>
                     </div>
                 </div>
