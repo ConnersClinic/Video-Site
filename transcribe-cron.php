@@ -13,6 +13,9 @@ $queue_count = !empty($pt->config->transcript_queue_count) ? (int) $pt->config->
 if ($queue_count < 1) {
     $queue_count = 1;
 }
+if ($queue_count > 5) {
+    $queue_count = 5;
+}
 
 $process_queue = $db->arraybuilder()->where('processing', 0)->orderBy('created_at', 'ASC')->get(T_TRANSCRIPT_QUEUE, $queue_count);
 

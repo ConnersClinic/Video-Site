@@ -17,11 +17,17 @@ Fresh installs include both in `playtube.sql`.
 |-----------|-------------|
 | Whisper (audio → text) | Python 3, `faster-whisper`, `shell_exec`, FFmpeg — typically needs SSH |
 | OpenAI (SEO summary) | PHP `curl` + outbound HTTPS — often works on shared hosting |
-| Cron | `transcribe-cron.php` every 10 minutes |
+| Cron | `transcribe-cron.php` on a schedule you choose (often every 2–5 minutes) |
 
 ```cron
-*/10 * * * * curl -s https://yoursite.com/transcribe-cron.php >/dev/null
+# Typical when each batch finishes in a few minutes (3 jobs/run, sequential):
+*/2 * * * * curl -s https://yoursite.com/transcribe-cron.php >/dev/null
+
+# Lighter load:
+*/5 * * * * curl -s https://yoursite.com/transcribe-cron.php >/dev/null
 ```
+
+There is no minimum interval in code. Avoid `* * * * *` (every minute) unless the server can handle overlapping runs while Whisper is still busy.
 
 ## Admin workflow
 

@@ -42,7 +42,8 @@
                         </div>
                         <div class="form-group">
                             <label>Jobs per cron run</label>
-                            <input type="number" class="form-control" name="transcript_queue_count" min="1" max="3" value="<?php echo (int) ($pt->config->transcript_queue_count ?? 1); ?>">
+                            <input type="number" class="form-control" name="transcript_queue_count" min="1" max="5" value="<?php echo (int) ($pt->config->transcript_queue_count ?? 1); ?>">
+                            <small class="text-muted">Processed one after another per cron hit (not parallel). Raise only if the server has CPU/RAM headroom.</small>
                         </div>
                         <div class="form-group">
                             <label>Max video duration (seconds, 0 = no limit)</label>
@@ -88,8 +89,14 @@
                         <button type="button" class="btn btn-default m-l-10" id="test-openai-btn">Test OpenAI</button>
                     </form>
                     <div class="alert alert-info m-t-20">
-                        Install on the server: <code>pip install faster-whisper</code>. Add cron:
-                        <code>*/10 * * * * curl -s <?php echo $pt->config->site_url; ?>/transcribe-cron.php</code>
+                        Install on the server: <code>pip install faster-whisper</code> (same interpreter as <strong>Python command</strong> above, e.g. <code>python3.13 -m pip install faster-whisper</code>).<br>
+                        Cron (pick a frequency — code does not enforce 10 minutes):
+                        <ul class="m-t-10 m-b-0">
+                            <li><strong>Every 2 min</strong> (typical when jobs finish quickly): <code>*/2 * * * * curl -s <?php echo $pt->config->site_url; ?>/transcribe-cron.php &>/dev/null</code></li>
+                            <li><strong>Every 5 min</strong> (lighter load): <code>*/5 * * * * curl -s <?php echo $pt->config->site_url; ?>/transcribe-cron.php &>/dev/null</code></li>
+                            <li><strong>Every 10 min</strong> (default docs): <code>*/10 * * * * curl -s <?php echo $pt->config->site_url; ?>/transcribe-cron.php &>/dev/null</code></li>
+                        </ul>
+                        <small class="text-muted">If a run is still processing when the next cron fires, another batch may start (separate PHP processes). Use a slower interval or fewer jobs per run if CPU spikes.</small>
                     </div>
                 </div>
             </div>
