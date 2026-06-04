@@ -45,6 +45,37 @@
                             <input type="number" class="form-control" name="transcript_queue_count" min="1" max="5" value="<?php echo (int) ($pt->config->transcript_queue_count ?? 1); ?>">
                             <small class="text-muted">Processed one after another per cron hit (not parallel). Raise only if the server has CPU/RAM headroom.</small>
                         </div>
+                        <hr>
+                        <h6>Server load alerts</h6>
+                        <div class="form-group">
+                            <label>Email alerts when CPU load is high</label>
+                            <select class="form-control" name="transcript_load_monitor">
+                                <option value="on" <?php echo (($pt->config->transcript_load_monitor ?? 'on') == 'on') ? 'selected' : ''; ?>>On</option>
+                                <option value="off" <?php echo (($pt->config->transcript_load_monitor ?? 'on') != 'on') ? 'selected' : ''; ?>>Off</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Alert email (blank = site email)</label>
+                            <input type="email" class="form-control" name="transcript_load_alert_email" value="<?php echo htmlspecialchars($pt->config->transcript_load_alert_email ?? ''); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Warning: load per CPU ≥</label>
+                            <input type="number" step="0.05" min="0.3" max="3" class="form-control" name="transcript_load_warn_per_cpu" value="<?php echo htmlspecialchars($pt->config->transcript_load_warn_per_cpu ?? '0.85'); ?>">
+                            <small class="text-muted">1.0 ≈ one core fully busy on average (1 min load ÷ CPU count).</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Critical: load per CPU ≥</label>
+                            <input type="number" step="0.05" min="0.5" max="5" class="form-control" name="transcript_load_crit_per_cpu" value="<?php echo htmlspecialchars($pt->config->transcript_load_crit_per_cpu ?? '1.25'); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Min minutes between alert emails</label>
+                            <input type="number" class="form-control" name="transcript_load_email_cooldown" min="5" max="1440" value="<?php echo (int) (($pt->config->transcript_load_email_cooldown ?? 3600) / 60); ?>">
+                            <small class="text-muted">Stored as seconds (value × 60 on save).</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Dashboard refresh (seconds)</label>
+                            <input type="number" class="form-control" name="transcript_load_poll_seconds" min="15" max="120" value="<?php echo (int) ($pt->config->transcript_load_poll_seconds ?? 30); ?>">
+                        </div>
                         <div class="form-group">
                             <label>Max video duration (seconds, 0 = no limit)</label>
                             <input type="number" class="form-control" name="transcript_max_duration" value="<?php echo (int) ($pt->config->transcript_max_duration ?? 7200); ?>">
@@ -163,6 +194,25 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
+                    <h6 class="card-title">Server load (transcription)
+                        <span id="load-health-badge" class="label label-default m-l-10">—</span>
+                        <small class="text-muted pull-right" id="load-last-updated"></small>
+                    </h6>
+                    <div id="transcript-load-panel">
+                        <p class="text-muted">Loading…</p>
+                    </div>
+                    <button type="button" class="btn btn-default btn-sm" id="refresh-load-btn">Refresh now</button>
+                    <button type="button" class="btn btn-default btn-sm m-l-10" id="test-load-alert-btn">Send test alert email</button>
+                    <div class="transcribe-load-alert m-t-10"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
                     <h6 class="card-title">Channel transcript status</h6>
                     <div id="transcript-status-panel">
                         <p class="text-muted">Select a channel and click Refresh status.</p>
@@ -257,6 +307,81 @@ $('#regenerate-seo-btn').on('click', function() {
         refreshTranscriptStatus();
     }, 'json');
 });
+
+var loadPollTimer = null;
+
+function loadHealthClass(level) {
+    if (level === 'ok') return 'label-success';
+    if (level === 'warning') return 'label-warning';
+    if (level === 'critical') return 'label-danger';
+    return 'label-default';
+}
+
+function formatTs(ts) {
+    if (!ts) return '—';
+    var d = new Date(ts * 1000);
+    return d.toLocaleString();
+}
+
+function refreshTranscriptLoad() {
+    $.get('{{LINK aj/ap/transcribe_load_status}}', {}, function(res) {
+        if (res.status != 200 || !res.snapshot) {
+            $('#transcript-load-panel').html('<p class="text-danger">' + (res.message || 'Could not read server load') + '</p>');
+            return;
+        }
+        var s = res.snapshot;
+        var h = res.health || {};
+        $('#load-health-badge').attr('class', 'label m-l-10 ' + loadHealthClass(h.level)).text(h.label || '—');
+        $('#load-last-updated').text('Updated ' + formatTs(s.time));
+        var html = '<p>' + $('<div>').text(h.message || '').html() + '</p>';
+        html += '<table class="table table-bordered table-condensed"><tbody>';
+        html += '<tr><th>Load avg (1 / 5 / 15 min)</th><td>' + (s.load_1 != null ? s.load_1 : '—') + ' / ' + (s.load_5 != null ? s.load_5 : '—') + ' / ' + (s.load_15 != null ? s.load_15 : '—') + '</td></tr>';
+        html += '<tr><th>CPU cores</th><td>' + (s.cpus || '—') + '</td></tr>';
+        html += '<tr><th>Load per CPU (1 min)</th><td>' + (s.load_per_cpu != null ? s.load_per_cpu : '—') + '</td></tr>';
+        if (s.memory_percent != null) {
+            html += '<tr><th>Memory used</th><td>' + s.memory_percent + '%</td></tr>';
+        }
+        html += '<tr><th>Queue waiting / processing</th><td>' + (s.queue.queued||0) + ' / ' + (s.queue.processing||0) + '</td></tr>';
+        html += '<tr><th>Jobs per cron (setting)</th><td>' + (s.jobs_per_cron||'—') + '</td></tr>';
+        html += '<tr><th>Email alerts</th><td>' + (res.monitor_enabled ? 'On → ' + $('<div>').text(res.alert_email || 'not set').html() : 'Off') + '</td></tr>';
+        if (res.last_alert) {
+            html += '<tr><th>Last alert sent</th><td>' + formatTs(res.last_alert) + '</td></tr>';
+        }
+        html += '</tbody></table>';
+        if (h.advice && h.advice.length) {
+            html += '<div class="alert alert-' + (h.level === 'critical' ? 'danger' : 'warning') + '"><strong>Suggestions</strong><ul>';
+            h.advice.forEach(function(t) { html += '<li>' + $('<div>').text(t).html() + '</li>'; });
+            html += '</ul></div>';
+        }
+        if (res.history && res.history.length) {
+            html += '<h6>Recent samples</h6><table class="table table-sm table-bordered"><tr><th>Time</th><th>Load/CPU</th><th>Level</th><th>Queue</th></tr>';
+            res.history.slice().reverse().slice(0, 12).forEach(function(row) {
+                html += '<tr><td>' + formatTs(row.time) + '</td><td>' + (row.load_per_cpu != null ? row.load_per_cpu : '—') + '</td><td>' + row.level + '</td><td>' + (row.queued||0) + '/' + (row.processing||0) + '</td></tr>';
+            });
+            html += '</table><small class="text-muted">New history point at most every 2 minutes (cron or this page).</small>';
+        }
+        $('#transcript-load-panel').html(html);
+    }, 'json');
+}
+
+function scheduleLoadPoll() {
+    if (loadPollTimer) clearInterval(loadPollTimer);
+    var sec = parseInt($('input[name="transcript_load_poll_seconds"]').val(), 10) || 30;
+    if (sec < 15) sec = 15;
+    loadPollTimer = setInterval(refreshTranscriptLoad, sec * 1000);
+}
+
+$('#refresh-load-btn').on('click', refreshTranscriptLoad);
+$('#test-load-alert-btn').on('click', function() {
+    $.post('{{LINK aj/ap/transcribe_load_test_alert}}', {}, function(res) {
+        var cls = res.status == 200 ? 'alert-success' : 'alert-danger';
+        $('.transcribe-load-alert').html('<div class="alert ' + cls + '">' + (res.message || '') + '</div>');
+    }, 'json');
+});
+
+refreshTranscriptLoad();
+scheduleLoadPoll();
+$('input[name="transcript_load_poll_seconds"]').on('change', scheduleLoadPoll);
 
 $('#apply-desc-btn').on('click', function() {
     var channelId = $('#channel_id').val();

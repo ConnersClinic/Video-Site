@@ -4853,6 +4853,12 @@ if ($first == 'transcribe_settings') {
         'clinic_cta_html',
         'transcript_description_mode',
         'openai_summary_prompt',
+        'transcript_load_monitor',
+        'transcript_load_alert_email',
+        'transcript_load_warn_per_cpu',
+        'transcript_load_crit_per_cpu',
+        'transcript_load_email_cooldown',
+        'transcript_load_poll_seconds',
     );
     if (!empty($_POST)) {
         foreach ($allowed as $key) {
@@ -4868,6 +4874,22 @@ if ($first == 'transcribe_settings') {
             }
             if ($key == 'transcript_system') {
                 $val = ($val == 'on') ? 'on' : 'off';
+            }
+            if ($key == 'transcript_load_monitor') {
+                $val = ($val == 'on') ? 'on' : 'off';
+            }
+            if ($key == 'transcript_load_alert_email') {
+                $val = trim($val);
+            }
+            if (in_array($key, array('transcript_load_warn_per_cpu', 'transcript_load_crit_per_cpu'), true)) {
+                $val = is_numeric($val) ? (string) round((float) $val, 2) : '0.85';
+            }
+            if ($key == 'transcript_load_email_cooldown') {
+                $minutes = is_numeric($val) ? (int) $val : 60;
+                $val = (string) max(300, min(86400, $minutes * 60));
+            }
+            if ($key == 'transcript_load_poll_seconds') {
+                $val = is_numeric($val) ? (string) max(15, min(120, (int) $val)) : '30';
             }
             if ($key == 'transcript_description_mode' && !in_array($val, array('display_only', 'replace_description', 'append_summary'), true)) {
                 $val = 'replace_description';
@@ -4892,6 +4914,39 @@ if ($first == 'transcribe_test_openai') {
         'message' => !empty($test['message']) ? $test['message'] : '',
         'error' => !empty($test['error']) ? $test['error'] : '',
     );
+}
+
+if ($first == 'transcribe_load_status') {
+    $data = array('status' => 200);
+    if (function_exists('PT_GetTranscriptLoadStatusPayload')) {
+        $payload = PT_GetTranscriptLoadStatusPayload();
+        $data = array_merge($data, $payload);
+    } else {
+        $data['message'] = 'Load monitor not available';
+    }
+}
+
+if ($first == 'transcribe_load_test_alert') {
+    if (!function_exists('PT_GetServerLoadSnapshot')) {
+        $data = array('status' => 400, 'message' => 'Load monitor not available');
+    } else {
+        $snapshot = PT_GetServerLoadSnapshot();
+        $health = PT_EvaluateTranscriptLoadHealth($snapshot);
+        $health['level'] = 'warning';
+        $health['label'] = 'Test';
+        $health['message'] = 'This is a test alert from the Transcribe Videos admin page.';
+        $health['advice'] = array('If you received this email, alerts are configured correctly.');
+        $result = PT_MaybeSendTranscriptLoadAlert($snapshot, $health, true);
+        if (!empty($result['sent'])) {
+            $data = array('status' => 200, 'message' => 'Test alert sent to ' . $result['to']);
+        } else {
+            $data = array(
+                'status' => 400,
+                'message' => 'Could not send test alert: ' . (!empty($result['reason']) ? $result['reason'] : 'unknown'),
+                'detail' => $result,
+            );
+        }
+    }
 }
 
 if ($first == 'transcribe_regenerate_summaries') {

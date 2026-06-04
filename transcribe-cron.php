@@ -45,6 +45,13 @@ if (is_callable('litespeed_finish_request')) {
     litespeed_finish_request();
 }
 
+if (function_exists('PT_RecordTranscriptLoadSnapshot')) {
+    $load_record = PT_RecordTranscriptLoadSnapshot(true);
+    if (!empty($load_record['snapshot']) && !empty($load_record['health'])) {
+        PT_MaybeSendTranscriptLoadAlert($load_record['snapshot'], $load_record['health']);
+    }
+}
+
 foreach ($process_queue as $queue_row) {
     $db->where('id', (int) $queue_row['id'])->update(T_TRANSCRIPT_QUEUE, array('processing' => 1));
     try {

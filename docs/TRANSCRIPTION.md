@@ -59,6 +59,16 @@ Full transcript is **never** written to `videos.description`.
 
 Meta / Open Graph descriptions use the SEO summary when available (~220 chars).
 
+## Server load monitoring
+
+**Admin Panel → Tools → Transcribe Videos** includes a **Server load** panel (auto-refresh) and optional **email alerts** when 1-minute load per CPU exceeds your thresholds (default warning 0.85, critical 1.25).
+
+- Samples are recorded at most every **2 minutes** (transcription cron or admin refresh).
+- Alerts use the site SMTP settings; set **Alert email** or leave blank for the main site email.
+- **Send test alert email** verifies delivery without waiting for high load.
+
+Config keys are in `migrations/2028_transcript_load_monitor.sql` for existing installs.
+
 ## Troubleshooting
 
 | Issue | Check |
