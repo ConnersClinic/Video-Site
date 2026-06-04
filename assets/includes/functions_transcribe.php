@@ -337,94 +337,27 @@ function PT_BuildWatchCtaTrustHtml($labels) {
     return '<div class="watch-cta-trust" aria-hidden="true">' . $spans . '</div>';
 }
 
-function PT_ParseVideoTagsForWatch($video) {
-    $raw = '';
-    if (!empty($video->tags)) {
-        $raw = $video->tags;
-    } elseif (!empty($video->tags_array) && is_array($video->tags_array)) {
-        return array_values(array_filter(array_map('trim', $video->tags_array)));
-    }
-    $raw = trim(strip_tags((string) $raw));
-    if ($raw === '') {
-        return array();
-    }
-    $parts = preg_split('/[,#]+/', $raw);
-    $tags = array();
-    foreach ($parts as $part) {
-        $part = trim($part);
-        if ($part !== '') {
-            $tags[] = $part;
-        }
-    }
-    return array_slice($tags, 0, 12);
-}
-
-function PT_BuildWatchVideoTagsHtml($video) {
-    $tags = PT_ParseVideoTagsForWatch($video);
-    if (count($tags) < 1) {
-        return '';
-    }
-    $spans = '';
-    foreach ($tags as $tag) {
-        $spans .= '<span class="watch-about-tag">' . htmlspecialchars($tag) . '</span>';
-    }
-    return '<div class="watch-about-tags">' . $spans . '</div>';
-}
-
-function PT_GetWatchTranscriptPlainText($video, $row) {
-    if (empty($row) || PT_DbVal($row, 'status') !== 'completed') {
-        return '';
-    }
-    $display_text = PT_DbVal($row, 'plain_text', '');
-    if (function_exists('PT_GetDisplayTranscriptForVideo')) {
-        $cleaned = PT_GetDisplayTranscriptForVideo($video->id);
-        if ($cleaned !== '') {
-            $display_text = $cleaned;
-        }
-    }
-    return trim(strip_tags((string) $display_text));
-}
-
-function PT_BuildWatchTranscriptPreviewText($plain_text, $max = 280) {
-    $plain_text = trim(preg_replace('/\s+/', ' ', strip_tags($plain_text)));
-    if ($plain_text === '') {
-        return '';
-    }
-    if (mb_strlen($plain_text, 'UTF-8') <= $max) {
-        return $plain_text;
-    }
-    return mb_substr($plain_text, 0, $max, 'UTF-8') . '...';
-}
-
 function PT_BuildWatchPrimaryCtaHtml() {
     $cfg = PT_GetWatchCtaConfig();
     if (PT_IsWatchCtaHtmlOverride($cfg['html_override'])) {
         $html = $cfg['html_override'];
-        if (stripos($html, 'watch-cta-top') !== false || stripos($html, 'watch-cta-strip') !== false) {
+        if (stripos($html, 'watch-cta-strip') !== false) {
             return $html;
         }
-        return '<aside class="watch-cta-top watch-card watch-cta-strip" aria-label="Schedule a discovery call">' . $html . '</aside>';
+        return '<aside class="watch-cta-strip" aria-label="Schedule a discovery call">' . $html . '</aside>';
     }
     $headline = htmlspecialchars($cfg['headline']);
     $body = htmlspecialchars($cfg['body']);
     $button_text = htmlspecialchars($cfg['button_text']);
     $button_url = htmlspecialchars($cfg['button_url'], ENT_QUOTES, 'UTF-8');
-    $eyebrow = 'Personalized guidance';
-    if (!empty($cfg['trust_labels'][0])) {
-        $eyebrow = $cfg['trust_labels'][0];
-    }
-    $eyebrow_html = '<span class="watch-cta-eyebrow">' . htmlspecialchars($eyebrow) . '</span>';
-    $trust_html = PT_BuildWatchCtaTrustHtml($cfg['trust_labels']);
-    return '<aside class="watch-cta-top watch-card watch-cta-strip" aria-label="Schedule a discovery call">'
-        . '<div class="watch-cta-top-orb" aria-hidden="true"></div>'
-        . $eyebrow_html
-        . '<div class="watch-cta-top-grid watch-cta-strip-inner">'
-        . '<div class="watch-cta-strip-text watch-cta-top-text">'
-        . '<p class="watch-cta-strip-headline watch-cta-top-headline">' . $headline . '</p>'
-        . '<p class="watch-cta-strip-body watch-cta-top-body">' . $body . '</p>'
-        . $trust_html
+    return '<aside class="watch-cta-strip" aria-label="Schedule a discovery call">'
+        . '<div class="watch-cta-strip-accent" aria-hidden="true"></div>'
+        . '<div class="watch-cta-strip-inner">'
+        . '<div class="watch-cta-strip-text">'
+        . '<p class="watch-cta-strip-headline">' . $headline . '</p>'
+        . '<p class="watch-cta-strip-body">' . $body . '</p>'
         . '</div>'
-        . '<a class="btn btn-main watch-cta-strip-btn watch-btn-primary" href="' . $button_url . '" target="_blank" rel="noopener noreferrer">' . $button_text . '</a>'
+        . '<a class="btn btn-main watch-cta-strip-btn" href="' . $button_url . '" target="_blank" rel="noopener noreferrer">' . $button_text . '</a>'
         . '</div>'
         . '</aside>';
 }
@@ -433,22 +366,19 @@ function PT_BuildWatchSecondaryCtaHtml() {
     $cfg = PT_GetWatchSecondaryCtaConfig();
     if (PT_IsWatchCtaHtmlOverride($cfg['html_override'])) {
         $html = $cfg['html_override'];
-        if (stripos($html, 'watch-cta-bottom') !== false || stripos($html, 'watch-cta-secondary') !== false) {
+        if (stripos($html, 'watch-cta-secondary') !== false) {
             return $html;
         }
-        return '<section class="watch-cta-bottom watch-card watch-cta-secondary" aria-label="Schedule a discovery call">' . $html . '</section>';
+        return '<section class="watch-cta-secondary" aria-label="Schedule a discovery call">' . $html . '</section>';
     }
     $headline = htmlspecialchars($cfg['headline']);
     $body = htmlspecialchars($cfg['body']);
     $button_text = htmlspecialchars($cfg['button_text']);
     $button_url = htmlspecialchars($cfg['button_url'], ENT_QUOTES, 'UTF-8');
-    if ($button_url === '') {
-        return '';
-    }
-    return '<section class="watch-cta-bottom watch-card watch-cta-secondary" aria-label="Schedule a discovery call">'
+    return '<section class="watch-cta-secondary" aria-label="Schedule a discovery call">'
         . '<h3 class="watch-section-heading watch-cta-secondary-heading">' . $headline . '</h3>'
         . '<p class="watch-cta-secondary-body">' . $body . '</p>'
-        . '<a class="btn btn-main watch-cta-secondary-btn watch-btn-primary" href="' . $button_url . '" target="_blank" rel="noopener noreferrer">' . $button_text . '</a>'
+        . '<a class="btn btn-main watch-cta-secondary-btn" href="' . $button_url . '" target="_blank" rel="noopener noreferrer">' . $button_text . '</a>'
         . '</section>';
 }
 
@@ -461,14 +391,13 @@ function PT_BuildWatchKeyTakeawaysHtml($takeaways) {
     foreach ($takeaways as $item) {
         $lis .= '<li>' . htmlspecialchars($item) . '</li>';
     }
-    return '<section class="watch-section watch-section-takeaways watch-card">'
+    return '<section class="watch-section watch-section-takeaways">'
         . '<h3 class="watch-section-heading">Key Takeaways</h3>'
         . '<ul class="watch-takeaways-list">' . $lis . '</ul>'
         . '</section>';
 }
 
-function PT_BuildWatchAboutVideoHtml($seo_summary, $fallback_markup = '', $video = null) {
-    $tags_html = ($video !== null) ? PT_BuildWatchVideoTagsHtml($video) : '';
+function PT_BuildWatchAboutVideoHtml($seo_summary, $fallback_markup = '') {
     $summary_html = PT_BuildSeoSummaryHtml($seo_summary);
     if ($summary_html !== '') {
         $long = mb_strlen(strip_tags($seo_summary), 'UTF-8') > 520;
@@ -476,48 +405,40 @@ function PT_BuildWatchAboutVideoHtml($seo_summary, $fallback_markup = '', $video
             ? '<button type="button" class="watch-expand-btn" data-watch-expand="summary" aria-expanded="false">Read more</button>'
             : '';
         $long_class = $long ? ' watch-about-body--collapsible' : '';
-        return '<section class="watch-section watch-section-about watch-card" itemprop="description">'
-            . '<h3 class="watch-section-heading">About this video</h3>'
+        return '<section class="watch-section watch-section-about" itemprop="description">'
+            . '<h3 class="watch-section-heading">About This Video</h3>'
             . '<div class="watch-about-body' . $long_class . '">' . $summary_html . '</div>'
-            . $tags_html
             . $expand
             . '</section>';
     }
     if (trim(strip_tags($fallback_markup)) !== '') {
-        return '<section class="watch-section watch-section-about watch-section-legacy watch-card" itemprop="description">'
-            . '<h3 class="watch-section-heading">About this video</h3>'
+        return '<section class="watch-section watch-section-about watch-section-legacy" itemprop="description">'
+            . '<h3 class="watch-section-heading">About This Video</h3>'
             . '<div class="watch-about-body"><p dir="auto">' . $fallback_markup . '</p></div>'
-            . $tags_html
-            . '</section>';
-    }
-    if ($tags_html !== '') {
-        return '<section class="watch-section watch-section-about watch-card" itemprop="description">'
-            . '<h3 class="watch-section-heading">About this video</h3>'
-            . '<p class="watch-about-body is-placeholder">No description available.</p>'
-            . $tags_html
             . '</section>';
     }
     return '';
 }
 
 function PT_BuildWatchTranscriptSectionHtml($video, $row) {
-    $plain_text = PT_GetWatchTranscriptPlainText($video, $row);
-    $preview = PT_BuildWatchTranscriptPreviewText($plain_text);
-    $has_full = $plain_text !== '';
-    if (!$has_full) {
-        return '<section class="watch-section watch-section-transcript watch-card">'
-            . '<h3 class="watch-section-heading">Transcript</h3>'
-            . '<p class="watch-transcript-preview is-placeholder">Transcript not available.</p>'
-            . '</section>';
+    $has_transcript = !empty($row) && PT_DbVal($row, 'status') === 'completed' && !empty(PT_DbVal($row, 'plain_text'));
+    if (!$has_transcript) {
+        return '';
     }
-    $body = PT_FormatTranscriptForDisplay($plain_text);
-    $preview_html = '<div class="watch-transcript-preview">' . htmlspecialchars($preview) . '</div>';
-    $toggle = '<button type="button" class="watch-transcript-toggle" aria-expanded="false" aria-controls="watch-transcript-panel">'
-        . 'Show full transcript <span class="watch-chevron" aria-hidden="true">&#9662;</span></button>';
-    return '<section class="watch-section watch-section-transcript watch-card">'
+    $display_text = PT_DbVal($row, 'plain_text', '');
+    if (function_exists('PT_GetDisplayTranscriptForVideo')) {
+        $cleaned = PT_GetDisplayTranscriptForVideo($video->id);
+        if ($cleaned !== '') {
+            $display_text = $cleaned;
+        }
+    }
+    $body = PT_FormatTranscriptForDisplay($display_text);
+    if ($body === '') {
+        return '';
+    }
+    return '<section class="watch-section watch-section-transcript">'
         . '<h3 class="watch-section-heading">Transcript</h3>'
-        . $preview_html
-        . $toggle
+        . '<button type="button" class="watch-transcript-toggle" aria-expanded="false" aria-controls="watch-transcript-panel">Show Full Transcript</button>'
         . '<div id="watch-transcript-panel" class="watch-transcript-panel" hidden>'
         . '<div class="watch-transcript-body">' . $body . '</div>'
         . '</div>'
@@ -547,21 +468,13 @@ function PT_BuildWatchDescriptionTabsHtml($video) {
             $parts[] = $takeaways_html;
         }
     }
-    $about = PT_BuildWatchAboutVideoHtml($seo_summary, $fallback_markup, $video);
+    $about = PT_BuildWatchAboutVideoHtml($seo_summary, $fallback_markup);
+    if ($about !== '') {
+        $parts[] = $about;
+    }
     $transcript = PT_BuildWatchTranscriptSectionHtml($video, $row);
-    if ($about !== '' || $transcript !== '') {
-        $grid = array('<div class="watch-about-transcript-grid">');
-        if ($about !== '') {
-            $grid[] = $about;
-        } else {
-            $grid[] = '<section class="watch-section watch-section-about watch-card" itemprop="description">'
-                . '<h3 class="watch-section-heading">About this video</h3>'
-                . '<p class="watch-about-body is-placeholder">No description available.</p>'
-                . '</section>';
-        }
-        $grid[] = $transcript;
-        $grid[] = '</div>';
-        $parts[] = implode("\n", $grid);
+    if ($transcript !== '') {
+        $parts[] = $transcript;
     }
     $parts[] = PT_BuildWatchSecondaryCtaHtml();
     $parts[] = '</div>';
