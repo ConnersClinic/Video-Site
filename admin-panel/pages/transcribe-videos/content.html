@@ -111,10 +111,43 @@
                         </div>
                         <div class="form-group">
                             <label>Clinic CTA (HTML)</label>
+                            <small class="text-muted d-block m-b-5">Used in video descriptions when transcripts update the database (not the watch-page card below).</small>
                             <textarea class="form-control" name="clinic_cta_html" rows="10"><?php
                             $cta_val = !empty($pt->config->clinic_cta_html) ? $pt->config->clinic_cta_html : PT_GetClinicCtaHtmlDefault();
                             echo htmlspecialchars($cta_val);
                             ?></textarea>
+                        </div>
+                        <hr>
+                        <h6>Watch page CTA card</h6>
+                        <p class="text-muted">Shown on every video watch page (below title/metadata). Leave HTML override empty to use the fields below.</p>
+                        <?php $watch_cta_defaults = PT_GetWatchCtaDefaults(); ?>
+                        <div class="form-group">
+                            <label>Headline</label>
+                            <input type="text" class="form-control" name="watch_cta_headline" value="<?php echo htmlspecialchars($pt->config->watch_cta_headline ?? $watch_cta_defaults['headline']); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Body</label>
+                            <textarea class="form-control" name="watch_cta_body" rows="3"><?php echo htmlspecialchars($pt->config->watch_cta_body ?? $watch_cta_defaults['body']); ?></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Button text</label>
+                            <input type="text" class="form-control" name="watch_cta_button_text" value="<?php echo htmlspecialchars($pt->config->watch_cta_button_text ?? $watch_cta_defaults['button_text']); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Button URL</label>
+                            <input type="url" class="form-control" name="watch_cta_button_url" value="<?php echo htmlspecialchars($pt->config->watch_cta_button_url ?? $watch_cta_defaults['button_url']); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Trust labels (one per line)</label>
+                            <textarea class="form-control" name="watch_cta_trust_labels" rows="3"><?php
+                            $trust_val = !empty($pt->config->watch_cta_trust_labels) ? $pt->config->watch_cta_trust_labels : $watch_cta_defaults['trust_labels'];
+                            echo htmlspecialchars($trust_val);
+                            ?></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Full HTML override (optional)</label>
+                            <small class="text-muted d-block m-b-5">If set, replaces the card built from the fields above. You may include <code>watch-card watch-card-cta</code> classes or plain inner HTML.</small>
+                            <textarea class="form-control" name="watch_page_cta_html" rows="6"><?php echo htmlspecialchars($pt->config->watch_page_cta_html ?? ''); ?></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">Save settings</button>
                         <button type="button" class="btn btn-default m-l-10" id="test-openai-btn">Test OpenAI</button>

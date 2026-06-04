@@ -237,16 +237,79 @@ function PT_EncodeKeyTakeawaysForDb($takeaways) {
     return json_encode(array_values($items), JSON_UNESCAPED_UNICODE);
 }
 
+function PT_GetWatchCtaDefaults() {
+    return array(
+        'headline' => 'Need help understanding what\'s driving your health concerns?',
+        'body' => 'Conners Clinic helps patients look deeper through personalized coaching, advanced testing, education, and root-cause-focused support.',
+        'button_text' => 'Schedule a Free 15-Minute Discovery Call',
+        'button_url' => 'https://www.connersclinic.com/schedule-now/',
+        'trust_labels' => "Personalized Coaching\nAdvanced Testing\nRoot-Cause Focused Support",
+    );
+}
+
+function PT_GetWatchCtaConfig() {
+    global $pt;
+    $defaults = PT_GetWatchCtaDefaults();
+    $trust_raw = !empty($pt->config->watch_cta_trust_labels)
+        ? $pt->config->watch_cta_trust_labels
+        : $defaults['trust_labels'];
+    return array(
+        'headline' => trim(!empty($pt->config->watch_cta_headline) ? $pt->config->watch_cta_headline : $defaults['headline']),
+        'body' => trim(!empty($pt->config->watch_cta_body) ? $pt->config->watch_cta_body : $defaults['body']),
+        'button_text' => trim(!empty($pt->config->watch_cta_button_text) ? $pt->config->watch_cta_button_text : $defaults['button_text']),
+        'button_url' => trim(!empty($pt->config->watch_cta_button_url) ? $pt->config->watch_cta_button_url : $defaults['button_url']),
+        'trust_labels' => PT_ParseWatchCtaTrustLabels($trust_raw),
+        'html_override' => trim(!empty($pt->config->watch_page_cta_html) ? $pt->config->watch_page_cta_html : ''),
+    );
+}
+
+function PT_ParseWatchCtaTrustLabels($raw) {
+    $raw = trim((string) $raw);
+    if ($raw === '') {
+        return array();
+    }
+    $parts = preg_split('/[\r\n|]+/', $raw);
+    $labels = array();
+    foreach ($parts as $part) {
+        $part = trim(strip_tags($part));
+        if ($part !== '') {
+            $labels[] = $part;
+        }
+    }
+    return $labels;
+}
+
+function PT_BuildWatchCtaTrustHtml($labels) {
+    if (empty($labels)) {
+        return '';
+    }
+    $spans = '';
+    foreach ($labels as $label) {
+        $spans .= '<span>' . htmlspecialchars($label) . '</span>';
+    }
+    return '<div class="watch-cta-trust" aria-hidden="true">' . $spans . '</div>';
+}
+
 function PT_BuildWatchPrimaryCtaHtml() {
+    global $pt;
+    $cfg = PT_GetWatchCtaConfig();
+    if ($cfg['html_override'] !== '') {
+        $html = $cfg['html_override'];
+        if (stripos($html, 'watch-card-cta') !== false) {
+            return $html;
+        }
+        return '<section class="watch-card watch-card-cta" aria-label="Schedule a discovery call">' . $html . '</section>';
+    }
+    $headline = htmlspecialchars($cfg['headline']);
+    $body = htmlspecialchars($cfg['body']);
+    $button_text = htmlspecialchars($cfg['button_text']);
+    $button_url = htmlspecialchars($cfg['button_url'], ENT_QUOTES, 'UTF-8');
+    $trust_html = PT_BuildWatchCtaTrustHtml($cfg['trust_labels']);
     return '<section class="watch-card watch-card-cta" aria-label="Schedule a discovery call">'
-        . '<h2 class="watch-card-heading">Need help understanding what&rsquo;s driving your health concerns?</h2>'
-        . '<p class="watch-card-body">Conners Clinic helps patients look deeper through personalized coaching, advanced testing, education, and root-cause-focused support.</p>'
-        . '<div class="watch-cta-trust" aria-hidden="true">'
-        . '<span>Personalized Coaching</span><span class="watch-cta-trust-dot">&middot;</span>'
-        . '<span>Advanced Testing</span><span class="watch-cta-trust-dot">&middot;</span>'
-        . '<span>Root-Cause Focused Support</span>'
-        . '</div>'
-        . '<a class="btn btn-main watch-cta-btn" href="https://www.connersclinic.com/schedule-now/" target="_blank" rel="noopener noreferrer">Schedule a Free 15-Minute Discovery Call</a>'
+        . '<h2 class="watch-card-heading">' . $headline . '</h2>'
+        . '<p class="watch-card-body">' . $body . '</p>'
+        . $trust_html
+        . '<a class="btn btn-main watch-cta-btn" href="' . $button_url . '" target="_blank" rel="noopener noreferrer">' . $button_text . '</a>'
         . '</section>';
 }
 

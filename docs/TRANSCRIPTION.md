@@ -8,9 +8,10 @@ Run once in phpMyAdmin (**select database `3595_connersclinic` first**):
 
 1. `migrations/2026_transcription.sql` — queue + transcript tables  
 2. `migrations/2027_transcript_seo.sql` — `seo_summary`, description modes, OpenAI config  
-3. `migrations/2029_video_key_takeaways.sql` — `key_takeaways` JSON on `video_transcripts`
+3. `migrations/2029_video_key_takeaways.sql` — `key_takeaways` JSON on `video_transcripts`  
+4. `migrations/2030_watch_page_cta_config.sql` — global watch-page CTA settings in `config`
 
-Fresh installs include all of the above in `playtube.sql`.
+Fresh installs: run migrations on existing databases; defaults apply even before migration via PHP fallbacks.
 
 ## Server requirements
 
@@ -32,7 +33,7 @@ There is no minimum interval in code. Avoid `* * * * *` (every minute) unless th
 
 1. Enable **Transcription system**; configure Whisper/Python if available on server.  
 2. Set **OpenAI API key** and model (`gpt-4o-mini` recommended).  
-3. Set **Clinic CTA** HTML and **description mode** (see below).  
+3. Set **Clinic CTA** HTML (database descriptions), **Watch page CTA card** (headline, body, button, trust labels), and **description mode** (see below).  
 4. **Test OpenAI** to confirm API access.  
 5. Enqueue videos by **channel**; cron runs Whisper.  
 6. After transcripts complete: **Generate SEO summaries** (OpenAI batch).  
