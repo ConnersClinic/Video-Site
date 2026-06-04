@@ -2227,6 +2227,7 @@ CREATE TABLE `video_transcripts` (
   `status` varchar(20) NOT NULL DEFAULT 'pending',
   `plain_text` mediumtext,
   `seo_summary` mediumtext,
+  `key_takeaways` json DEFAULT NULL,
   `description_applied` tinyint(1) NOT NULL DEFAULT '0',
   `vtt_path` varchar(500) NOT NULL DEFAULT '',
   `language` varchar(10) NOT NULL DEFAULT 'en',

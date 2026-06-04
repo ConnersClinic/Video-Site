@@ -96,10 +96,12 @@ function PT_AttachTranscriptToVideo($video) {
     $video->transcript_vtt_url = '';
     $video->transcript_language = 'en';
     $video->transcript_row = null;
+    $video->key_takeaways = array();
     $video->has_completed_transcript = false;
     $row = PT_GetVideoTranscript($video->id);
     if (!empty($row) && PT_DbVal($row, 'status') === 'completed') {
         $video->transcript_row = $row;
+        $video->key_takeaways = PT_ParseKeyTakeaways(PT_DbVal($row, 'key_takeaways', ''));
         $video->has_completed_transcript = true;
         if (!empty(PT_DbVal($row, 'vtt_path'))) {
             $video->transcript_vtt_url = PT_GetTranscriptVttUrl($video);
@@ -184,70 +186,219 @@ function PT_BuildSeoSummaryHtml($seo_summary) {
     return $html;
 }
 
+function PT_ParseKeyTakeaways($stored) {
+    if ($stored === null || $stored === '') {
+        return array();
+    }
+    if (is_array($stored)) {
+        $decoded = $stored;
+    } else {
+        $decoded = json_decode($stored, true);
+    }
+    if (!is_array($decoded)) {
+        return array();
+    }
+    $items = array();
+    foreach ($decoded as $item) {
+        if (!is_string($item)) {
+            continue;
+        }
+        $item = trim(strip_tags($item));
+        if ($item === '') {
+            continue;
+        }
+        if (mb_strlen($item, 'UTF-8') > 160) {
+            $item = mb_substr($item, 0, 157, 'UTF-8') . '...';
+        }
+        $items[] = $item;
+        if (count($items) >= 5) {
+            break;
+        }
+    }
+    return $items;
+}
+
+function PT_GetVideoKeyTakeaways($video) {
+    $row = !empty($video->transcript_row) ? $video->transcript_row : null;
+    if (empty($row) && !empty($video->id)) {
+        $row = PT_GetVideoTranscript($video->id);
+    }
+    if (empty($row)) {
+        return array();
+    }
+    return PT_ParseKeyTakeaways(PT_DbVal($row, 'key_takeaways', ''));
+}
+
+function PT_EncodeKeyTakeawaysForDb($takeaways) {
+    $items = PT_ParseKeyTakeaways($takeaways);
+    if (empty($items)) {
+        return null;
+    }
+    return json_encode(array_values($items), JSON_UNESCAPED_UNICODE);
+}
+
+function PT_BuildWatchPrimaryCtaHtml() {
+    return '<section class="watch-card watch-card-cta" aria-label="Schedule a discovery call">'
+        . '<h2 class="watch-card-heading">Need help understanding what&rsquo;s driving your health concerns?</h2>'
+        . '<p class="watch-card-body">Conners Clinic helps patients look deeper through personalized coaching, advanced testing, education, and root-cause-focused support.</p>'
+        . '<div class="watch-cta-trust" aria-hidden="true">'
+        . '<span>Personalized Coaching</span><span class="watch-cta-trust-dot">&middot;</span>'
+        . '<span>Advanced Testing</span><span class="watch-cta-trust-dot">&middot;</span>'
+        . '<span>Root-Cause Focused Support</span>'
+        . '</div>'
+        . '<a class="watch-cta-btn" href="https://www.connersclinic.com/schedule-now/" target="_blank" rel="noopener noreferrer">Schedule a Free 15-Minute Discovery Call</a>'
+        . '</section>';
+}
+
+function PT_BuildWatchKeyTakeawaysHtml($takeaways) {
+    $takeaways = PT_ParseKeyTakeaways($takeaways);
+    if (empty($takeaways)) {
+        return '';
+    }
+    $lis = '';
+    foreach ($takeaways as $item) {
+        $lis .= '<li>' . htmlspecialchars($item) . '</li>';
+    }
+    return '<section class="watch-card watch-card-takeaways">'
+        . '<h2 class="watch-card-heading">Key Takeaways</h2>'
+        . '<ul class="watch-takeaways-list">' . $lis . '</ul>'
+        . '</section>';
+}
+
+function PT_BuildWatchAboutVideoHtml($seo_summary, $fallback_markup = '') {
+    $summary_html = PT_BuildSeoSummaryHtml($seo_summary);
+    if ($summary_html !== '') {
+        $long = mb_strlen(strip_tags($seo_summary), 'UTF-8') > 520;
+        $expand = $long
+            ? '<button type="button" class="watch-expand-btn" data-watch-expand="summary" aria-expanded="false">Read more</button>'
+            : '';
+        $long_class = $long ? ' watch-about-body--collapsible' : '';
+        return '<section class="watch-card watch-card-about" itemprop="description">'
+            . '<h2 class="watch-card-heading">About This Video</h2>'
+            . '<div class="watch-about-body' . $long_class . '">' . $summary_html . '</div>'
+            . $expand
+            . '</section>';
+    }
+    if (trim(strip_tags($fallback_markup)) !== '') {
+        return '<section class="watch-card watch-card-about watch-card-legacy">'
+            . '<h2 class="watch-card-heading">About This Video</h2>'
+            . '<div class="watch-about-body"><p dir="auto">' . $fallback_markup . '</p></div>'
+            . '</section>';
+    }
+    return '';
+}
+
+function PT_BuildWatchTranscriptSectionHtml($video, $row) {
+    $has_transcript = !empty($row) && PT_DbVal($row, 'status') === 'completed' && !empty(PT_DbVal($row, 'plain_text'));
+    if (!$has_transcript) {
+        return '';
+    }
+    $display_text = PT_DbVal($row, 'plain_text', '');
+    if (function_exists('PT_GetDisplayTranscriptForVideo')) {
+        $cleaned = PT_GetDisplayTranscriptForVideo($video->id);
+        if ($cleaned !== '') {
+            $display_text = $cleaned;
+        }
+    }
+    $body = PT_FormatTranscriptForDisplay($display_text);
+    if ($body === '') {
+        return '';
+    }
+    return '<section class="watch-card watch-card-transcript">'
+        . '<div class="watch-transcript-header">'
+        . '<h2 class="watch-card-heading">Transcript</h2>'
+        . '<button type="button" class="watch-transcript-toggle" aria-expanded="false" aria-controls="watch-transcript-panel">Show Transcript</button>'
+        . '</div>'
+        . '<div id="watch-transcript-panel" class="watch-transcript-panel" hidden>'
+        . '<div class="watch-transcript-body">' . $body . '</div>'
+        . '</div>'
+        . '</section>';
+}
+
 function PT_BuildWatchDescriptionTabsHtml($video) {
     $row = !empty($video->transcript_row) ? $video->transcript_row : PT_GetVideoTranscript($video->id);
-    $has_transcript = !empty($row) && PT_DbVal($row, 'status') === 'completed' && !empty(PT_DbVal($row, 'plain_text'));
     $seo_summary = PT_DbVal($row, 'seo_summary', '');
-
-    $about_parts = array();
-    if ($seo_summary !== '') {
-        $about_parts[] = '<div class="watch-seo-summary" itemprop="description">' . PT_BuildSeoSummaryHtml($seo_summary) . '</div>';
-    } elseif (!$has_transcript) {
-        $about_parts[] = '<div class="watch-video-description"><p dir="auto" itemprop="description">' . $video->markup_description . '</p></div>';
-    }
-    $about_parts[] = '<div class="watch-clinic-cta">' . PT_GetDefaultClinicCtaHtml() . '</div>';
-    if ($seo_summary === '' && $has_transcript && !empty($video->markup_description)) {
-        $about_parts[] = '<div class="watch-legacy-description watch-video-description"><p dir="auto">' . $video->markup_description . '</p></div>';
-    }
-    $about_html = implode("\n", $about_parts);
-
-    $transcript_html = '';
-    if ($has_transcript) {
-        $display_text = PT_DbVal($row, 'plain_text', '');
-        if (function_exists('PT_GetDisplayTranscriptForVideo')) {
-            $cleaned = PT_GetDisplayTranscriptForVideo($video->id);
-            if ($cleaned !== '') {
-                $display_text = $cleaned;
-            }
-        }
-        $body = PT_FormatTranscriptForDisplay($display_text);
-        $transcript_html = '<h4 class="watch-transcript-heading">Transcript</h4>'
-            . '<div class="watch-transcript-body watch-video-description" style="max-height:100px;overflow:hidden;">' . $body . '</div>';
+    $takeaways = PT_GetVideoKeyTakeaways($video);
+    $has_summary = trim($seo_summary) !== '';
+    $has_takeaways = !empty($takeaways);
+    $fallback_markup = '';
+    if (!$has_summary && !empty($video->markup_description)) {
+        $fallback_markup = $video->markup_description;
     }
 
-    if (!$has_transcript) {
-        return '<div class="watch-video-desc-single">' . $about_html
-            . '<div class="watch-video-show-more desc pt_mn_wtch_rdmre">Show more</div></div>';
+    $parts = array('<div class="watch-content-below-video">');
+    $parts[] = PT_BuildWatchPrimaryCtaHtml();
+    if ($has_takeaways) {
+        $parts[] = PT_BuildWatchKeyTakeawaysHtml($takeaways);
     }
+    $about = PT_BuildWatchAboutVideoHtml($seo_summary, $fallback_markup);
+    if ($about !== '') {
+        $parts[] = $about;
+    }
+    $transcript = PT_BuildWatchTranscriptSectionHtml($video, $row);
+    if ($transcript !== '') {
+        $parts[] = $transcript;
+    }
+    $parts[] = '</div>';
+    return implode("\n", $parts);
+}
 
-    return '<div class="watch-video-desc-tabs">'
-        . '<ul class="nav nav-tabs watch-desc-nav" role="tablist">'
-        . '<li class="active"><a href="#watch-tab-about" data-toggle="tab" role="tab">About</a></li>'
-        . '<li><a href="#watch-tab-transcript" data-toggle="tab" role="tab">Transcript</a></li>'
-        . '</ul>'
-        . '<div class="tab-content watch-desc-tab-content">'
-        . '<div class="tab-pane active" id="watch-tab-about" role="tabpanel">' . $about_html
-        . '<div class="watch-video-show-more desc pt_mn_wtch_rdmre">Show more</div></div>'
-        . '<div class="tab-pane" id="watch-tab-transcript" role="tabpanel">' . $transcript_html
-        . '<div class="watch-video-show-more transcript-show-more desc pt_mn_wtch_rdmre">Show more</div></div>'
-        . '</div></div>';
+function PT_GetDefaultOpenAiSummaryPrompt() {
+    return 'You analyze health-education video transcripts for Conners Clinic. '
+        . 'Respond with a single JSON object only (no markdown fences), exactly this shape: '
+        . '{"summary":"...","key_takeaways":["...","..."]}. '
+        . 'summary: 2 to 4 plain sentences about what the video covers and who it helps. '
+        . 'key_takeaways: 3 to 5 concise bullets in plain language; each under 160 characters when possible; '
+        . 'only facts from the transcript; no exaggerated medical claims; fewer bullets if the video is short or unclear.';
+}
+
+function PT_NormalizeTranscriptAiResponse($parsed) {
+    $summary = '';
+    $takeaways = array();
+    if (!is_array($parsed)) {
+        return array('summary' => '', 'key_takeaways' => array());
+    }
+    if (!empty($parsed['summary']) && is_string($parsed['summary'])) {
+        $summary = trim($parsed['summary']);
+    }
+    if (!empty($parsed['key_takeaways']) && is_array($parsed['key_takeaways'])) {
+        $takeaways = PT_ParseKeyTakeaways($parsed['key_takeaways']);
+    }
+    return array('summary' => $summary, 'key_takeaways' => $takeaways);
 }
 
 function PT_GenerateTranscriptSeoSummary($video, $plain_text) {
+    $result = PT_GenerateTranscriptAiContent($video, $plain_text);
+    if (empty($result['ok'])) {
+        return array(
+            'ok' => false,
+            'summary' => '',
+            'key_takeaways' => array(),
+            'error' => !empty($result['error']) ? $result['error'] : 'AI content generation failed',
+        );
+    }
+    return array(
+        'ok' => true,
+        'summary' => $result['summary'],
+        'key_takeaways' => $result['key_takeaways'],
+        'error' => '',
+    );
+}
+
+function PT_GenerateTranscriptAiContent($video, $plain_text) {
     global $pt;
     $api_key = !empty($pt->config->openai_api_key) ? trim($pt->config->openai_api_key) : '';
     if ($api_key === '') {
-        return array('ok' => false, 'summary' => '', 'error' => 'OpenAI API key is not configured');
+        return array('ok' => false, 'summary' => '', 'key_takeaways' => array(), 'error' => 'OpenAI API key is not configured');
     }
     $model = !empty($pt->config->openai_model) ? $pt->config->openai_model : 'gpt-4o-mini';
     $title = !empty(PT_DbVal($video, 'title')) ? strip_tags(PT_DbVal($video, 'title')) : '';
     $tags = !empty(PT_DbVal($video, 'tags')) ? strip_tags(PT_DbVal($video, 'tags')) : '';
     $excerpt = mb_substr(trim($plain_text), 0, 6000, 'UTF-8');
-    $system = !empty($pt->config->openai_summary_prompt) ? $pt->config->openai_summary_prompt : (
-        'You write concise, SEO-friendly video descriptions for a health clinic website. '
-        . 'Return 2 to 4 plain sentences. No markdown, no bullet points, no hashtags. '
-        . 'Focus on what the video covers and who it helps.'
-    );
+    $system = !empty($pt->config->openai_summary_prompt) ? $pt->config->openai_summary_prompt : PT_GetDefaultOpenAiSummaryPrompt();
+    if (stripos($system, 'key_takeaways') === false) {
+        $system .= ' ' . PT_GetDefaultOpenAiSummaryPrompt();
+    }
     $user = "Video title: {$title}\nTags: {$tags}\n\nTranscript excerpt:\n{$excerpt}";
     $payload = array(
         'model' => $model,
@@ -255,8 +406,9 @@ function PT_GenerateTranscriptSeoSummary($video, $plain_text) {
             array('role' => 'system', 'content' => $system),
             array('role' => 'user', 'content' => $user),
         ),
-        'temperature' => 0.5,
-        'max_tokens' => 300,
+        'temperature' => 0.4,
+        'max_tokens' => 500,
+        'response_format' => array('type' => 'json_object'),
     );
     $ch = curl_init('https://api.openai.com/v1/chat/completions');
     curl_setopt_array($ch, array(
@@ -274,22 +426,36 @@ function PT_GenerateTranscriptSeoSummary($video, $plain_text) {
     $curl_error = curl_error($ch);
     curl_close($ch);
     if ($response === false) {
-        return array('ok' => false, 'summary' => '', 'error' => 'OpenAI request failed: ' . $curl_error);
+        return array('ok' => false, 'summary' => '', 'key_takeaways' => array(), 'error' => 'OpenAI request failed: ' . $curl_error);
     }
     $data = json_decode($response, true);
     if ($http_code < 200 || $http_code >= 300) {
         $msg = !empty($data['error']['message']) ? $data['error']['message'] : substr($response, 0, 500);
-        return array('ok' => false, 'summary' => '', 'error' => 'OpenAI HTTP ' . $http_code . ': ' . $msg);
+        return array('ok' => false, 'summary' => '', 'key_takeaways' => array(), 'error' => 'OpenAI HTTP ' . $http_code . ': ' . $msg);
     }
-    $summary = '';
+    $content = '';
     if (!empty($data['choices'][0]['message']['content'])) {
-        $summary = trim($data['choices'][0]['message']['content']);
-        $summary = preg_replace('/^["\']+|["\']+$/', '', $summary);
+        $content = trim($data['choices'][0]['message']['content']);
     }
-    if ($summary === '') {
-        return array('ok' => false, 'summary' => '', 'error' => 'OpenAI returned an empty summary');
+    if ($content === '') {
+        return array('ok' => false, 'summary' => '', 'key_takeaways' => array(), 'error' => 'OpenAI returned empty content');
     }
-    return array('ok' => true, 'summary' => $summary, 'error' => '');
+    $parsed = json_decode($content, true);
+    if (!is_array($parsed)) {
+        if (preg_match('/\{[\s\S]*\}/', $content, $m)) {
+            $parsed = json_decode($m[0], true);
+        }
+    }
+    $normalized = PT_NormalizeTranscriptAiResponse($parsed);
+    if ($normalized['summary'] === '') {
+        return array('ok' => false, 'summary' => '', 'key_takeaways' => array(), 'error' => 'OpenAI returned an empty summary');
+    }
+    return array(
+        'ok' => true,
+        'summary' => $normalized['summary'],
+        'key_takeaways' => $normalized['key_takeaways'],
+        'error' => '',
+    );
 }
 
 function PT_ComposeVideoDescriptionFromTranscript($seo_summary) {
@@ -328,20 +494,26 @@ function PT_FinalizeTranscriptWithSeo($video, $plain_text, $dest_rel, $language)
     $video_id = (int) PT_DbVal($video, 'id');
     $summary_result = PT_GenerateTranscriptSeoSummary($video, $plain_text);
     $seo_summary = '';
+    $key_takeaways_db = null;
     $extra_error = '';
     if (!empty($summary_result['ok'])) {
         $seo_summary = $summary_result['summary'];
+        $key_takeaways_db = PT_EncodeKeyTakeawaysForDb(!empty($summary_result['key_takeaways']) ? $summary_result['key_takeaways'] : array());
     } else {
         $extra_error = !empty($summary_result['error']) ? $summary_result['error'] : 'SEO summary failed';
     }
-    PT_UpsertVideoTranscript($video_id, array(
+    $upsert = array(
         'status' => 'completed',
         'plain_text' => $plain_text,
         'vtt_path' => $dest_rel,
         'language' => $language,
         'seo_summary' => $seo_summary,
         'error_message' => $extra_error,
-    ));
+    );
+    if ($key_takeaways_db !== null) {
+        $upsert['key_takeaways'] = $key_takeaways_db;
+    }
+    PT_UpsertVideoTranscript($video_id, $upsert);
     if ($seo_summary !== '') {
         PT_ApplyTranscriptToVideoDescription($video_id, $seo_summary);
     }
@@ -359,12 +531,21 @@ function PT_RegenerateSeoSummaryForVideo($video_id) {
     if (empty($summary_result['ok'])) {
         return $summary_result;
     }
-    PT_UpsertVideoTranscript($video_id, array(
+    $upsert = array(
         'seo_summary' => $summary_result['summary'],
         'error_message' => '',
-    ));
+    );
+    $encoded = PT_EncodeKeyTakeawaysForDb(!empty($summary_result['key_takeaways']) ? $summary_result['key_takeaways'] : array());
+    if ($encoded !== null) {
+        $upsert['key_takeaways'] = $encoded;
+    }
+    PT_UpsertVideoTranscript($video_id, $upsert);
     PT_ApplyTranscriptToVideoDescription($video_id, $summary_result['summary']);
-    return array('ok' => true, 'summary' => $summary_result['summary']);
+    return array(
+        'ok' => true,
+        'summary' => $summary_result['summary'],
+        'key_takeaways' => !empty($summary_result['key_takeaways']) ? $summary_result['key_takeaways'] : array(),
+    );
 }
 
 function PT_TestOpenAiConnection() {

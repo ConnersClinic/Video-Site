@@ -2511,28 +2511,28 @@ var swiper = new Swiper('.pt_sec_nav_slide_prnt', {
          }
          $.post('{{LINK aj/save-video}}', {video_id: video_id});
       });
-      $('.desc').on('click', function(event) {
+      $(document).on('click', '.watch-expand-btn', function(event) {
          event.preventDefault();
-         var $pane = $(this).closest('.tab-pane, .watch-video-desc-single');
-         var $targets = $pane.find('.watch-video-description, .watch-transcript-body, .watch-seo-summary').filter(function() {
-            return $(this).closest('.watch-clinic-cta').length === 0;
-         });
-         if ($(this).hasClass('expended')) {
-           $targets.css({
-              'max-height': '100px',
-              'height': '100px',
-              'overflow': 'hidden'
-           });
-           $(this).removeClass('expended');
-           $(this).text("{{LANG show_more}}");
+         var $btn = $(this);
+         var $body = $btn.closest('.watch-card-about').find('.watch-about-body');
+         var expanded = $body.hasClass('is-expanded');
+         $body.toggleClass('is-expanded', !expanded);
+         $btn.attr('aria-expanded', expanded ? 'false' : 'true');
+         $btn.text(expanded ? 'Read more' : 'Show less');
+      });
+      $(document).on('click', '.watch-transcript-toggle', function(event) {
+         event.preventDefault();
+         var $btn = $(this);
+         var $panel = $('#watch-transcript-panel');
+         var open = $btn.attr('aria-expanded') === 'true';
+         if (open) {
+            $panel.attr('hidden', 'hidden');
+            $btn.attr('aria-expanded', 'false');
+            $btn.text('Show Transcript');
          } else {
-           $targets.css({
-              'max-height': '4000px',
-              'height': 'auto',
-              'overflow': 'auto'
-           });
-           $(this).addClass('expended');
-           $(this).text("{{LANG show_less}}");
+            $panel.removeAttr('hidden');
+            $btn.attr('aria-expanded', 'true');
+            $btn.text('Hide Transcript');
          }
       });
    

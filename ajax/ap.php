@@ -4988,7 +4988,10 @@ if ($first == 'transcribe_regenerate_summaries') {
              INNER JOIN " . T_VIDEOS . " v ON v.id = t.video_id
              WHERE v.user_id = " . $user_id . " AND t.status = 'completed'
              AND t.plain_text IS NOT NULL AND t.plain_text <> ''
-             AND (t.seo_summary IS NULL OR t.seo_summary = '')
+             AND (
+                t.seo_summary IS NULL OR t.seo_summary = ''
+                OR t.key_takeaways IS NULL OR t.key_takeaways = '' OR t.key_takeaways = '[]'
+             )
              ORDER BY t.updated_at DESC LIMIT " . $limit
         );
         $ok = 0;
@@ -5008,12 +5011,12 @@ if ($first == 'transcribe_regenerate_summaries') {
                 usleep(300000);
             }
         }
-        $msg = $ok . ' SEO summary(s) generated';
+        $msg = $ok . ' AI summary/takeaway set(s) generated';
         if ($fail > 0) {
             $msg .= ', ' . $fail . ' failed';
         }
         if ($ok === 0 && $fail === 0) {
-            $msg = 'No completed transcripts missing SEO summary for this channel';
+            $msg = 'No completed transcripts missing summary or key takeaways for this channel';
         }
         $data = array('status' => 200, 'message' => $msg, 'errors' => array_slice($errors, 0, 3));
     }

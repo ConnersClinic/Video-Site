@@ -8,8 +8,9 @@ Run once in phpMyAdmin (**select database `3595_connersclinic` first**):
 
 1. `migrations/2026_transcription.sql` — queue + transcript tables  
 2. `migrations/2027_transcript_seo.sql` — `seo_summary`, description modes, OpenAI config  
+3. `migrations/2029_video_key_takeaways.sql` — `key_takeaways` JSON on `video_transcripts`
 
-Fresh installs include both in `playtube.sql`.
+Fresh installs include all of the above in `playtube.sql`.
 
 ## Server requirements
 
@@ -49,11 +50,21 @@ Full transcript is **never** written to `videos.description`.
 
 ## Watch page layout
 
-- **About tab:** SEO summary → clinic CTA → (legacy description if no summary yet)  
-- **Transcript tab:** Full plain-text transcript (when transcription completed)  
-- **Captions:** WebVTT at `/vtt/{public_video_id}`  
+Below the player (card layout):
+
+1. Primary CTA (discovery call)  
+2. **Key Takeaways** (3–5 bullets when AI data exists; hidden if empty)  
+3. **About This Video** (SEO summary, or legacy description fallback)  
+4. **Transcript** (collapsed by default; toggle to expand)  
+5. Comments (unchanged)
+
+Captions: WebVTT at `/vtt/{public_video_id}`.
 
 Meta / Open Graph descriptions use the SEO summary when available (~220 chars).
+
+### Reprocess older videos for takeaways
+
+**Admin Panel → Tools → Transcribe Videos → Generate SEO summaries** now also picks completed transcripts missing `key_takeaways`. Each run calls OpenAI again for that video (summary + takeaways). Process in batches of 10–25.
 
 ## Server load monitoring
 

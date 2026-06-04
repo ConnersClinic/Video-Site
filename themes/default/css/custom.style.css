@@ -1,5 +1,177 @@
-/* 
+/* Custom site styles */
 
-Add here your custom css styles Example: p { text-align: center; color: red; } 
-
-*/
+/* Watch page: CTA, takeaways, summary, transcript */
+.watch-content-below-video {
+  margin: 24px 0 32px;
+  padding: 0 5px;
+  max-width: 820px;
+}
+.watch-content-below-video .watch-card {
+  background: #fff;
+  border: 1px solid #e8ebe6;
+  border-radius: 12px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.watch-content-below-video .watch-card-heading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #1a1f16;
+  margin: 0 0 12px;
+}
+.watch-content-below-video .watch-card-body,
+.watch-content-below-video .watch-about-body,
+.watch-content-below-video .watch-transcript-body {
+  font-size: 16px;
+  line-height: 1.65;
+  color: #2d3328;
+}
+.watch-content-below-video .watch-card-body {
+  margin: 0 0 16px;
+}
+.watch-content-below-video .watch-about-body p,
+.watch-content-below-video .watch-transcript-body p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: #2d3328;
+  margin: 0 0 12px;
+}
+.watch-content-below-video .watch-card-cta {
+  border-color: #d4e8bc;
+  background: linear-gradient(180deg, #fafdf6 0%, #fff 100%);
+}
+.watch-cta-trust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 4px;
+  font-size: 13px;
+  color: #5a6354;
+  margin-bottom: 18px;
+}
+.watch-cta-trust-dot {
+  color: #7dad42;
+  font-weight: 700;
+}
+.watch-cta-btn {
+  display: inline-block;
+  min-height: 48px;
+  line-height: 1.2;
+  padding: 14px 22px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  color: #fff !important;
+  background-color: #7dad42;
+  border-radius: 8px;
+  text-decoration: none !important;
+  transition: background-color 0.15s ease;
+}
+.watch-cta-btn:hover,
+.watch-cta-btn:focus {
+  background-color: #6a9638;
+  color: #fff !important;
+}
+.watch-takeaways-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.watch-takeaways-list li {
+  position: relative;
+  padding: 10px 0 10px 22px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #2d3328;
+  border-bottom: 1px solid #f0f2ee;
+}
+.watch-takeaways-list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.watch-takeaways-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7dad42;
+}
+.watch-about-body--collapsible {
+  max-height: 9.5em;
+  overflow: hidden;
+  position: relative;
+}
+.watch-about-body--collapsible::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2.5em;
+  background: linear-gradient(transparent, #fff);
+  pointer-events: none;
+}
+.watch-about-body--collapsible.is-expanded {
+  max-height: none;
+}
+.watch-about-body--collapsible.is-expanded::after {
+  display: none;
+}
+.watch-expand-btn,
+.watch-transcript-toggle {
+  margin-top: 12px;
+  padding: 10px 16px;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #4a7a22;
+  background: transparent;
+  border: 1px solid #c5db9e;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.watch-expand-btn:hover,
+.watch-transcript-toggle:hover,
+.watch-expand-btn:focus,
+.watch-transcript-toggle:focus {
+  background: #f4f9ec;
+  color: #3d6620;
+}
+.watch-transcript-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 0;
+}
+.watch-transcript-header .watch-card-heading {
+  margin-bottom: 0;
+}
+.watch-transcript-panel[hidden] {
+  display: none !important;
+}
+.watch-transcript-panel .watch-transcript-body {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eef1ea;
+  max-height: 420px;
+  overflow-y: auto;
+}
+@media (max-width: 767px) {
+  .watch-content-below-video {
+    margin-top: 16px;
+  }
+  .watch-content-below-video .watch-card {
+    padding: 18px 16px;
+  }
+  .watch-cta-btn {
+    display: block;
+    width: 100%;
+  }
+}
