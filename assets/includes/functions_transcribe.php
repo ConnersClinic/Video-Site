@@ -774,6 +774,213 @@ function PT_TranscriptStatusForChannel($user_id) {
     return array('counts' => $counts, 'recent' => $recent ? $recent : array());
 }
 
+function PT_GetTranscriptStaleQueueMaxAge() {
+    global $pt;
+    $minutes = !empty($pt->config->transcript_queue_stale_minutes)
+        ? (int) $pt->config->transcript_queue_stale_minutes
+        : 90;
+    if ($minutes < 15) {
+        $minutes = 15;
+    }
+    return $minutes * 60;
+}
+
+function PT_ResetStaleTranscriptQueueJobs($max_age_seconds = null) {
+    global $db;
+    if ($max_age_seconds === null) {
+        $max_age_seconds = PT_GetTranscriptStaleQueueMaxAge();
+    }
+    $cutoff = time() - (int) $max_age_seconds;
+    $stale = $db->arraybuilder()
+        ->where('processing', 1)
+        ->where('created_at', $cutoff, '<')
+        ->get(T_TRANSCRIPT_QUEUE);
+    if (empty($stale)) {
+        return 0;
+    }
+    $reset = 0;
+    foreach ($stale as $row) {
+        $video_id = (int) PT_DbVal($row, 'video_id');
+        $queue_id = (int) PT_DbVal($row, 'id');
+        $db->where('id', $queue_id)->update(T_TRANSCRIPT_QUEUE, array('processing' => 0));
+        $transcript = PT_GetVideoTranscript($video_id);
+        if (!empty($transcript) && PT_DbVal($transcript, 'status') === 'processing') {
+            PT_UpsertVideoTranscript($video_id, array(
+                'status' => 'pending',
+                'error_message' => 'Queue job was reset after being stuck in processing',
+            ));
+        }
+        $reset++;
+    }
+    return $reset;
+}
+
+function PT_SaveTranscriptCronLastResult($result) {
+    global $db;
+    $payload = array(
+        'time' => time(),
+        'message' => !empty($result['message']) ? $result['message'] : '',
+        'picked' => !empty($result['picked']) ? (int) $result['picked'] : 0,
+        'processed' => !empty($result['processed']) ? (int) $result['processed'] : 0,
+        'stale_reset' => !empty($result['stale_reset']) ? (int) $result['stale_reset'] : 0,
+        'errors' => !empty($result['errors']) ? $result['errors'] : array(),
+    );
+    $json = json_encode($payload);
+    $exists = $db->where('name', 'transcript_cron_last_result')->getValue(T_CONFIG, 'COUNT(*)');
+    if ($exists) {
+        $db->where('name', 'transcript_cron_last_result')->update(T_CONFIG, array('value' => $json));
+    } else {
+        $db->insert(T_CONFIG, array('name' => 'transcript_cron_last_result', 'value' => $json));
+    }
+}
+
+function PT_GetTranscriptCronDiagnostics() {
+    global $pt, $db;
+    $last_run = !empty($pt->config->transcript_cron_last_run) ? (int) $pt->config->transcript_cron_last_run : 0;
+    $waiting = (int) $db->arraybuilder()->rawQueryValue(
+        "SELECT COUNT(*) FROM " . T_TRANSCRIPT_QUEUE . " WHERE processing = 0 LIMIT 1"
+    );
+    $stuck = (int) $db->arraybuilder()->rawQueryValue(
+        "SELECT COUNT(*) FROM " . T_TRANSCRIPT_QUEUE . " WHERE processing = 1 LIMIT 1"
+    );
+    $last_result = array();
+    if (!empty($pt->config->transcript_cron_last_result)) {
+        $decoded = json_decode($pt->config->transcript_cron_last_result, true);
+        if (is_array($decoded)) {
+            $last_result = $decoded;
+        }
+    }
+    $cron_url = !empty($pt->config->site_url) ? rtrim($pt->config->site_url, '/') . '/transcribe-cron.php' : '';
+    return array(
+        'system_on' => ($pt->config->transcript_system == 'on'),
+        'last_run' => $last_run,
+        'last_run_ago' => $last_run > 0 ? (time() - $last_run) : null,
+        'queue_waiting' => $waiting,
+        'queue_stuck_processing' => $stuck,
+        'jobs_per_run' => (int) ($pt->config->transcript_queue_count ?? 1),
+        'cron_url' => $cron_url,
+        'last_result' => $last_result,
+        'likely_issue' => '',
+    );
+}
+
+function PT_FinishHttpResponseForCron($message) {
+    while (ob_get_level() > 0) {
+        @ob_end_clean();
+    }
+    header('Content-Encoding: none');
+    header('Connection: close');
+    ignore_user_abort(true);
+    ob_start();
+    header('Content-Type: application/json');
+    $response = array('status' => 200, 'message' => $message);
+    echo json_encode($response);
+    $size = ob_get_length();
+    header('Content-Length: ' . $size);
+    ob_end_flush();
+    flush();
+    if (function_exists('session_write_close')) {
+        session_write_close();
+    }
+    if (is_callable('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    }
+    if (is_callable('litespeed_finish_request')) {
+        litespeed_finish_request();
+    }
+}
+
+function PT_RunTranscriptCronBatch($options = array()) {
+    global $db, $pt;
+    $flush_early = !empty($options['flush_early_response']);
+    $result = array(
+        'status' => 200,
+        'message' => '',
+        'system_on' => ($pt->config->transcript_system == 'on'),
+        'stale_reset' => 0,
+        'picked' => 0,
+        'processed' => 0,
+        'errors' => array(),
+    );
+
+    if (!$result['system_on']) {
+        $result['message'] = 'Transcript system disabled';
+        PT_SaveTranscriptCronLastResult($result);
+        return $result;
+    }
+
+    $result['stale_reset'] = PT_ResetStaleTranscriptQueueJobs();
+    $exists = $db->where('name', 'transcript_cron_last_run')->getValue(T_CONFIG, 'COUNT(*)');
+    $now = time();
+    if ($exists) {
+        $db->where('name', 'transcript_cron_last_run')->update(T_CONFIG, array('value' => $now));
+    } else {
+        $db->insert(T_CONFIG, array('name' => 'transcript_cron_last_run', 'value' => $now));
+    }
+
+    $queue_count = !empty($pt->config->transcript_queue_count) ? (int) $pt->config->transcript_queue_count : 1;
+    if ($queue_count < 1) {
+        $queue_count = 1;
+    }
+    if ($queue_count > 5) {
+        $queue_count = 5;
+    }
+
+    $process_queue = $db->arraybuilder()
+        ->where('processing', 0)
+        ->orderBy('created_at', 'ASC')
+        ->get(T_TRANSCRIPT_QUEUE, $queue_count);
+    $result['picked'] = !empty($process_queue) ? count($process_queue) : 0;
+
+    if (empty($process_queue)) {
+        $diag = PT_GetTranscriptCronDiagnostics();
+        if ($diag['queue_stuck_processing'] > 0) {
+            $result['message'] = 'No waiting jobs; ' . $diag['queue_stuck_processing'] . ' stuck with processing=1 (reset runs automatically when stale)';
+        } else {
+            $result['message'] = 'No jobs in queue';
+        }
+        PT_SaveTranscriptCronLastResult($result);
+        return $result;
+    }
+
+    if ($flush_early) {
+        PT_FinishHttpResponseForCron('Processing ' . count($process_queue) . ' job(s)');
+    }
+
+    if (function_exists('PT_RecordTranscriptLoadSnapshot')) {
+        $load_record = PT_RecordTranscriptLoadSnapshot(true);
+        if (!empty($load_record['snapshot']) && !empty($load_record['health'])) {
+            PT_MaybeSendTranscriptLoadAlert($load_record['snapshot'], $load_record['health']);
+        }
+    }
+
+    foreach ($process_queue as $queue_row) {
+        $db->where('id', (int) PT_DbVal($queue_row, 'id'))->update(T_TRANSCRIPT_QUEUE, array('processing' => 1));
+        try {
+            PT_ProcessTranscriptJob($queue_row);
+            $result['processed']++;
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            PT_TranscriptJobFailed($queue_row, (int) PT_DbVal($queue_row, 'video_id'), $msg, 3);
+            $result['errors'][] = $msg;
+        }
+        $stuck = $db->arraybuilder()->where('id', (int) PT_DbVal($queue_row, 'id'))->getOne(T_TRANSCRIPT_QUEUE);
+        if (!empty($stuck) && !empty($stuck['processing'])) {
+            $db->where('id', (int) PT_DbVal($queue_row, 'id'))->delete(T_TRANSCRIPT_QUEUE);
+        }
+    }
+
+    $result['message'] = 'Processed ' . $result['processed'] . ' of ' . $result['picked'] . ' job(s)';
+    if (!empty($result['stale_reset'])) {
+        $result['message'] .= '; reset ' . $result['stale_reset'] . ' stale job(s)';
+    }
+    if (!empty($result['errors'])) {
+        $result['message'] .= '; ' . count($result['errors']) . ' error(s)';
+    }
+    PT_SaveTranscriptCronLastResult($result);
+    return $result;
+}
+
 function PT_CleanupTranscriptTemp($paths) {
     foreach ($paths as $path) {
         if (!empty($path) && file_exists($path)) {

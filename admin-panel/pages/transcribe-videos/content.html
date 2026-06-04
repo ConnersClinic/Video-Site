@@ -204,6 +204,15 @@
                     <button type="button" class="btn btn-default btn-sm" id="refresh-load-btn">Refresh now</button>
                     <button type="button" class="btn btn-default btn-sm m-l-10" id="test-load-alert-btn">Send test alert email</button>
                     <div class="transcribe-load-alert m-t-10"></div>
+                    <hr>
+                    <h6>Transcription cron</h6>
+                    <div id="transcript-cron-panel">
+                        <p class="text-muted">Loading cron status…</p>
+                    </div>
+                    <button type="button" class="btn btn-success btn-sm" id="run-cron-btn">Run cron now</button>
+                    <button type="button" class="btn btn-default btn-sm m-l-10" id="refresh-cron-btn">Refresh cron status</button>
+                    <p class="text-muted m-t-10"><small>Server crontab must call <code id="cron-url-hint">transcribe-cron.php</code> on a schedule. “Run cron now” processes up to your jobs-per-run limit from this browser (can take several minutes).</small></p>
+                    <div class="transcribe-cron-alert m-t-10"></div>
                 </div>
             </div>
         </div>
@@ -379,9 +388,69 @@ $('#test-load-alert-btn').on('click', function() {
     }, 'json');
 });
 
+function refreshTranscriptCronStatus() {
+    $.get('{{LINK aj/ap/transcribe_cron_status}}', {}, function(res) {
+        if (res.status != 200 || !res.diagnostics) {
+            $('#transcript-cron-panel').html('<p class="text-danger">Could not load cron status.</p>');
+            return;
+        }
+        var d = res.diagnostics;
+        if (d.cron_url) {
+            $('#cron-url-hint').text(d.cron_url);
+        }
+        var html = '<table class="table table-bordered table-condensed"><tbody>';
+        html += '<tr><th>Transcription system</th><td>' + (d.system_on ? 'On' : '<strong class="text-danger">Off</strong>') + '</td></tr>';
+        html += '<tr><th>Last cron hit</th><td>';
+        if (d.last_run) {
+            html += formatTs(d.last_run);
+            if (d.last_run_ago != null) {
+                html += ' (' + Math.round(d.last_run_ago / 60) + ' min ago)';
+            }
+        } else {
+            html += '<span class="text-danger">Never</span>';
+        }
+        html += '</td></tr>';
+        html += '<tr><th>Queue waiting</th><td>' + (d.queue_waiting||0) + '</td></tr>';
+        html += '<tr><th>Stuck (processing=1)</th><td>' + (d.queue_stuck_processing||0) + '</td></tr>';
+        html += '<tr><th>Jobs per cron run</th><td>' + (d.jobs_per_run||'—') + '</td></tr>';
+        if (d.last_result && d.last_result.message) {
+            html += '<tr><th>Last run result</th><td>' + $('<div>').text(d.last_result.message).html();
+            if (d.last_result.time) {
+                html += ' <small class="text-muted">@ ' + formatTs(d.last_result.time) + '</small>';
+            }
+            html += '</td></tr>';
+        }
+        html += '</tbody></table>';
+        if (d.likely_issue) {
+            html += '<div class="alert alert-warning">' + $('<div>').text(d.likely_issue).html() + '</div>';
+        }
+        $('#transcript-cron-panel').html(html);
+    }, 'json');
+}
+
+$('#refresh-cron-btn').on('click', refreshTranscriptCronStatus);
+$('#run-cron-btn').on('click', function() {
+    if (!confirm('Run transcription cron now? This may take a long time for Whisper.')) {
+        return;
+    }
+    $('#run-cron-btn').prop('disabled', true).text('Running…');
+    $.post('{{LINK aj/ap/transcribe_run_cron}}', {}, function(res) {
+        $('#run-cron-btn').prop('disabled', false).text('Run cron now');
+        var cls = res.status == 200 ? 'alert-success' : 'alert-danger';
+        $('.transcribe-cron-alert').html('<div class="alert ' + cls + '">' + $('<div>').text(res.message || res.error || '').html() + '</div>');
+        refreshTranscriptCronStatus();
+        refreshTranscriptStatus();
+    }, 'json').fail(function() {
+        $('#run-cron-btn').prop('disabled', false).text('Run cron now');
+        $('.transcribe-cron-alert').html('<div class="alert alert-danger">Request failed or timed out. The job may still be running on the server — refresh cron status in a minute.</div>');
+        refreshTranscriptCronStatus();
+    });
+});
+
 refreshTranscriptLoad();
 scheduleLoadPoll();
 $('input[name="transcript_load_poll_seconds"]').on('change', scheduleLoadPoll);
+refreshTranscriptCronStatus();
 
 $('#apply-desc-btn').on('click', function() {
     var channelId = $('#channel_id').val();

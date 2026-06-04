@@ -4926,6 +4926,26 @@ if ($first == 'transcribe_load_status') {
     }
 }
 
+if ($first == 'transcribe_cron_status') {
+    $diag = PT_GetTranscriptCronDiagnostics();
+    if ($diag['last_run_ago'] === null) {
+        $diag['likely_issue'] = 'Cron has never hit transcribe-cron.php — add the crontab line on your server.';
+    } elseif ($diag['last_run_ago'] > 900) {
+        $diag['likely_issue'] = 'Last cron run was ' . round($diag['last_run_ago'] / 60) . '+ minutes ago — check server crontab or curl the URL manually.';
+    } elseif ($diag['queue_stuck_processing'] > 0 && $diag['queue_waiting'] === 0) {
+        $diag['likely_issue'] = $diag['queue_stuck_processing'] . ' job(s) stuck with processing=1; stale reset runs automatically after 90 minutes, or use Run cron now.';
+    } elseif (!$diag['system_on']) {
+        $diag['likely_issue'] = 'Transcription system is Off in settings.';
+    }
+    $data = array('status' => 200, 'diagnostics' => $diag);
+}
+
+if ($first == 'transcribe_run_cron') {
+    @set_time_limit(0);
+    $result = PT_RunTranscriptCronBatch(array('flush_early_response' => false));
+    $data = array_merge(array('status' => 200), $result);
+}
+
 if ($first == 'transcribe_load_test_alert') {
     if (!function_exists('PT_GetServerLoadSnapshot')) {
         $data = array('status' => 400, 'message' => 'Load monitor not available');

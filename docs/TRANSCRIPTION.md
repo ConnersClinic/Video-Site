@@ -74,7 +74,8 @@ Config keys are in `migrations/2028_transcript_load_monitor.sql` for existing in
 | Issue | Check |
 |-------|--------|
 | `#1046 No database selected` | Click database in phpMyAdmin sidebar before SQL |
-| Jobs stay queued | Cron URL; `transcript_system` = on |
+| Jobs stay queued | Admin **Transcription cron** panel: last hit time, stuck count; **Run cron now**; server `curl` to `/transcribe-cron.php` |
+| Jobs stay queued | `transcript_system` = on; crontab `*/2 * * * * curl -s https://yoursite.com/transcribe-cron.php` |
 | No SEO summary | OpenAI key; **Test OpenAI**; `video_transcripts.error_message` |
 | Tabs not showing | Transcript `status = completed`; deploy latest theme files |
 | Description not updated | Mode not `display_only`; run **Apply descriptions** |
