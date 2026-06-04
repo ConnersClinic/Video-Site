@@ -9,7 +9,8 @@ Run once in phpMyAdmin (**select database `3595_connersclinic` first**):
 1. `migrations/2026_transcription.sql` — queue + transcript tables  
 2. `migrations/2027_transcript_seo.sql` — `seo_summary`, description modes, OpenAI config  
 3. `migrations/2029_video_key_takeaways.sql` — `key_takeaways` JSON on `video_transcripts`  
-4. `migrations/2030_watch_page_cta_config.sql` — global watch-page CTA settings in `config`
+4. `migrations/2030_watch_page_cta_config.sql` — global watch-page top CTA in `config`  
+5. `migrations/2031_watch_cta_secondary.sql` — secondary watch-page CTA in `config`
 
 Fresh installs: run migrations on existing databases; defaults apply even before migration via PHP fallbacks.
 
@@ -51,13 +52,16 @@ Full transcript is **never** written to `videos.description`.
 
 ## Watch page layout
 
-Below the player (card layout):
+Below the player:
 
-1. Primary CTA (discovery call)  
-2. **Key Takeaways** (3–5 bullets when AI data exists; hidden if empty)  
-3. **About This Video** (SEO summary, or legacy description fallback)  
-4. **Transcript** (collapsed by default; toggle to expand)  
-5. Comments (unchanged)
+1. Minimal top CTA strip (off-white, green accent)  
+2. **Key Takeaways** (white card with checkmarks; hidden if empty or invalid JSON)  
+3. **About This Video** (typography-led section, no green box)  
+4. **Transcript** (full-width “Show Full Transcript” toggle)  
+5. Secondary CTA (clean card after transcript)  
+6. Comments (unchanged)
+
+Edit copy in **Admin → Tools → Transcribe Videos** under “Watch page — top CTA strip” and “Watch page — secondary CTA”.
 
 Captions: WebVTT at `/vtt/{public_video_id}`.
 

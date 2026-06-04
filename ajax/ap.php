@@ -4857,6 +4857,11 @@ if ($first == 'transcribe_settings') {
         'watch_cta_button_url',
         'watch_cta_trust_labels',
         'watch_page_cta_html',
+        'watch_cta2_headline',
+        'watch_cta2_body',
+        'watch_cta2_button_text',
+        'watch_cta2_button_url',
+        'watch_page_cta2_html',
         'transcript_description_mode',
         'openai_summary_prompt',
         'transcript_load_monitor',
@@ -4873,9 +4878,9 @@ if ($first == 'transcribe_settings') {
             }
             if ($key == 'openai_api_key') {
                 $val = trim($_POST[$key]);
-            } elseif (in_array($key, array('clinic_cta_html', 'openai_summary_prompt', 'watch_cta_body', 'watch_cta_trust_labels', 'watch_page_cta_html'), true)) {
+            } elseif (in_array($key, array('clinic_cta_html', 'openai_summary_prompt', 'watch_cta_body', 'watch_cta_trust_labels', 'watch_page_cta_html', 'watch_cta2_body', 'watch_page_cta2_html'), true)) {
                 $val = $_POST[$key];
-            } elseif (in_array($key, array('watch_cta_headline', 'watch_cta_button_text', 'watch_cta_button_url'), true)) {
+            } elseif (in_array($key, array('watch_cta_headline', 'watch_cta_button_text', 'watch_cta_button_url', 'watch_cta2_headline', 'watch_cta2_button_text', 'watch_cta2_button_url'), true)) {
                 $val = trim($_POST[$key]);
             } else {
                 $val = PT_Secure($_POST[$key], 0, false);

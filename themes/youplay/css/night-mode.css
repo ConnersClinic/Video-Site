@@ -320,33 +320,39 @@ background: #2f2f2f;}
 .pt_video_info .watch-video-description p {
     color: #C8C8C8 !important;
 }
-.video-player-page .watch-content-below-video .watch-card {
+.video-player-page .watch-cta-strip {
 	background: #1e2228;
 	border-color: #2d3540;
-	box-shadow: none;
 }
-.video-player-page .watch-content-below-video .watch-card-heading,
-.video-player-page .watch-content-below-video .watch-card-body,
-.video-player-page .watch-content-below-video .watch-about-body p,
-.video-player-page .watch-content-below-video .watch-transcript-body p,
-.video-player-page .watch-content-below-video .watch-takeaways-list li {
+.video-player-page .watch-cta-strip-headline,
+.video-player-page .watch-cta-strip-body {
+	color: #e8ece4;
+}
+.video-player-page .watch-section-heading,
+.video-player-page .watch-about-body p,
+.video-player-page .watch-transcript-body p,
+.video-player-page .watch-takeaways-list li,
+.video-player-page .watch-cta-secondary-body {
 	color: #e8ece4 !important;
 }
-.video-player-page .watch-content-below-video .watch-card-cta {
-	background: linear-gradient(180deg, #252b22 0%, #1e2228 100%);
-	border-color: #3d4a32;
+.video-player-page .watch-section-takeaways,
+.video-player-page .watch-cta-secondary {
+	background: #1e2228;
+	border-color: #2d3540;
 }
-.video-player-page .watch-content-below-video .watch-about-body--collapsible::after {
-	background: linear-gradient(transparent, #1e2228);
+.video-player-page .watch-about-body--collapsible::after {
+	background: linear-gradient(transparent, #12141e);
 }
-.video-player-page .watch-content-below-video .watch-takeaways-list li {
+.video-player-page .watch-takeaways-list li {
 	border-bottom-color: #2d3540;
 }
-.video-player-page .watch-content-below-video .watch-expand-btn,
-.video-player-page .watch-content-below-video .watch-transcript-toggle {
-	background: #252b22 !important;
+.video-player-page .watch-section-transcript .watch-transcript-toggle {
+	background: #1e2228 !important;
 	border-color: #3d4a32 !important;
-	color: #c5e8a0 !important;
+	color: #e8ece4 !important;
+}
+.video-player-page .watch-channel-authority {
+	color: #a8b0a0;
 }
 .tp_vid_fltr_tabs ul {
 	box-shadow:  0 1px 0 0 #000, 0 0 0 1px #222;
