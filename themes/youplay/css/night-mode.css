@@ -320,6 +320,34 @@ background: #2f2f2f;}
 .pt_video_info .watch-video-description p {
     color: #C8C8C8 !important;
 }
+.video-player-page .watch-content-below-video .watch-card {
+	background: #1e2228;
+	border-color: #2d3540;
+	box-shadow: none;
+}
+.video-player-page .watch-content-below-video .watch-card-heading,
+.video-player-page .watch-content-below-video .watch-card-body,
+.video-player-page .watch-content-below-video .watch-about-body p,
+.video-player-page .watch-content-below-video .watch-transcript-body p,
+.video-player-page .watch-content-below-video .watch-takeaways-list li {
+	color: #e8ece4 !important;
+}
+.video-player-page .watch-content-below-video .watch-card-cta {
+	background: linear-gradient(180deg, #252b22 0%, #1e2228 100%);
+	border-color: #3d4a32;
+}
+.video-player-page .watch-content-below-video .watch-about-body--collapsible::after {
+	background: linear-gradient(transparent, #1e2228);
+}
+.video-player-page .watch-content-below-video .watch-takeaways-list li {
+	border-bottom-color: #2d3540;
+}
+.video-player-page .watch-content-below-video .watch-expand-btn,
+.video-player-page .watch-content-below-video .watch-transcript-toggle {
+	background: #252b22 !important;
+	border-color: #3d4a32 !important;
+	color: #c5e8a0 !important;
+}
 .tp_vid_fltr_tabs ul {
 	box-shadow:  0 1px 0 0 #000, 0 0 0 1px #222;
 }

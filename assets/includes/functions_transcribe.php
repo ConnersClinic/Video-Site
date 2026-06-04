@@ -246,7 +246,7 @@ function PT_BuildWatchPrimaryCtaHtml() {
         . '<span>Advanced Testing</span><span class="watch-cta-trust-dot">&middot;</span>'
         . '<span>Root-Cause Focused Support</span>'
         . '</div>'
-        . '<a class="watch-cta-btn" href="https://www.connersclinic.com/schedule-now/" target="_blank" rel="noopener noreferrer">Schedule a Free 15-Minute Discovery Call</a>'
+        . '<a class="btn btn-main watch-cta-btn" href="https://www.connersclinic.com/schedule-now/" target="_blank" rel="noopener noreferrer">Schedule a Free 15-Minute Discovery Call</a>'
         . '</section>';
 }
 
