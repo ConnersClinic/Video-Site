@@ -5041,6 +5041,13 @@ if ($first == 'transcribe_enqueue') {
         }
         $videos = PT_GetTranscribableVideosQuery($user_id, $options);
         $matched = !empty($videos) ? count($videos) : 0;
+        $eligible_without_skip = 0;
+        if ($matched === 0 && $skip_completed && !$failed_only) {
+            $count_options = $options;
+            $count_options['skip_completed'] = false;
+            $count_options['limit'] = 0;
+            $eligible_without_skip = count(PT_GetTranscribableVideosQuery($user_id, $count_options));
+        }
         $enqueued = 0;
         $skipped = 0;
         if (!empty($videos)) {
@@ -5070,6 +5077,7 @@ if ($first == 'transcribe_enqueue') {
                 'time_end' => $time_end,
                 'skip_completed' => $skip_completed && !$failed_only,
                 'failed_only' => $failed_only,
+                'eligible_without_skip' => $eligible_without_skip,
             )),
         );
     }

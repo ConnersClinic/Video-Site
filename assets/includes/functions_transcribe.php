@@ -892,18 +892,24 @@ function PT_FormatTranscribeEnqueueMessage($enqueued, $skipped, $matched, $conte
     }
     $parts = array('0 video(s) queued for transcription.');
     $hints = array();
-    if (!empty($context['date_filtered'])) {
-        $range = '';
-        if (!empty($context['time_start']) && !empty($context['time_end'])) {
-            $range = date('M j, Y', $context['time_start']) . ' – ' . date('M j, Y', $context['time_end']);
-        }
+    $eligible_without_skip = !empty($context['eligible_without_skip']) ? (int) $context['eligible_without_skip'] : 0;
+    $range = '';
+    if (!empty($context['time_start']) && !empty($context['time_end'])) {
+        $range = date('M j, Y', $context['time_start']) . ' – ' . date('M j, Y', $context['time_end']);
+    }
+    if (!empty($context['skip_completed']) && $eligible_without_skip > 0) {
+        $hints[] = $eligible_without_skip . ' eligible self-hosted upload(s)'
+            . ($range ? ' in ' . $range : '')
+            . ' are already transcribed or in progress — "Skip already transcribed" hides them';
+        $hints[] = 'uncheck that box only if you need to re-run Whisper on completed videos';
+    } elseif (!empty($context['date_filtered'])) {
         $hints[] = 'No self-hosted uploads on this channel fall in the selected date range'
             . ($range ? ' (' . $range . ', week runs Saturday–Friday)' : '');
     } else {
         $hints[] = 'No self-hosted uploads on this channel match the batch filters';
     }
-    if (!empty($context['skip_completed'])) {
-        $hints[] = 'try unchecking "Skip already transcribed" or use "All time"';
+    if (!empty($context['skip_completed']) && $eligible_without_skip === 0) {
+        $hints[] = 'try "All time" or a wider date range if uploads are older';
     }
     if (!empty($context['failed_only'])) {
         $hints[] = 'there are no failed transcripts for this channel';
