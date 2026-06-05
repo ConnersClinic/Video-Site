@@ -363,7 +363,16 @@
           });
         }
    </script>
-   <body itemscope itemtype="http://schema.org/Organization" id="pt-body" <?php echo(!empty($_COOKIE['open_slide']) && $_COOKIE['open_slide'] == 'yes') ? 'class="side_open"' : '' ?>>
+   <?php
+      $pt_body_classes = array();
+      if (!empty($_COOKIE['open_slide']) && $_COOKIE['open_slide'] == 'yes') {
+         $pt_body_classes[] = 'side_open';
+      }
+      if (!empty($pt->page) && $pt->page == 'home') {
+         $pt_body_classes[] = 'pt-page-home';
+      }
+   ?>
+   <body itemscope itemtype="http://schema.org/Organization" id="pt-body" <?php echo !empty($pt_body_classes) ? 'class="' . implode(' ', $pt_body_classes) . '"' : ''; ?>>
       <?php echo PT_LoadPage('third-party/theme-changer'); ?>
       <div id="pop_up_18" class="modal matdialog et_plus" data-backdrop="static" data-keyboard="false">
          <div class="modal-dialog">

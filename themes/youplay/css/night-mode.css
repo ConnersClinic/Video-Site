@@ -36,6 +36,7 @@ input[data-plyr="seek"], input[data-plyr="volume"]{
 }
 .bootstrap-select button:hover, .bootstrap-select button:hover span {background-color: #303233 !important;}
 body { background: #191C1D !important; border-color: #444 !important;color: #dcdcdc;}
+body.pt-page-home { background: #282C30 !important; }
 body .subs-amount { background: #696969 !important; }
 nav.navbar-findcond ul.dropdown-menu > li > a:hover { background: #333 !important; color: #fff !important; }
 .pp_mat_input input:focus, .pp_mat_input textarea:focus, .pp_mat_input select:focus {border-color: #4285f4 !important;}
