@@ -42,7 +42,7 @@ nav.navbar-findcond .search-header input:focus {margin-right:0;}
 .cus_slider .slick-prev { left: auto;right: -20px;}
 .cus_slider .slick-prev svg.feather, .cus_slider .slick-next svg.feather {transform: rotate(180deg);}
 .yp_side_drawer {left: auto;right: 0;}
-.yp_side_menu.has_side_menu {margin-left: 0;margin-right: 80px;}
+.yp_side_menu.has_side_menu {margin-left: 0;margin-right: 88px;}
 body.side_open .yp_side_menu.has_side_menu {
     margin-left: 0;
     margin-right: 250px;

@@ -25,6 +25,11 @@ nav.navbar-findcond ul.navbar-nav a.search-icon svg path{fill: #eee }
 .yp_side_drawer ul.sections li a svg {fill: #888888;}
 .yp_side_drawer ul.sections li.active a {color: #0094d8 !important;}
 .yp_side_drawer ul.sections li a:hover {background-color: rgba(136, 136, 136, 0.4);}
+@media (min-width: 1252px) {
+body:not(.side_open) .yp_side_drawer ul.sections li.active a,
+body.side_open .yp_side_drawer ul.sections li.active a {background: rgba(255, 255, 255, 0.08);}
+body:not(.side_open) .yp_side_drawer ul.sections li a:hover {background: rgba(255, 255, 255, 0.05);}
+}
 .home-page-categories .videos .video-list .video-list-by span, .home-page-categories .videos .video-list .video-list-by a, .video-latest-list.video-wrapper .video-info span, .video-latest-list.video-wrapper .video-info a, .video-latest-list.video-wrapper .video-info {color: #9f9f9f !important;}
 .slick-prev, .slick-next {background: #242424;}
 input, textarea, select, .bootstrap-select button, .bootstrap-select button span { border-color: #545454 !important; background-color: #303233 !important; box-shadow: none; color: #eee !important; }
