@@ -14,9 +14,23 @@
   StickyVideo.insertAfter = insertAfter
 
   StickyVideo.prototype.capturePlaceholderHeight = capturePlaceholderHeight
+  StickyVideo.prototype.getVideoElement = getVideoElement
+  StickyVideo.prototype.isVideoPlaying = isVideoPlaying
   StickyVideo.prototype.applyScrollState = applyScrollState
+  StickyVideo.prototype.releaseSticky = releaseSticky
   StickyVideo.prototype.elementInViewport = elementInViewport
   StickyVideo.prototype.initialize = initialize
+
+  function getVideoElement () {
+    if (!this.container) return null
+    return this.container.querySelector('video')
+  }
+
+  function isVideoPlaying () {
+    var video = this.getVideoElement()
+    if (!video) return false
+    return !video.paused && !video.ended
+  }
 
   function capturePlaceholderHeight (wrapDiv) {
     if (this._placeholderHeight) return
@@ -32,8 +46,14 @@
   function applyScrollState (wrapDiv) {
     var inViewport = this.elementInViewport(wrapDiv)
     var wasSticky = StickyVideo.hasClass(wrapDiv, 'sticky-container_sticky')
+    var wasVisible = StickyVideo.hasClass(wrapDiv, 'sticky-container_sticky-visible')
+    var shouldStick = !inViewport && this.isVideoPlaying()
 
-    if (!inViewport) {
+    if (shouldStick) {
+      if (this._hideTimer) {
+        clearTimeout(this._hideTimer)
+        this._hideTimer = null
+      }
       if (!wasSticky) {
         this.capturePlaceholderHeight(wrapDiv)
       }
@@ -42,24 +62,56 @@
       }
       StickyVideo.removeClass(wrapDiv, 'sticky-container_in-content')
       StickyVideo.addClass(wrapDiv, 'sticky-container_sticky')
+      if (!wasVisible) {
+        StickyVideo.removeClass(wrapDiv, 'sticky-container_sticky-visible')
+        window.requestAnimationFrame(function () {
+          window.requestAnimationFrame(function () {
+            StickyVideo.addClass(wrapDiv, 'sticky-container_sticky-visible')
+          })
+        })
+      }
       return
     }
 
-    StickyVideo.removeClass(wrapDiv, 'sticky-container_sticky')
-    StickyVideo.addClass(wrapDiv, 'sticky-container_in-content')
-    wrapDiv.style.height = ''
-    this._placeholderHeight = null
-
-    if (wasSticky) {
-      var that = this
-      window.requestAnimationFrame(function () {
-        var rect = wrapDiv.getBoundingClientRect()
-        var headerOffset = 56
-        if (rect.top < headerOffset && window.scrollY < 600) {
-          window.scrollTo(0, Math.max(0, window.scrollY + rect.top - headerOffset))
-        }
-      })
+    if (wasSticky || wasVisible) {
+      this.releaseSticky(wrapDiv, wasSticky, wasVisible && !inViewport)
     }
+  }
+
+  function releaseSticky (wrapDiv, wasSticky, animateOut) {
+    var that = this
+
+    function finish () {
+      StickyVideo.removeClass(wrapDiv, 'sticky-container_sticky-visible')
+      StickyVideo.removeClass(wrapDiv, 'sticky-container_sticky')
+      StickyVideo.addClass(wrapDiv, 'sticky-container_in-content')
+      wrapDiv.style.height = ''
+      that._placeholderHeight = null
+      that._hideTimer = null
+
+      if (wasSticky) {
+        window.requestAnimationFrame(function () {
+          var rect = wrapDiv.getBoundingClientRect()
+          var headerOffset = 56
+          if (rect.top < headerOffset && window.scrollY < 600) {
+            window.scrollTo(0, Math.max(0, window.scrollY + rect.top - headerOffset))
+          }
+        })
+      }
+    }
+
+    if (that._hideTimer) {
+      clearTimeout(that._hideTimer)
+      that._hideTimer = null
+    }
+
+    if (animateOut) {
+      StickyVideo.removeClass(wrapDiv, 'sticky-container_sticky-visible')
+      that._hideTimer = setTimeout(finish, 320)
+      return
+    }
+
+    finish()
   }
   function addClass (elements, className) {
     if (hasClass(elements, className)) return
@@ -135,6 +187,18 @@
     StickyVideo.wrap(that.container, wrapDiv)
     StickyVideo.addClass(wrapDiv, 'sticky-container_in-content')
     StickyVideo.addClass(that.container, 'sticky-container__video')
+
+    function onPlaybackChange () {
+      that.applyScrollState(wrapDiv)
+    }
+
+    var video = that.getVideoElement()
+    if (video) {
+      video.addEventListener('play', onPlaybackChange)
+      video.addEventListener('playing', onPlaybackChange)
+      video.addEventListener('pause', onPlaybackChange)
+      video.addEventListener('ended', onPlaybackChange)
+    }
 
     if (window.addEventListener) {
       window.addEventListener('scroll', onWindowScrollRaf, { passive: true })

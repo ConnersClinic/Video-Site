@@ -1881,7 +1881,7 @@
 </script>
 <?php if ($pt->config->sticky_video == 'on') { ?>
 <script type="text/javascript">
-   $.getScript('{{CONFIG theme_url}}/js/sticky_video.js', function(data, textStatus) {
+   $.getScript('{{CONFIG theme_url}}/js/sticky_video.js?version={{CONFIG version}}', function(data, textStatus) {
    	new StickyVideo('post_live_video_<?php echo($pt->get_video->id) ?>')
    });
 </script>
