@@ -522,12 +522,21 @@ body:has(.video-player-page) #main-container {
 }
 
 .video-player-page .watch-content-below-video .watch-about-body p,
-.video-player-page .watch-content-below-video .watch-transcript-body p {
+.video-player-page .watch-content-below-video .watch-transcript-body p,
+.video-player-page .watch-about-clinic-cta p {
   font-size: 15px !important;
   line-height: 1.6 !important;
   color: var(--watch-foreground) !important;
   margin: 0 0 12px;
   opacity: 1;
+}
+
+.video-player-page .watch-about-clinic-cta {
+  margin-top: 16px;
+}
+
+.video-player-page .watch-about-clinic-cta a {
+  color: var(--watch-primary) !important;
 }
 
 /* Key takeaways */

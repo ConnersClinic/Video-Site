@@ -459,6 +459,8 @@ function PT_BuildWatchKeyTakeawaysHtml($takeaways) {
 function PT_BuildWatchAboutVideoHtml($seo_summary, $fallback_markup = '') {
     $summary_html = PT_BuildSeoSummaryHtml($seo_summary);
     if ($summary_html !== '') {
+        $cta_html = trim(PT_GetDefaultClinicCtaHtml());
+        $cta_block = $cta_html !== '' ? '<div class="watch-about-clinic-cta">' . $cta_html . '</div>' : '';
         $long = mb_strlen(strip_tags($seo_summary), 'UTF-8') > 520;
         $expand = $long
             ? '<button type="button" class="watch-expand-btn" data-watch-expand="summary" aria-expanded="false">Read more</button>'
@@ -468,6 +470,7 @@ function PT_BuildWatchAboutVideoHtml($seo_summary, $fallback_markup = '') {
             . '<h3 class="watch-section-heading">About This Video</h3>'
             . '<div class="watch-about-body' . $long_class . '">' . $summary_html . '</div>'
             . $expand
+            . $cta_block
             . '</section>';
     }
     if (trim(strip_tags($fallback_markup)) !== '') {
