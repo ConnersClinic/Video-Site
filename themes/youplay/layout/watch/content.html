@@ -13,6 +13,15 @@
    <div class="row">
       <div class="<?php echo(($pt->is_wl || $pt->is_list) ? 'play-list-player' : '') ?>">
          <div class="col-md-<?php echo($pt->is_movie ? '12' : '8') ?> player-video yp_pub_elemnt <?php echo($pt->is_movie ? 'movie' : '') ?>">
+            <?php if (!$pt->is_movie) {
+               $watch_cat_label = !empty($pt->get_video->category_name) ? $pt->get_video->category_name : '';
+               $watch_show_member_badge = (stripos($watch_cat_label, 'q&a') !== false || stripos($watch_cat_label, 'q&amp;a') !== false);
+               $watch_duration_label = !empty($pt->get_video->duration) ? $pt->get_video->duration : '';
+            ?>
+            <div class="watch-player-shell">
+            <?php if ($watch_show_member_badge) { ?><span class="watch-player-badge">Member question</span><?php } ?>
+            <?php if ($watch_duration_label !== '') { ?><span class="watch-player-duration"><?php echo htmlspecialchars($watch_duration_label); ?></span><?php } ?>
+            <?php } ?>
             <?php if (!$pt->shouldSubscribers) { ?>
             <?php if ($pt->showSubscripation) { ?>
             <?php if (($pt->config->require_login == 'on' && IS_LOGGED) || $pt->config->require_login == 'off') { ?>
@@ -471,18 +480,21 @@
                   </div>
                </div>
             <?php } ?>
+            <?php if (!$pt->is_movie) { ?></div><!-- .watch-player-shell --><?php } ?>
             <div class="clear"></div>
          </div>
          <?php if (!$pt->is_movie) { ?>
-         <div class="col-md-4 no-padding-left pull-right <?php echo(($pt->is_wl || $pt->is_list) ? 'pt_playlist_right_vid_side play-list-cont-wrapper col-xs-12' : 'desktop') ?>">
+         <div class="col-md-4 watch-sidebar-col no-padding-left pull-right <?php echo(($pt->is_wl || $pt->is_list) ? 'pt_playlist_right_vid_side play-list-cont-wrapper col-xs-12' : 'desktop') ?>">
             <?php if (!$pt->is_wl && !$pt->is_list) { ?>
             <div class="ads-placment">{{WATCH_SIDEBAR_AD}}</div>
             <div class="article-categories no-padding-both">
                <div class="pt_categories">
                   <ul>
                      <?php foreach($pt->categories as $key => $category) {
-                        if (1) { ?>
-                     <li><a class="" href="{{LINK videos/category/<?php echo $key?>}}" data-load="?link1=videos&page=category&id=<?php echo $key?>"><?php echo $category?></a></li>
+                        if (1) {
+                        $watch_cat_active = (!empty($pt->get_video->category_id) && (string) $key === (string) $pt->get_video->category_id) ? ' watch-cat-active' : '';
+                        ?>
+                     <li><a class="<?php echo trim($watch_cat_active); ?>" href="{{LINK videos/category/<?php echo $key?>}}" data-load="?link1=videos&page=category&id=<?php echo $key?>"><?php echo $category?></a></li>
                      <?php } }?>
                   </ul>
                   <div class="clear"></div>
@@ -540,9 +552,9 @@
       <?php if (!$pt->is_movie) { ?>
       <div class="col-md-8 ">
          <div class="content pt_shadow">
-            <div class="video-title pt_video_info">
+            <div class="video-title pt_video_info watch-meta-bar">
                <input type="hidden" value="{{ID}}" id="video-id">
-               <div class="video-big-title">
+               <div class="video-big-title watch-meta-primary">
                   <h1 itemprop="title">{{TITLE}}
                      <?php if ($pt->get_video->privacy == 1 && $pt->get_video->publication_date > 0) { ?> <span class="private-text">{{LANG scheduled}} <?php echo (date('Y,m,d h:i:s A',$pt->get_video->publication_date)); ?></span><?php } ?>
                      <?php if ($pt->get_video->privacy == 1 && $pt->get_video->publication_date == 0) { ?> <span class="private-text">{{LANG private}}</span><?php } ?>
@@ -1016,7 +1028,7 @@
    })
 </script>
 <?php } ?>
-<div class="col-md-4 no-padding-left pull-right <?php echo(($pt->is_wl || $pt->is_list) ? '' : 'mobile') ?>">
+<div class="col-md-4 watch-sidebar-col no-padding-left pull-right <?php echo(($pt->is_wl || $pt->is_list) ? '' : 'mobile') ?>">
    <?php if (!$pt->is_wl && !$pt->is_list) { ?>
    <div class="content">
       <div class="next-video">

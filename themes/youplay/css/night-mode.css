@@ -400,7 +400,8 @@ background: #2f2f2f;}
 	border-color: #2d3540 !important;
 	color: #c8cec4 !important;
 }
-.video-player-page .article-categories .pt_categories ul li.active a {
+.video-player-page .article-categories .pt_categories ul li.active a,
+.video-player-page .article-categories .pt_categories ul li a.watch-cat-active {
 	background: #95c655 !important;
 	color: #fff !important;
 }

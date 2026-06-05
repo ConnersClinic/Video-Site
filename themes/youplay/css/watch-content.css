@@ -1,4 +1,4 @@
-/* Watch page — Phase 1 visual polish (CSS only, no column moves) */
+/* Watch page — Phase 1–2 polish (CSS + minimal markup hooks) */
 
 .video-player-page {
   --watch-bg: #fafbf9;
@@ -33,20 +33,83 @@
   }
 }
 
-/* Player chrome */
-.video-player-page .player-video .video-player,
-.video-player-page .player-video .pt_vdo_plyr,
-.video-player-page .player-video .embed-responsive-16by9 {
+/* Player shell (Phase 2) */
+.video-player-page .watch-player-shell {
+  position: relative;
+  margin-bottom: 24px;
+  border-radius: var(--watch-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--watch-shadow-elevated);
+  background: #0f1210;
+}
+
+.video-player-page .watch-player-shell .video-player,
+.video-player-page .watch-player-shell .pt_vdo_plyr,
+.video-player-page .watch-player-shell .embed-responsive-16by9 {
+  border-radius: var(--watch-radius-lg);
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.video-player-page .watch-player-shell .video-processing img {
+  border-radius: var(--watch-radius-lg);
+}
+
+.video-player-page .watch-player-badge {
+  position: absolute;
+  z-index: 20;
+  top: 14px;
+  left: 14px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--watch-primary);
+  background: var(--watch-primary-soft);
+  border-radius: 999px;
+}
+
+.video-player-page .watch-player-duration {
+  position: absolute;
+  z-index: 20;
+  top: 14px;
+  right: 14px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 8px;
+}
+
+/* Player chrome — movie mode (no shell) */
+.video-player-page .player-video:not(:has(.watch-player-shell)) .video-player,
+.video-player-page .player-video:not(:has(.watch-player-shell)) .pt_vdo_plyr,
+.video-player-page .player-video:not(:has(.watch-player-shell)) .embed-responsive-16by9 {
   border-radius: var(--watch-radius-lg);
   overflow: hidden;
   box-shadow: var(--watch-shadow-elevated);
 }
 
-.video-player-page .player-video .video-processing img {
+.video-player-page .player-video:not(:has(.watch-player-shell)) .video-processing img {
   border-radius: var(--watch-radius-lg);
 }
 
 /* Meta bar */
+.video-player-page .watch-meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 24px;
+}
+
+.video-player-page .watch-meta-primary {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
 .video-player-page .video-big-title h1 {
   font-size: clamp(1.35rem, 2.5vw, 1.875rem);
   font-weight: 700;
@@ -561,7 +624,8 @@
   background: var(--watch-primary-soft) !important;
 }
 
-.video-player-page .article-categories .pt_categories ul li.active a {
+.video-player-page .article-categories .pt_categories ul li.active a,
+.video-player-page .article-categories .pt_categories ul li a.watch-cat-active {
   background-color: var(--watch-primary) !important;
   color: #fff !important;
   border-color: var(--watch-primary) !important;

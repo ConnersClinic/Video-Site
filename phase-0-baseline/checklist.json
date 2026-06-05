@@ -26,5 +26,22 @@
       "themes/youplay/css/night-mode.css",
       "themes/default/css/watch-content.css"
     ]
+  },
+  "phase_2": {
+    "status": "complete",
+    "approach": "minimal_markup_inside_existing_columns",
+    "files": [
+      "themes/youplay/layout/watch/content.html",
+      "themes/youplay/css/watch-content.css",
+      "themes/default/css/watch-content.css"
+    ],
+    "hooks": [
+      "watch-player-shell",
+      "watch-player-badge",
+      "watch-player-duration",
+      "watch-meta-bar",
+      "watch-cat-active",
+      "watch-sidebar-col"
+    ]
   }
 }
