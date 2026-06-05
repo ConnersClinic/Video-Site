@@ -17,5 +17,14 @@
     "comments_in_main_column": true,
     "sidebar_has_categories_and_up_next": true,
     "reverted_redesign_deployed": true
+  },
+  "phase_1": {
+    "status": "complete",
+    "approach": "css_only_no_column_moves",
+    "files": [
+      "themes/youplay/css/watch-content.css",
+      "themes/youplay/css/night-mode.css",
+      "themes/default/css/watch-content.css"
+    ]
   }
 }

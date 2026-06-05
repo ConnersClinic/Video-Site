@@ -358,6 +358,52 @@ background: #2f2f2f;}
 .video-player-page .watch-channel-meta a {
 	color: #b5d89a;
 }
+.video-player-page {
+	--watch-bg: #12141e;
+	--watch-surface: #1e2228;
+	--watch-foreground: #e8ece4;
+	--watch-primary: #95c655;
+	--watch-primary-soft: #2a3324;
+	--watch-secondary: #252a30;
+	--watch-muted: #a8b0a0;
+	--watch-border: #2d3540;
+}
+.video-player-page .video-big-title h1,
+.video-player-page .watch-channel-compact .publisher-name > a {
+	color: #e8ece4;
+}
+.video-player-page .watch-cta-strip {
+	background: linear-gradient(135deg, #2a3324 0%, #1e2228 55%, #1e2228 100%);
+	border-color: #3d4a32;
+}
+.video-player-page .watch-cta-secondary {
+	background: #0f1210 !important;
+}
+.video-player-page .watch-channel-compact.publisher-element,
+.video-player-page .watch-section-takeaways,
+.video-player-page .watch-section-about,
+.video-player-page .watch-section-transcript {
+	background: #1e2228;
+	border-color: #2d3540;
+}
+.video-player-page .pt_video_info .video-likes {
+	background: #1e2228;
+	border-color: #2d3540;
+}
+.video-player-page .video-options .btn-share {
+	background: #1e2228 !important;
+	border-color: #2d3540 !important;
+	color: #c8cec4 !important;
+}
+.video-player-page .article-categories .pt_categories ul li a {
+	background: #1e2228 !important;
+	border-color: #2d3540 !important;
+	color: #c8cec4 !important;
+}
+.video-player-page .article-categories .pt_categories ul li.active a {
+	background: #95c655 !important;
+	color: #fff !important;
+}
 .tp_vid_fltr_tabs ul {
 	box-shadow:  0 1px 0 0 #000, 0 0 0 1px #222;
 }
