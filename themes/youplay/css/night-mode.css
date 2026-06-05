@@ -340,8 +340,15 @@ background: #2f2f2f;}
 .video-player-page .watch-about-body p,
 .video-player-page .watch-transcript-body p,
 .video-player-page .watch-takeaways-list li,
+.video-player-page .watch-cta-secondary-eyebrow {
+	color: #95c655 !important;
+	background: #1e3a22 !important;
+}
+.video-player-page .watch-cta-secondary-headline {
+	color: #ffffff !important;
+}
 .video-player-page .watch-cta-secondary-body {
-	color: #e8ece4 !important;
+	color: rgba(232, 236, 228, 0.78) !important;
 }
 .video-player-page .watch-section-takeaways,
 .video-player-page .watch-cta-secondary {

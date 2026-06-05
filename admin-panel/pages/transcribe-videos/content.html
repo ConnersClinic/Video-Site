@@ -152,6 +152,11 @@
                         <p class="text-muted">Shown after the transcript, before comments.</p>
                         <?php $watch_cta2_defaults = PT_GetWatchSecondaryCtaDefaults(); ?>
                         <div class="form-group">
+                            <label>Eyebrow</label>
+                            <small class="text-muted d-block m-b-5">Small pill label above the headline (shown in all caps).</small>
+                            <input type="text" class="form-control" name="watch_cta2_eyebrow" value="<?php echo htmlspecialchars($pt->config->watch_cta2_eyebrow ?? $watch_cta2_defaults['eyebrow']); ?>">
+                        </div>
+                        <div class="form-group">
                             <label>Headline</label>
                             <input type="text" class="form-control" name="watch_cta2_headline" value="<?php echo htmlspecialchars($pt->config->watch_cta2_headline ?? $watch_cta2_defaults['headline']); ?>">
                         </div>
