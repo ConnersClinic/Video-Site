@@ -1,7 +1,7 @@
 /* Watch page — Phase 1–2 polish (CSS + minimal markup hooks) */
 
 .video-player-page {
-  --watch-bg: #fafbf9;
+  --watch-bg: #F9FAF8;
   --watch-surface: #ffffff;
   --watch-foreground: #1a1f16;
   --watch-primary: #95c655;
@@ -21,7 +21,16 @@
   --watch-radius-lg: 10px;
   --watch-radius-md: 10px;
   --watch-radius-pill: 999px;
-  background: var(--watch-bg);
+  background: #F9FAF8;
+}
+
+body:has(.video-player-page),
+body:has(.video-player-page) #main-container {
+  background: #F9FAF8;
+}
+
+.video-player-page .content {
+  background: #F9FAF8 !important;
 }
 
 /* Page shell */
@@ -84,7 +93,7 @@
 }
 
 .video-player-page .video-big-title h1 {
-  font-size: clamp(1.35rem, 2.5vw, 1.875rem);
+  font-size: 30px;
   font-weight: 700;
   line-height: 1.25;
   color: var(--watch-foreground);
