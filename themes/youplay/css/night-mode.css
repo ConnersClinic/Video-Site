@@ -358,6 +358,23 @@ background: #2f2f2f;}
 .video-player-page .watch-channel-meta a {
 	color: #b5d89a;
 }
+.video-player-page a.watch-category-pill {
+	color: #b5d89a;
+	background: #2a3324;
+}
+.video-player-page a.watch-category-pill:hover {
+	color: #c8e6a0;
+	background: #3d4a32;
+}
+.video-player-page .watch-meta-toolbar .video-likes {
+	background: #1e2228;
+	border-color: #2d3540;
+}
+.video-player-page .watch-action-pill {
+	background: #1e2228 !important;
+	border-color: #2d3540 !important;
+	color: #e8ece4 !important;
+}
 .video-player-page {
 	--watch-bg: #12141e;
 	--watch-surface: #1e2228;

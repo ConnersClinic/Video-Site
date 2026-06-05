@@ -13,14 +13,8 @@
    <div class="row">
       <div class="<?php echo(($pt->is_wl || $pt->is_list) ? 'play-list-player' : '') ?>">
          <div class="col-md-<?php echo($pt->is_movie ? '12' : '8') ?> player-video yp_pub_elemnt <?php echo($pt->is_movie ? 'movie' : '') ?>">
-            <?php if (!$pt->is_movie) {
-               $watch_cat_label = !empty($pt->get_video->category_name) ? $pt->get_video->category_name : '';
-               $watch_show_member_badge = (stripos($watch_cat_label, 'q&a') !== false || stripos($watch_cat_label, 'q&amp;a') !== false);
-               $watch_duration_label = !empty($pt->get_video->duration) ? $pt->get_video->duration : '';
-            ?>
+            <?php if (!$pt->is_movie) { ?>
             <div class="watch-player-shell">
-            <?php if ($watch_show_member_badge) { ?><span class="watch-player-badge">Member question</span><?php } ?>
-            <?php if ($watch_duration_label !== '') { ?><span class="watch-player-duration"><?php echo htmlspecialchars($watch_duration_label); ?></span><?php } ?>
             <?php } ?>
             <?php if (!$pt->shouldSubscribers) { ?>
             <?php if ($pt->showSubscripation) { ?>
@@ -566,36 +560,73 @@
                      <?php } ?>
                   </h1>
                </div>
-               <div>
-                  <?php if (($pt->config->sell_videos_system == 'on') || $pt->get_video->sell_video == 0 ) { ?>
-                  <div class="video-likes pull-right">
-                     <div class="like-btn {{LIKE_ACTIVE_CLASS}}" id="likes-bar" onclick="Wo_LikeSystem('{{ID}}', 'like', this, 'is_ajax')" data-likes="{{RAEL_LIKES}}" {{ISLIKED}}>
-                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="thumbs_up">
-                        <path fill="currentColor" d="M9 21h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.58 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2zM9 9l4.34-4.34L12 10h9v2l-3 7H9V9zM1 9h4v12H1z" />
+               <div class="watch-meta-secondary">
+                  <div class="video-views watch-meta-stats">
+                     <span id="video-views-count">{{VIEWS}}</span>&nbsp;{{LANG views}}<span class="bold middot">·</span>
+                     <?php if ($pt->get_video->sell_video > 0) { ?>
+                     <span><?php echo $pt->purchased; ?>&nbsp;{{LANG purchased}}</span><span class="bold middot">·</span>
+                     <?php } ?>
+                     <span title="{{LANG published_on}} {{TIME}}">{{TIME}}</span>
+                     <?php if (!empty($pt->get_video->category_name)) { ?>
+                     <span class="bold middot">·</span>
+                     <a class="watch-category-pill" href="{{LINK videos/category/{{CATEGORY_ID}}}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}">{{CATEGORY}}</a>
+                     <?php } ?>
+                  </div>
+                  <div class="watch-meta-toolbar">
+                     <?php if (($pt->config->sell_videos_system == 'on') || $pt->get_video->sell_video == 0 ) { ?>
+                     <div class="video-likes">
+                        <div class="like-btn {{LIKE_ACTIVE_CLASS}}" id="likes-bar" onclick="Wo_LikeSystem('{{ID}}', 'like', this, 'is_ajax')" data-likes="{{RAEL_LIKES}}" {{ISLIKED}}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="thumbs_up">
+                           <path fill="currentColor" d="M9 21h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.58 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2zM9 9l4.34-4.34L12 10h9v2l-3 7H9V9zM1 9h4v12H1z" />
+                        </svg>
+                        <span class="likes" id="likes">{{LIKES}}</span>
+                     </div>
+                     <div class="video-info-element">
+                        <div class="views-bar" style="width: {{DISLIKES_P}}%"></div>
+                        <div class="views-bar blue" style="width: {{LIKES_P}}%"></div>
+                        <div class="clear"></div>
+                     </div>
+                     <div class="like-btn {{DIS_ACTIVE_CLASS}}" id="dislikes-bar" onclick="Wo_LikeSystem('{{ID}}', 'dislike', this, 'is_ajax')" data-likes="{{RAEL_DISLIKES}}" {{ISDISLIKED}}>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="thumbs_down">
+                        <path fill="currentColor" d="M15 3H6c-.83 0-1.54.5-1.84-1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm0 12l-4.34 4.34L12 14H3v-2l3-7h9v10zm4-12h4v12h-4z" />
                      </svg>
-                     <span class="likes" id="likes">{{LIKES}}</span>
+                     <span class="likes" id="dislikes">{{DISLIKES}}</span>
                   </div>
-                  <div class="video-info-element pull-right">
-                     <div class="views-bar" style="width: {{DISLIKES_P}}%"></div>
-                     <div class="views-bar blue" style="width: {{LIKES_P}}%"></div>
-                     <div class="clear"></div>
+                     </div>
+                     <?php } ?>
+                     <div class="watch-action-pills">
+                        <button type="button" class="btn-share watch-action-pill watch-action-pill--icon" data-toggle="modal" data-target="#share_box" title="{{LANG share}}" aria-label="{{LANG share}}">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                              <path fill="currentColor" d="M21,11L14,4V8C7,9 4,14 3,19C5.5,15.5 9,13.9 14,13.9V18L21,11Z" />
+                           </svg>
+                        </button>
+                        <?php if (empty($pt->get_video->stream_name)) { ?>
+                        <?php if ($pt->config->embed_system == 'on' && $pt->get_video->embedding == 0) {?>
+                        <?php if ($pt->get_video->sell_video == 0) { ?>
+                        <button type="button" class="btn-share watch-action-pill watch-action-pill--icon" data-toggle="modal" data-target="#embed_box" title="{{LANG embed}}" aria-label="{{LANG embed}}">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                              <path fill="currentColor" d="M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6Z" />
+                           </svg>
+                        </button>
+                        <?php } ?>
+                        <?php } } ?>
+                        <?php if (empty($pt->get_video->stream_name)) { ?>
+                        <?php
+                           if (($pt->config->payed_subscribers == 'on' && $pt->get_video->owner->subscriber_price > 0 && $pt->is_paid > 0) || ($pt->config->payed_subscribers == 'off') || ($pt->config->payed_subscribers == 'on' && $pt->get_video->owner->subscriber_price == 0) || (($pt->is_paid > 0 || $pt->get_video->sell_video == 0) && $pt->config->stock_videos == 'on' && $pt->get_video->is_stock == 1) ) {
+                           if ($pt->config->download_videos == 'on' && empty($pt->get_video->daily) && empty($pt->get_video->vimeo) && empty($pt->get_video->youtube) && $pt->get_video->converted == 1 && empty($pt->get_video->facebook) && $pt->get_video->age == false && $pt->video_approved == true) { ?>
+                        <?php if ($pt->get_video->sell_video == 0 || (($pt->is_paid > 0 || $pt->get_video->sell_video == 0) && $pt->config->stock_videos == 'on' && $pt->get_video->is_stock == 1)) { ?>
+                        <?php if ($pt->get_video->privacy != 1 || ($pt->get_video->privacy == 1 && $pt->get_video->is_owner)) { ?>
+                        <button type="button" class="btn-share watch-action-pill watch-action-pill--icon" data-toggle="modal" data-target="#download_box" title="{{LANG download}}" aria-label="{{LANG download}}">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                              <path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
+                           </svg>
+                        </button>
+                        <?php } } } ?>
+                        <?php } ?>
+                        <?php } ?>
+                     </div>
                   </div>
-                  <div class="like-btn text-right {{DIS_ACTIVE_CLASS}}" id="dislikes-bar" onclick="Wo_LikeSystem('{{ID}}', 'dislike', this, 'is_ajax')" data-likes="{{RAEL_DISLIKES}}" {{ISDISLIKED}}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="thumbs_down">
-                     <path fill="currentColor" d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm0 12l-4.34 4.34L12 14H3v-2l3-7h9v10zm4-12h4v12h-4z" />
-                  </svg>
-                  <span class="likes" id="dislikes">{{DISLIKES}}</span>
                </div>
-               <div class="clear"></div>
-            </div>
-            <?php } ?>
-         </div>
-         <div class="video-views">
-            <span id="video-views-count">{{VIEWS}}</span>&nbsp;{{LANG views}}<span class="bold middot">·</span>
-            <?php if ($pt->get_video->sell_video > 0) { ?>
-            <span><?php echo $pt->purchased; ?>&nbsp;{{LANG purchased}}</span><span class="bold middot">·</span>
-            <?php } ?>
-            <span title="{{LANG published_on}} {{TIME}}">{{TIME}}</span>
          </div>
          <?php if ($pt->get_video->sell_video > 0 && PT_IsAdmin()) { ?>
          <br>
@@ -617,24 +648,7 @@
             <span>{{LANG rent_time_will}} : <?php echo $pt->video_end; ?></span>
          </div>
          <?php } ?>
-         <div class="video-options">
-            <button class="btn-share" data-toggle="modal" data-target="#share_box">
-               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M21,11L14,4V8C7,9 4,14 3,19C5.5,15.5 9,13.9 14,13.9V18L21,11Z" />
-               </svg>
-               {{LANG share}}
-            </button>
-            <?php if (empty($pt->get_video->stream_name)) { ?>
-            <?php if ($pt->config->embed_system == 'on' && $pt->get_video->embedding == 0) {?>
-            <?php if ($pt->get_video->sell_video == 0) { ?>
-            <button class="btn-share" data-toggle="modal" data-target="#embed_box">
-               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6Z" />
-               </svg>
-               {{LANG embed}}
-            </button>
-            <?php } ?>
-            <?php } } ?>
+         <div class="video-options watch-secondary-actions">
             <?php if ($pt->get_video->is_owner == true) { ?>
             <a class="btn btn-share" href="{{LINK edit-video/{{ID}}}}" data-load="?link1=edit-video&id=category&id={{ID}}">
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -642,19 +656,6 @@
                </svg>
                {{LANG edit_video}}
             </a>
-            <?php } if (empty($pt->get_video->stream_name)) { ?>
-            <?php
-               if (($pt->config->payed_subscribers == 'on' && $pt->get_video->owner->subscriber_price > 0 && $pt->is_paid > 0) || ($pt->config->payed_subscribers == 'off') || ($pt->config->payed_subscribers == 'on' && $pt->get_video->owner->subscriber_price == 0) || (($pt->is_paid > 0 || $pt->get_video->sell_video == 0) && $pt->config->stock_videos == 'on' && $pt->get_video->is_stock == 1) ) {
-               if ($pt->config->download_videos == 'on' && empty($pt->get_video->daily) && empty($pt->get_video->vimeo) && empty($pt->get_video->youtube) && $pt->get_video->converted == 1 && empty($pt->get_video->facebook) && $pt->get_video->age == false && $pt->video_approved == true) { ?>
-            <?php if ($pt->get_video->sell_video == 0 || (($pt->is_paid > 0 || $pt->get_video->sell_video == 0) && $pt->config->stock_videos == 'on' && $pt->get_video->is_stock == 1)) { ?>
-            <?php if ($pt->get_video->privacy != 1 || ($pt->get_video->privacy == 1 && $pt->get_video->is_owner)) { ?>
-            <button class="btn-share" data-toggle="modal" data-target="#download_box">
-               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
-               </svg>
-               {{LANG download}}
-            </button>
-            <?php } } } ?>
             <?php } ?>
             <?php if ($pt->get_video->is_owner == false && $pt->config->donate_system == 'on' && !empty($pt->user_data->donation_paypal_email) && $pt->get_video->sell_video == 0) { ?>
             <button class="btn-share" onclick="location.href = 'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business={{USER donation_paypal_email}}&lc=US&item_name=Donation+to+{{USER name}}&no_note=0&cn=&currency_code=USD&bn=PP-DonationsBF:btn_donateCC_LG.gif:NonHosted'">
@@ -706,7 +707,6 @@
                <span>{{LANG analytics}}</span>
             </a>
             <?php } ?>
-            <?php } ?>
          </div>
          <div class="publisher-element watch-channel-compact">
             <div class="publisher-avatar pull-left hide-in-mobile-720">
@@ -714,9 +714,6 @@
             </div>
             <div class="publisher-name">
                <a href="{{USER url}}" data-load="?link1=timeline&id={{USER username}}">{{USER name_v}}</a>
-               <div class="watch-channel-meta">
-                  <a href="{{LINK videos/category/{{CATEGORY_ID}}}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}">{{CATEGORY}}</a><?php if (!empty($pt->sub_category)) { ?> <span class="watch-channel-meta-sep">/</span> <a href="{{LINK videos/category/{{CATEGORY_ID}}/<?php echo($pt->get_video->sub_category) ?>}}" data-load="?link1=videos&page=category&id={{CATEGORY_ID}}&sub_id=<?php echo($pt->get_video->sub_category) ?>">{{SUB_CATEGORY}}</a><?php } ?>
-               </div>
             </div>
             <div class="publisher-subscribe-button watch-channel-actions">{{NOTIFY_BUTTON}}{{SUBSCIBE_BUTTON}}</div>
             <div class="clear"></div>

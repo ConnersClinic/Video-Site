@@ -12,8 +12,10 @@
   --watch-border: #e4e8e0;
   --watch-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
   --watch-shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.08);
-  --watch-radius-lg: 1.625rem;
-  --watch-radius-md: 1rem;
+  --watch-radius: 10px;
+  --watch-radius-lg: 10px;
+  --watch-radius-md: 10px;
+  --watch-radius-pill: 999px;
   background: var(--watch-bg);
 }
 
@@ -33,80 +35,46 @@
   }
 }
 
-/* Player shell (Phase 2) */
+/* Player shell */
 .video-player-page .watch-player-shell {
   position: relative;
   margin-bottom: 24px;
-  border-radius: var(--watch-radius-lg);
+  border-radius: var(--watch-radius);
   overflow: hidden;
-  box-shadow: var(--watch-shadow-elevated);
   background: #0f1210;
 }
 
 .video-player-page .watch-player-shell .video-player,
 .video-player-page .watch-player-shell .pt_vdo_plyr,
 .video-player-page .watch-player-shell .embed-responsive-16by9 {
-  border-radius: var(--watch-radius-lg);
+  border-radius: var(--watch-radius);
   overflow: hidden;
-  box-shadow: none;
 }
 
 .video-player-page .watch-player-shell .video-processing img {
-  border-radius: var(--watch-radius-lg);
-}
-
-.video-player-page .watch-player-badge {
-  position: absolute;
-  z-index: 20;
-  top: 14px;
-  left: 14px;
-  padding: 6px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--watch-primary);
-  background: var(--watch-primary-soft);
-  border-radius: 999px;
-}
-
-.video-player-page .watch-player-duration {
-  position: absolute;
-  z-index: 20;
-  top: 14px;
-  right: 14px;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.65);
-  border-radius: 8px;
+  border-radius: var(--watch-radius);
 }
 
 /* Player chrome — movie mode (no shell) */
 .video-player-page .player-video:not(:has(.watch-player-shell)) .video-player,
 .video-player-page .player-video:not(:has(.watch-player-shell)) .pt_vdo_plyr,
 .video-player-page .player-video:not(:has(.watch-player-shell)) .embed-responsive-16by9 {
-  border-radius: var(--watch-radius-lg);
+  border-radius: var(--watch-radius);
   overflow: hidden;
-  box-shadow: var(--watch-shadow-elevated);
 }
 
 .video-player-page .player-video:not(:has(.watch-player-shell)) .video-processing img {
-  border-radius: var(--watch-radius-lg);
+  border-radius: var(--watch-radius);
 }
 
 /* Meta bar */
 .video-player-page .watch-meta-bar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px 24px;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .video-player-page .watch-meta-primary {
-  flex: 1 1 280px;
   min-width: 0;
 }
 
@@ -115,71 +83,178 @@
   font-weight: 700;
   line-height: 1.25;
   color: var(--watch-foreground);
+  margin: 0;
 }
 
-.video-player-page .pt_video_info .video-views {
+.video-player-page .watch-meta-secondary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+}
+
+.video-player-page .watch-meta-stats {
   font-size: 13px;
   color: var(--watch-muted);
-  margin-top: 6px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
 }
 
-.video-player-page .pt_video_info .video-views .middot {
+.video-player-page .watch-meta-stats .middot {
   color: #b0b5aa;
 }
 
+.video-player-page a.watch-category-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--watch-primary);
+  background: var(--watch-primary-soft);
+  border-radius: var(--watch-radius-pill);
+  text-decoration: none;
+  vertical-align: middle;
+}
+
+.video-player-page a.watch-category-pill:hover {
+  color: var(--watch-primary-hover);
+  background: #e4f0d4;
+}
+
+.video-player-page .watch-meta-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
 /* Segmented like/dislike pill */
-.video-player-page .pt_video_info .video-likes {
+.video-player-page .watch-meta-toolbar .video-likes {
   display: inline-flex;
   align-items: stretch;
   border: 1px solid var(--watch-border);
-  border-radius: 999px;
+  border-radius: var(--watch-radius);
   background: var(--watch-surface);
   overflow: hidden;
   padding: 0;
 }
 
-.video-player-page .pt_video_info .video-likes .like-btn {
+.video-player-page .watch-meta-toolbar .video-likes .like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 14px;
   margin: 0;
+  border: 0;
+  background: transparent;
+  color: var(--watch-foreground);
+  cursor: pointer;
 }
 
-.video-player-page .pt_video_info .video-likes .like-btn + .video-info-element + .like-btn::before,
-.video-player-page .pt_video_info .video-likes .video-info-element {
+.video-player-page .watch-meta-toolbar .video-likes .like-btn + .video-info-element + .like-btn::before,
+.video-player-page .watch-meta-toolbar .video-likes .video-info-element {
   display: none;
 }
 
-.video-player-page .pt_video_info .video-likes .like-btn:first-of-type {
+.video-player-page .watch-meta-toolbar .video-likes .like-btn:first-of-type {
   border-right: 1px solid var(--watch-border);
 }
 
-.video-player-page .pt_video_info .video-likes .like-btn.active svg.thumbs_up {
+.video-player-page .watch-meta-toolbar .video-likes .like-btn .likes {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--watch-muted);
+}
+
+.video-player-page .watch-meta-toolbar .video-likes .like-btn svg {
+  width: 18px;
+  height: 18px;
+  color: var(--watch-foreground);
+}
+
+.video-player-page .watch-meta-toolbar .video-likes .like-btn.active svg.thumbs_up {
   color: var(--watch-primary);
 }
 
-/* Action row */
-.video-player-page.six_padding_15 .video-options {
+.video-player-page .watch-meta-toolbar .video-likes .like-btn.active svg.thumbs_down {
+  color: var(--watch-muted);
+}
+
+/* Icon action pills (share, embed, download) */
+.video-player-page .watch-action-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.video-player-page .watch-action-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0 !important;
+  border: 1px solid var(--watch-border) !important;
+  border-radius: var(--watch-radius) !important;
+  background: var(--watch-surface) !important;
+  color: var(--watch-foreground) !important;
+  flex: 0 0 auto !important;
+  box-shadow: none !important;
+  line-height: 1 !important;
+}
+
+.video-player-page .watch-action-pill svg {
+  margin: 0 !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.video-player-page .watch-action-pill:hover {
+  border-color: var(--watch-primary) !important;
+  color: var(--watch-primary) !important;
+  background: var(--watch-secondary) !important;
+}
+
+.video-player-page .watch-action-pill--icon {
+  font-size: 0;
+}
+
+/* Secondary actions (edit, donate, report, etc.) */
+.video-player-page.six_padding_15 .video-options.watch-secondary-actions {
   border-top: none;
   border-bottom: none;
-  margin-top: 12px;
-  padding: 8px 0 16px;
+  margin-top: 8px;
+  padding: 0 0 12px;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.video-player-page .video-options .btn-share {
+.video-player-page .video-options.watch-secondary-actions:empty {
+  display: none;
+  margin: 0;
+  padding: 0;
+}
+
+.video-player-page .video-options.watch-secondary-actions .btn-share {
   border: 1px solid var(--watch-border) !important;
-  border-radius: 999px !important;
+  border-radius: var(--watch-radius) !important;
   padding: 8px 14px !important;
   background: var(--watch-surface) !important;
   color: var(--watch-muted) !important;
   flex: 0 0 auto !important;
 }
 
-.video-player-page .video-options .btn-share:not(:last-child) {
+.video-player-page .video-options.watch-secondary-actions .btn-share:not(:last-child) {
   border-right: 1px solid var(--watch-border) !important;
 }
 
-.video-player-page .video-options .btn-share:hover {
+.video-player-page .video-options.watch-secondary-actions .btn-share:hover {
   border-color: var(--watch-primary) !important;
   color: var(--watch-primary) !important;
   background: var(--watch-secondary) !important;
