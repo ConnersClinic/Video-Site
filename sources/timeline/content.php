@@ -159,7 +159,7 @@ if (!empty($videos) && !$lists) {
             'DURATION' => $video_get->duration,
             'VIDEO_ID_' => PT_Slug($video_get->title, $video_get->video_id),
             'GIF' => $video_get->gif,
-            'DESC' => $video_get->markup_description,
+            'DESC' => $video_get->list_description,
             'PRICE' => $video_get->sell_video,
             'CURRENCY' => $pt->config->main_payment_currency,
         ));

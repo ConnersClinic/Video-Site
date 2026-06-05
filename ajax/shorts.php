@@ -93,7 +93,7 @@ if ($first == 'load') {
 								    'KEY' => $get_video->video_id,
 								    'THUMBNAIL' => $get_video->thumbnail,
 								    'TITLE' => $get_video->title,
-								    'DESC' => $get_video->markup_description,
+								    'DESC' => $get_video->list_description,
 								    'URL' => $get_video->url,
 								    'VIDEO_TYPE' => $video_type,
 								    'VIDEO_LOCATION_240' => $pt->video_240,

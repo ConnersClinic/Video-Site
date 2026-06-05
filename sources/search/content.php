@@ -106,7 +106,7 @@ if (!empty($get_videos)) {
             'URL' => $video->url,
             'ajax_url' => $video->ajax_url,
             'TITLE' => $video->title,
-            'DESC' => $video->markup_description,
+            'DESC' => $video->list_description,
             'VIEWS' => $video->views,
             'VIEWS_NUM' => number_format($video->views),
             'TIME' => $video->time_ago,

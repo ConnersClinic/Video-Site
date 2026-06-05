@@ -41,7 +41,7 @@ if (!empty($get_history_videos)) {
             'URL' => $video->url,
             'ajax_url' => $video->ajax_url,
             'TITLE' => $video->title,
-            'DESC' => $video->markup_description,
+            'DESC' => $video->list_description,
             'VIEWS' => $video->views,
             'TIME' => $video->time_ago,
             'VIDEO_ID_' => PT_Slug($video->title, $video->video_id)

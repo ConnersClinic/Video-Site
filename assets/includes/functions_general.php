@@ -787,6 +787,21 @@ function PT_ShortText($text = "", $len = 100) {
     }
     return $text;
 }
+function PT_VideoListDescription($text = "", $len = 160) {
+    if (empty($text) || !is_string($text) || !is_numeric($len) || $len < 1) {
+        return '';
+    }
+    $text = htmlspecialchars_decode($text, ENT_QUOTES);
+    $text = strip_tags($text);
+    $text = preg_replace('/\s+/u', ' ', trim($text));
+    if ($text === '') {
+        return '';
+    }
+    if (mb_strlen($text, 'UTF-8') > $len) {
+        $text = mb_substr($text, 0, $len, 'UTF-8') . '…';
+    }
+    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+}
 function PT_GetIdFromURL($url = false) {
     if (!$url) {
         return false;

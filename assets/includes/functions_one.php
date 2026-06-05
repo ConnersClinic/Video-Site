@@ -390,6 +390,7 @@ function PT_GetVideoByID($video_id = '', $add_views = 0, $likes_dislikes = 0, $r
 
         $get_video->edit_description   = PT_EditMarkup($get_video->description);
         $get_video->markup_description = PT_Markup($get_video->description);
+        $get_video->list_description   = PT_VideoListDescription($get_video->description);
         $get_video->markup_title = PT_Markup($get_video->title,false);
         $get_video->title = PT_Markup($get_video->title,false,true,false);
         $get_video->owner              = PT_UserData($get_video->user_id);

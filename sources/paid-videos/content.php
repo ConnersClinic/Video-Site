@@ -72,7 +72,7 @@ if (!empty($get_paid_videos)) {
             'THUMBNAIL' => $video->thumbnail,
             'URL' => $video->url,
             'TITLE' => $video->title,
-            'DESC' => $video->markup_description,
+            'DESC' => $video->list_description,
             'VIEWS' => $video->views,
             'TIME' => $video->time_ago,
             'VIDEO_ID_' => PT_Slug($video->title, $video->video_id),
