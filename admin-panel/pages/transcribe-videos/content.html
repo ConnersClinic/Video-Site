@@ -122,6 +122,11 @@
                         <p class="text-muted">Slim strip below title/metadata on every watch page. Leave HTML override empty to use the fields below.</p>
                         <?php $watch_cta_defaults = PT_GetWatchCtaDefaults(); ?>
                         <div class="form-group">
+                            <label>Eyebrow</label>
+                            <small class="text-muted d-block m-b-5">Small pill label above the headline (shown in all caps).</small>
+                            <input type="text" class="form-control" name="watch_cta_eyebrow" value="<?php echo htmlspecialchars($pt->config->watch_cta_eyebrow ?? $watch_cta_defaults['eyebrow']); ?>">
+                        </div>
+                        <div class="form-group">
                             <label>Headline</label>
                             <input type="text" class="form-control" name="watch_cta_headline" value="<?php echo htmlspecialchars($pt->config->watch_cta_headline ?? $watch_cta_defaults['headline']); ?>">
                         </div>

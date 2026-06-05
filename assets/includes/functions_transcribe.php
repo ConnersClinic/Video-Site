@@ -252,8 +252,9 @@ function PT_EncodeKeyTakeawaysForDb($takeaways) {
 
 function PT_GetWatchCtaDefaults() {
     return array(
-        'headline' => 'Need personalized guidance?',
-        'body' => 'Explore what may be driving your health concerns with Conners Clinic\'s root-cause-focused coaching and testing support.',
+        'eyebrow' => 'Personalized guidance',
+        'headline' => 'Want help looking deeper into your health?',
+        'body' => 'Explore what may be driving your concerns with Conners Clinic\'s root-cause-focused coaching and testing support.',
         'button_text' => 'Free Discovery Call',
         'button_url' => 'https://www.connersclinic.com/schedule-now/',
         'trust_labels' => '',
@@ -275,9 +276,20 @@ function PT_GetWatchCtaConfig() {
     $trust_raw = !empty($pt->config->watch_cta_trust_labels)
         ? $pt->config->watch_cta_trust_labels
         : $defaults['trust_labels'];
+    $has_eyebrow = isset($pt->config->watch_cta_eyebrow);
+    $headline_raw = isset($pt->config->watch_cta_headline) ? trim($pt->config->watch_cta_headline) : null;
+    if (!$has_eyebrow && $headline_raw === 'Need personalized guidance?') {
+        $eyebrow = 'Personalized guidance';
+        $headline = $defaults['headline'];
+    } else {
+        $eyebrow = $has_eyebrow ? trim($pt->config->watch_cta_eyebrow) : $defaults['eyebrow'];
+        $headline = $headline_raw !== null ? $headline_raw : $defaults['headline'];
+    }
+    $body = isset($pt->config->watch_cta_body) ? trim($pt->config->watch_cta_body) : $defaults['body'];
     return array(
-        'headline' => trim(!empty($pt->config->watch_cta_headline) ? $pt->config->watch_cta_headline : $defaults['headline']),
-        'body' => trim(!empty($pt->config->watch_cta_body) ? $pt->config->watch_cta_body : $defaults['body']),
+        'eyebrow' => $eyebrow,
+        'headline' => $headline,
+        'body' => $body,
         'button_text' => trim(!empty($pt->config->watch_cta_button_text) ? $pt->config->watch_cta_button_text : $defaults['button_text']),
         'button_url' => trim(!empty($pt->config->watch_cta_button_url) ? $pt->config->watch_cta_button_url : $defaults['button_url']),
         'trust_labels' => PT_ParseWatchCtaTrustLabels($trust_raw),
@@ -346,18 +358,33 @@ function PT_BuildWatchPrimaryCtaHtml() {
         }
         return '<aside class="watch-cta-strip" aria-label="Schedule a discovery call">' . $html . '</aside>';
     }
-    $headline = htmlspecialchars($cfg['headline']);
-    $body = htmlspecialchars($cfg['body']);
-    $button_text = htmlspecialchars($cfg['button_text']);
+    $eyebrow = trim($cfg['eyebrow']);
+    $headline = trim($cfg['headline']);
+    $body = trim($cfg['body']);
+    $button_text = trim($cfg['button_text']);
     $button_url = htmlspecialchars($cfg['button_url'], ENT_QUOTES, 'UTF-8');
+    $text_html = '';
+    if ($eyebrow !== '') {
+        $text_html .= '<p class="watch-cta-strip-eyebrow">'
+            . '<svg class="watch-cta-strip-eyebrow-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.4L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.6L12 2z"/></svg>'
+            . '<span>' . htmlspecialchars($eyebrow) . '</span></p>';
+    }
+    if ($headline !== '') {
+        $text_html .= '<p class="watch-cta-strip-headline">' . htmlspecialchars($headline) . '</p>';
+    }
+    if ($body !== '') {
+        $text_html .= '<p class="watch-cta-strip-body">' . htmlspecialchars($body) . '</p>';
+    }
+    $button_html = '';
+    if ($button_text !== '' && $button_url !== '') {
+        $button_html = '<a class="btn btn-main watch-cta-strip-btn" href="' . $button_url . '" target="_blank" rel="noopener noreferrer">'
+            . '<svg class="watch-cta-strip-btn-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>'
+            . '<span class="watch-cta-strip-btn-text">' . htmlspecialchars($button_text) . '</span></a>';
+    }
     return '<aside class="watch-cta-strip" aria-label="Schedule a discovery call">'
-        . '<div class="watch-cta-strip-accent" aria-hidden="true"></div>'
         . '<div class="watch-cta-strip-inner">'
-        . '<div class="watch-cta-strip-text">'
-        . '<p class="watch-cta-strip-headline">' . $headline . '</p>'
-        . '<p class="watch-cta-strip-body">' . $body . '</p>'
-        . '</div>'
-        . '<a class="btn btn-main watch-cta-strip-btn" href="' . $button_url . '" target="_blank" rel="noopener noreferrer">' . $button_text . '</a>'
+        . ($text_html !== '' ? '<div class="watch-cta-strip-text">' . $text_html . '</div>' : '')
+        . $button_html
         . '</div>'
         . '</aside>';
 }

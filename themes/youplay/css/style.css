@@ -4533,12 +4533,13 @@ body span.icon_pro svg {
 }
 
 /* Watch page content (fallback if watch-content.css fails to load) */
-.video-player-page .watch-cta-strip{display:flex!important;background:#fafcf8;border:1px solid #c5db9e;border-radius:12px;margin:0 0 24px;overflow:hidden}
-.video-player-page .watch-cta-strip-accent{flex:0 0 4px;background:#95c655}
-.video-player-page .watch-cta-strip-inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;flex:1}
-.video-player-page .watch-cta-strip-headline{margin:0 0 4px;font-size:17px;font-weight:700;color:#1a1f16}
+.video-player-page .watch-cta-strip{display:flex!important;background:linear-gradient(90deg,#e3f0d4 0%,#f0f7e8 42%,#fafcf8 100%);border:1px solid rgba(149,198,85,.22);border-radius:12px;margin:0 0 24px;overflow:hidden}
+.video-player-page .watch-cta-strip-inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;flex:1;width:100%}
+.video-player-page .watch-cta-strip-text{display:flex;flex-direction:column;justify-content:center;gap:8px;flex:1}
+.video-player-page .watch-cta-strip-eyebrow{display:inline-flex;align-items:center;gap:6px;margin:0;padding:5px 12px;font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:#95c655;background:#f0f7e8;border-radius:999px;width:fit-content}
+.video-player-page .watch-cta-strip-headline{margin:0;font-size:1.35rem;font-weight:700;color:#0b140d}
 .video-player-page .watch-cta-strip-body{margin:0;font-size:14px;color:#3d4538}
-.video-player-page a.watch-cta-strip-btn{display:inline-block!important;padding:10px 20px!important;background:#95c655!important;color:#fff!important;border-radius:8px!important;text-decoration:none!important;font-weight:600!important}
+.video-player-page a.watch-cta-strip-btn{display:inline-flex!important;align-items:center;gap:10px;padding:10px 20px!important;background:#95c655!important;color:#fff!important;border-radius:999px!important;text-decoration:none!important;font-weight:600!important}
 .video-player-page .watch-content-below-video h3.watch-section-heading{font-size:1.5rem;font-weight:700;margin:0 0 12px}
 .video-player-page .watch-cta-secondary{padding:22px 24px;background:#fff;border:1px solid #dce8cc;border-radius:12px;box-shadow:0 2px 8px rgba(45,62,30,.06);margin:12px 0 32px}
 /* Watch meta toolbar — overrides mobile .video-likes absolute bar in this file */

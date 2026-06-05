@@ -324,6 +324,10 @@ background: #2f2f2f;}
 	background: #1e2228;
 	border-color: #2d3540;
 }
+.video-player-page .watch-cta-strip-eyebrow {
+	color: #95c655 !important;
+	background: #2a3324 !important;
+}
 .video-player-page .watch-cta-strip-headline,
 .video-player-page .watch-cta-strip-body {
 	color: #e8ece4;
