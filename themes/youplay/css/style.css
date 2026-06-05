@@ -1357,8 +1357,14 @@ body.fab_open .fixed-action-btn {z-index: 1150;}
 .pt_home_top_m {margin: -150px 0 0;position: relative;}
 .video-player-page .last_hr:last-child hr{display:none;}
 .home-page-categories .title h4 {display: flex;align-items: center;margin: 0;}
-.home-page-categories .title h4 > div{width: 32px;height: 32px;display: flex;align-items: center;justify-content: center;border-radius: 50%;color: white;background-color: #95c655;margin-right: 8px;}
+.home-page-categories .title h4 > div,
+.home-page-categories .title h4 > .home-section-icon{width: 32px;height: 32px;display: flex;align-items: center;justify-content: center;border-radius: 50%;color: #95c655;background-color: #f0f7e8;margin-right: 8px;flex-shrink: 0;}
 .home-page-categories .title h4 svg{margin:0;}
+.home-featured-eyebrow{display:inline-flex;align-items:center;margin:0;padding:5px 12px;font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:#95c655;background:#1e3a22;border-radius:999px;width:fit-content}
+.pt_home_top_m .home-page-categories .videos .video-list .video-list-title h4,
+.pt_home_top_m .home-page-categories .videos .video-latest-list .video-title h4{color:#0b140d;transition:color .15s ease-in-out}
+.pt_home_top_m .home-page-categories .videos .video-list .video-list-title a:hover h4,
+.pt_home_top_m .home-page-categories .videos .video-latest-list .video-title a:hover h4{color:#95c655}
 .home-page-categories .videos .duration{position: absolute;right: 4px;bottom: 4px;padding: 1px 5px;font-weight: 500;font-size: 11px;background-color: rgba(0, 0, 0, 0.75);color: #ededed;height: 16px;line-height: 14px;border-radius: 2px;}
 .cus_slider .slick-prev, .cus_slider .slick-next{transform: none;top: 40px;width: 40px;height: 40px;box-shadow: 0 4px 4px rgba(0, 0, 0, 0.3), 0 0 4px rgba(0, 0, 0, 0.2);}
 .cus_slider .slick-prev svg.feather, .cus_slider .slick-next svg.feather{width: 24px;height: 24px;color: #929292;}
