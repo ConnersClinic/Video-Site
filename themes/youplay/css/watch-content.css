@@ -1011,19 +1011,48 @@ body:has(.video-player-page) #main-container {
 }
 
 .video-player-page .related-video-wrapper .ra-thumb {
+  position: relative;
   width: 128px;
   min-width: 128px;
-  border-radius: 12px;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border-radius: 10px;
   overflow: hidden;
+  isolation: isolate;
 }
 
 .video-player-page .related-video-wrapper .ra-thumb a {
-  padding-bottom: 62.5%;
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.video-player-page .related-video-wrapper .ra-thumb img {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: inherit;
+}
+
+.video-player-page .related-video-wrapper .ra-thumb .play_hover_btn {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
 }
 
 .video-player-page .related-video-wrapper .ra-thumb .video-duration {
   border-radius: 6px;
   font-weight: 600;
+  z-index: 2;
 }
 
 .video-player-page .related-video-wrapper .ra-title .video-title {
