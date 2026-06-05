@@ -328,7 +328,11 @@ background: #2f2f2f;}
 .video-player-page .watch-cta-strip-body {
 	color: #e8ece4;
 }
-.video-player-page .watch-section-heading,
+.video-player-page .watch-section-takeaways .watch-section-heading,
+.video-player-page .watch-section-about .watch-section-heading,
+.video-player-page .watch-section-transcript .watch-section-heading {
+	color: #e8ece4 !important;
+}
 .video-player-page .watch-about-body p,
 .video-player-page .watch-transcript-body p,
 .video-player-page .watch-takeaways-list li,
