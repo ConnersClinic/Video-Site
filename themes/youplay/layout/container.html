@@ -437,7 +437,7 @@
       <?php if ($pt->page != 'login') { ?>
       <div class="yp_side_drawer">
          <span class="open_side_menu_head">
-            <span onclick="javascript:$('body').removeClass('side_open');$('body').removeClass('mobi_side_open');">
+            <span onclick="javascript:$('body').removeClass('side_open');$('body').removeClass('mobi_side_open');if(typeof ptSyncSidebarToggleIcon==='function'){ptSyncSidebarToggleIcon();}">
                <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                   <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
                </svg>
@@ -754,7 +754,7 @@
       </div>
       <?php } ?>
       <?php if ($pt->page != 'login') { ?>
-      <div class="sidenav-overlay" onclick="javascript:$('body').removeClass('side_open');$('body').removeClass('mobi_side_open');"></div>
+      <div class="sidenav-overlay" onclick="javascript:$('body').removeClass('side_open');$('body').removeClass('mobi_side_open');if(typeof ptSyncSidebarToggleIcon==='function'){ptSyncSidebarToggleIcon();}"></div>
       <?php } ?>
       <div class="fab-overlay"></div>
       <script>
