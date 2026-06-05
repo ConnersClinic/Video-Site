@@ -1152,14 +1152,22 @@ body:has(.video-player-page) #main-container {
     padding-right: 12px;
   }
 
+  .video-player-page .video-big-title h1 {
+    font-size: 24px !important;
+    line-height: 1.25;
+  }
+
   .video-player-page .watch-cta-strip-inner {
     flex-wrap: wrap;
     padding: 18px 20px;
   }
 
-  .video-player-page a.watch-cta-strip-btn {
+  .video-player-page a.watch-cta-strip-btn,
+  .video-player-page .watch-cta-strip a.watch-cta-strip-btn {
     width: 100%;
     white-space: normal;
+    font-size: 16px !important;
+    font-weight: 500 !important;
   }
 
   .video-player-page .watch-cta-secondary-inner {
@@ -1170,11 +1178,64 @@ body:has(.video-player-page) #main-container {
   .video-player-page a.watch-cta-secondary-btn {
     width: 100%;
     white-space: normal;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+  }
+
+  .video-player-page .watch-channel-compact > .clear {
+    display: none;
+  }
+
+  .video-player-page .watch-channel-compact.publisher-element {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .video-player-page .watch-channel-compact .publisher-avatar.pull-left.hide-in-mobile-720 {
+    display: block !important;
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .video-player-page .watch-channel-compact .publisher-avatar img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .video-player-page .watch-channel-compact .publisher-name,
+  .video-player-page .watch-channel-compact .watch-channel-info {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .video-player-page .watch-channel-compact .publisher-name > a {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 15px;
+  }
+
+  .video-player-page .watch-channel-compact .watch-channel-subs {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .video-player-page .watch-channel-compact .publisher-subscribe-button {
-    width: 100%;
-    margin-left: 0;
+    width: auto !important;
+    margin-left: auto !important;
+    flex: 0 0 auto;
+  }
+
+  .video-player-page .watch-channel-compact .btn-subscribe,
+  .video-player-page .watch-channel-compact .btn-subscribed,
+  .video-player-page .watch-channel-compact .publisher-subscribe-button .btn-subscribe,
+  .video-player-page .watch-channel-compact .publisher-subscribe-button .btn-subscribed {
+    padding: 8px 14px !important;
+    font-size: 13px !important;
   }
 
   .video-player-page .watch-meta-secondary {
