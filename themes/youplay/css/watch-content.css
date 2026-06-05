@@ -1184,8 +1184,9 @@ body:has(.video-player-page) #main-container {
 
   .video-player-page .watch-meta-toolbar {
     width: 100% !important;
-    justify-content: flex-end !important;
+    justify-content: flex-start !important;
     flex-wrap: wrap !important;
+    margin-left: 0 !important;
   }
 }
 
