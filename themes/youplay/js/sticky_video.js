@@ -13,12 +13,53 @@
   StickyVideo.wrap = wrap
   StickyVideo.insertAfter = insertAfter
 
-  StickyVideo.prototype.fixElementHeight = fixElementHeight
+  StickyVideo.prototype.capturePlaceholderHeight = capturePlaceholderHeight
+  StickyVideo.prototype.applyScrollState = applyScrollState
   StickyVideo.prototype.elementInViewport = elementInViewport
   StickyVideo.prototype.initialize = initialize
 
-  function fixElementHeight () {
-    this.container.parentElement.style.height = this.container.parentElement.offsetHeight + 'px'
+  function capturePlaceholderHeight (wrapDiv) {
+    if (this._placeholderHeight) return
+    var height = this.container.offsetHeight
+    if (!height && wrapDiv) {
+      height = Math.round(wrapDiv.getBoundingClientRect().height)
+    }
+    if (height > 0) {
+      this._placeholderHeight = height
+    }
+  }
+
+  function applyScrollState (wrapDiv) {
+    var inViewport = this.elementInViewport(wrapDiv)
+    var wasSticky = StickyVideo.hasClass(wrapDiv, 'sticky-container_sticky')
+
+    if (!inViewport) {
+      if (!wasSticky) {
+        this.capturePlaceholderHeight(wrapDiv)
+      }
+      if (this._placeholderHeight) {
+        wrapDiv.style.height = this._placeholderHeight + 'px'
+      }
+      StickyVideo.removeClass(wrapDiv, 'sticky-container_in-content')
+      StickyVideo.addClass(wrapDiv, 'sticky-container_sticky')
+      return
+    }
+
+    StickyVideo.removeClass(wrapDiv, 'sticky-container_sticky')
+    StickyVideo.addClass(wrapDiv, 'sticky-container_in-content')
+    wrapDiv.style.height = ''
+    this._placeholderHeight = null
+
+    if (wasSticky) {
+      var that = this
+      window.requestAnimationFrame(function () {
+        var rect = wrapDiv.getBoundingClientRect()
+        var headerOffset = 56
+        if (rect.top < headerOffset && window.scrollY < 600) {
+          window.scrollTo(0, Math.max(0, window.scrollY + rect.top - headerOffset))
+        }
+      })
+    }
   }
   function addClass (elements, className) {
     if (hasClass(elements, className)) return
@@ -63,14 +104,13 @@
     var scrollTicking = false
 
     function onWindowScroll () {
-      that.fixElementHeight()
-      var parent = wrapDiv
-      if (!that.elementInViewport(parent)) {
-        StickyVideo.removeClass(parent, 'sticky-container_in-content')
-        StickyVideo.addClass(parent, 'sticky-container_sticky')
-      } else {
-        StickyVideo.removeClass(parent, 'sticky-container_sticky')
-        StickyVideo.addClass(parent, 'sticky-container_in-content')
+      that.applyScrollState(wrapDiv)
+    }
+
+    function onWindowResize () {
+      if (StickyVideo.hasClass(wrapDiv, 'sticky-container_in-content')) {
+        wrapDiv.style.height = ''
+        that._placeholderHeight = null
       }
     }
     function onWindowScrollRaf () {
@@ -98,8 +138,10 @@
 
     if (window.addEventListener) {
       window.addEventListener('scroll', onWindowScrollRaf, { passive: true })
+      window.addEventListener('resize', onWindowResize, { passive: true })
     } else {
       window.onscroll = onWindowScroll
+      window.onresize = onWindowResize
     }
   }
 

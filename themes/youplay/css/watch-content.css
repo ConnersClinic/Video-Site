@@ -29,6 +29,19 @@ body:has(.video-player-page) #main-container {
   background: #F9FAF8;
 }
 
+html:has(.video-player-page) {
+  scroll-padding-top: 56px;
+}
+
+/* Sticky player placeholder — avoid scroll jump under fixed header */
+.video-player-page .sticky-container__wrap {
+  overflow-anchor: none;
+}
+
+.video-player-page .sticky-container__wrap.sticky-container_in-content {
+  height: auto !important;
+}
+
 .video-player-page .content {
   background: #F9FAF8 !important;
   border: none !important;
