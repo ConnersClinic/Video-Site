@@ -456,9 +456,13 @@ background: #2f2f2f;}
 .video-player-page .watch-channel-compact.publisher-element,
 .video-player-page .watch-section-takeaways,
 .video-player-page .watch-section-about,
-.video-player-page .watch-section-transcript {
-	background: #1e2228;
-	border-color: #2d3540;
+.video-player-page .watch-section-transcript,
+.video-player-page .pt_video_comments {
+	background: #1e2228 !important;
+	border-color: #2d3540 !important;
+}
+.video-player-page .pt_video_comments .comments-header {
+	color: #e8ece4 !important;
 }
 .video-player-page .pt_video_info .video-likes {
 	background: #1e2228;

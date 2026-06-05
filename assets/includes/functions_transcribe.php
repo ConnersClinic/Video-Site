@@ -519,7 +519,12 @@ function PT_BuildWatchDescriptionTabsHtml($video) {
         $fallback_markup = $video->markup_description;
     }
 
-    $parts = array('<div class="watch-content-below-video">');
+    $transcript = PT_BuildWatchTranscriptSectionHtml($video, $row);
+    $wrapper_class = 'watch-content-below-video';
+    if ($transcript === '') {
+        $wrapper_class .= ' watch-content-below-video--no-transcript';
+    }
+    $parts = array('<div class="' . $wrapper_class . '">');
     $parts[] = PT_BuildWatchPrimaryCtaHtml();
     if ($has_takeaways) {
         $takeaways_html = PT_BuildWatchKeyTakeawaysHtml($takeaways);
@@ -531,7 +536,6 @@ function PT_BuildWatchDescriptionTabsHtml($video) {
     if ($about !== '') {
         $parts[] = $about;
     }
-    $transcript = PT_BuildWatchTranscriptSectionHtml($video, $row);
     if ($transcript !== '') {
         $parts[] = $transcript;
     }
