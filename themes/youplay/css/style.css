@@ -365,7 +365,6 @@ padding-bottom: 56.25%;border-radius: max(0px, min(8px, calc((100vw - 4px - 100%
 .pt_timeline_latest_vids .col-md-3:first-child .video-latest-list .video-title h4, .pt_srch_vids .video-latest-list .video-title h4 {margin: 0;color: #222;font-size: 25px;max-height: 68px;line-height: 34px;}
 .pt_timeline_latest_vids .col-md-3:first-child .video-latest-list .video-info, .pt_srch_vids .video-latest-list .video-info {font-size: 14px;}
 .pt_timeline_latest_vids .col-md-3:first-child .video-latest-list .video-info > div br {/*display: none;*/}
-.pt_timeline_latest_vids .col-md-3:first-child .video-latest-list .video-info .descc, .pt_srch_vids .video-latest-list .video-info .descc {display: block;overflow: hidden;max-height: 62px;font-size: 14px;margin: 25px 0 0;}
 .pt_timeline_latest_vids .col-md-3:first-child .video-latest-list .video-info a, .pt_srch_vids .video-latest-list .video-info a {font-weight: 500;font-size: 13px;color: #333;}
 body .mb-15 {margin-bottom: 15px;}
 
