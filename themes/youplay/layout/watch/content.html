@@ -712,8 +712,11 @@
             <div class="publisher-avatar pull-left hide-in-mobile-720">
                <a href="{{USER url}}" data-load="?link1=timeline&id={{USER username}}"><img src="{{USER avatar}}" alt="{{USER name}}"></a>
             </div>
-            <div class="publisher-name">
+            <div class="publisher-name watch-channel-info">
                <a href="{{USER url}}" data-load="?link1=timeline&id={{USER username}}">{{USER name_v}}</a>
+               <?php if ($pt->get_video->owner->privacy->show_subscriptions_count == 'yes') { ?>
+               <span class="watch-channel-subs">{{SUBS}} {{LANG subscribers}}</span>
+               <?php } ?>
             </div>
             <div class="publisher-subscribe-button watch-channel-actions">{{NOTIFY_BUTTON}}{{SUBSCIBE_BUTTON}}</div>
             <div class="clear"></div>

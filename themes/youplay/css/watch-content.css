@@ -10,6 +10,11 @@
   --watch-secondary: #f4f5f3;
   --watch-muted: #5a6354;
   --watch-border: #e4e8e0;
+  --watch-pill-border: #e1e6e2;
+  --watch-pill-icon: #0b140d;
+  --watch-channel-name: #0b140d;
+  --watch-category-text: #95c655;
+  --watch-category-bg: #f0f7e8;
   --watch-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
   --watch-shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.08);
   --watch-radius: 10px;
@@ -108,22 +113,23 @@
   color: #b0b5aa;
 }
 
-.video-player-page a.watch-category-pill {
-  display: inline-block;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--watch-primary);
-  background: var(--watch-primary-soft);
-  border-radius: var(--watch-radius-pill);
-  text-decoration: none;
+.video-player-page .watch-meta-stats a.watch-category-pill {
+  display: inline-block !important;
+  padding: 4px 10px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  color: #95c655 !important;
+  background: #f0f7e8 !important;
+  border: none !important;
+  border-radius: var(--watch-radius) !important;
+  text-decoration: none !important;
   vertical-align: middle;
 }
 
-.video-player-page a.watch-category-pill:hover {
-  color: var(--watch-primary-hover);
-  background: #e4f0d4;
+.video-player-page .watch-meta-stats a.watch-category-pill:hover {
+  color: #7dad42 !important;
+  background: #e4f0d4 !important;
 }
 
 .video-player-page .watch-meta-toolbar {
@@ -138,9 +144,9 @@
 .video-player-page .watch-meta-toolbar .video-likes {
   display: inline-flex;
   align-items: stretch;
-  border: 1px solid var(--watch-border);
+  border: 1px solid #e1e6e2;
   border-radius: var(--watch-radius);
-  background: var(--watch-surface);
+  background: #ffffff;
   overflow: hidden;
   padding: 0;
 }
@@ -163,7 +169,7 @@
 }
 
 .video-player-page .watch-meta-toolbar .video-likes .like-btn:first-of-type {
-  border-right: 1px solid var(--watch-border);
+  border-right: 1px solid #e1e6e2;
 }
 
 .video-player-page .watch-meta-toolbar .video-likes .like-btn .likes {
@@ -175,7 +181,7 @@
 .video-player-page .watch-meta-toolbar .video-likes .like-btn svg {
   width: 18px;
   height: 18px;
-  color: var(--watch-foreground);
+  color: #0b140d;
 }
 
 .video-player-page .watch-meta-toolbar .video-likes .like-btn.active svg.thumbs_up {
@@ -193,32 +199,35 @@
   gap: 8px;
 }
 
-.video-player-page .watch-action-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
+.video-player-page .watch-meta-toolbar .watch-action-pill.btn-share {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
   padding: 0 !important;
-  border: 1px solid var(--watch-border) !important;
+  border: 1px solid #e1e6e2 !important;
   border-radius: var(--watch-radius) !important;
-  background: var(--watch-surface) !important;
-  color: var(--watch-foreground) !important;
+  background: #ffffff !important;
+  color: #0b140d !important;
   flex: 0 0 auto !important;
   box-shadow: none !important;
   line-height: 1 !important;
 }
 
-.video-player-page .watch-action-pill svg {
+.video-player-page .watch-meta-toolbar .watch-action-pill.btn-share svg {
   margin: 0 !important;
   width: 18px !important;
   height: 18px !important;
+  color: #0b140d !important;
+  fill: #0b140d !important;
 }
 
-.video-player-page .watch-action-pill:hover {
-  border-color: var(--watch-primary) !important;
-  color: var(--watch-primary) !important;
-  background: var(--watch-secondary) !important;
+.video-player-page .watch-meta-toolbar .watch-action-pill.btn-share:hover {
+  border-color: #95c655 !important;
+  color: #0b140d !important;
+  background: #f7faf6 !important;
 }
 
 .video-player-page .watch-action-pill--icon {
@@ -623,8 +632,17 @@
   display: block;
   font-size: 16px;
   font-weight: 600;
-  color: var(--watch-foreground);
+  color: #0b140d;
   text-decoration: none;
+}
+
+.video-player-page .watch-channel-compact .watch-channel-subs {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--watch-muted);
 }
 
 .video-player-page .watch-channel-meta {
@@ -649,9 +667,12 @@
   margin: 0 2px;
 }
 
-.video-player-page .watch-channel-compact .publisher-name > span,
 .video-player-page .watch-channel-compact .subscriber_count_publisher,
 .video-player-page .watch-channel-authority {
+  display: none !important;
+}
+
+.video-player-page .watch-channel-compact .publisher-subscribe-button .subs-amount {
   display: none !important;
 }
 
@@ -661,15 +682,31 @@
 }
 
 .video-player-page .watch-channel-compact .btn-subscribe,
-.video-player-page .watch-channel-compact .btn-subscribed {
+.video-player-page .watch-channel-compact .btn-subscribed,
+.video-player-page .watch-channel-compact .publisher-subscribe-button .btn-subscribe,
+.video-player-page .watch-channel-compact .publisher-subscribe-button .btn-subscribed {
   padding: 10px 20px !important;
   line-height: 1.3 !important;
   font-size: 14px !important;
   font-weight: 600 !important;
-  color: var(--watch-bg) !important;
-  background: var(--watch-foreground) !important;
+  color: #ffffff !important;
+  background: #0b140d !important;
   border: none !important;
-  border-radius: 999px !important;
+  border-radius: var(--watch-radius) !important;
+  box-shadow: none !important;
+  text-transform: none !important;
+}
+
+.video-player-page .watch-channel-compact .btn-subscribe:before,
+.video-player-page .watch-channel-compact .btn-subscribed:before,
+.video-player-page .watch-channel-compact .publisher-subscribe-button .btn-subscribe:before,
+.video-player-page .watch-channel-compact .publisher-subscribe-button .btn-subscribed:before {
+  display: none !important;
+}
+
+.video-player-page .watch-channel-compact .btn-subscribed,
+.video-player-page .watch-channel-compact .publisher-subscribe-button .btn-subscribed {
+  background: #5a6354 !important;
 }
 
 /* Sidebar category pills */
