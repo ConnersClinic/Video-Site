@@ -212,26 +212,10 @@ $query_video_title = PT_Secure($get_video->title);
 
 $next_up_videos    = $db->rawQuery("SELECT * FROM " . T_VIDEOS . " WHERE MATCH (title) AGAINST ('$query_video_title') AND user_id NOT IN (".implode(',', $pt->blocked_array).") AND id <> '{$get_video->id}' $not_in_query AND is_movie = 0 AND privacy = 0 AND is_short = 0 ORDER BY `id` DESC LIMIT 1");
 
-foreach ($next_up_videos as $key => $next_up_video) {
-    $nextVideo  = PT_GetVideoByID($next_up_video, 0, 0, 0);
-    $next_video = PT_LoadPage('watch/video-sidebar', array(
-        'ID' => $nextVideo->id,
-        'TITLE' => $nextVideo->title,
-        'URL' => $nextVideo->url,
-        'THUMBNAIL' => $nextVideo->thumbnail,
-        'USER_NAME' => $nextVideo->owner->name,
-        'VIEWS' => number_format($nextVideo->views),
-        'TIME' => $nextVideo->time_alpha,
-        'V_ID' => $nextVideo->video_id,
-        'GIF' => $nextVideo->gif,
-        'DURATION' => $nextVideo->duration,
-        'USER_DATA' => $nextVideo->owner,
-        'CATEGORY' => $nextVideo->category_name,
-        'CATEGORY_LINK' => PT_Link('videos/category/'.$nextVideo->category_id)
-    ));
-}
+// Up-next HTML is built with related videos below (capped at $watch_sidebar_initial_limit).
 
-$related_videos    = $db->rawQuery("SELECT * FROM " . T_VIDEOS . " WHERE MATCH (title) AGAINST ('$query_video_title') AND user_id NOT IN (".implode(',', $pt->blocked_array).") AND id <> '{$get_video->id}' AND is_movie = 0 AND privacy = 0 AND is_short = 0 ORDER BY `id` DESC LIMIT 20");
+$watch_sidebar_initial_limit = 8;
+$related_videos    = $db->rawQuery("SELECT * FROM " . T_VIDEOS . " WHERE MATCH (title) AGAINST ('$query_video_title') AND user_id NOT IN (".implode(',', $pt->blocked_array).") AND id <> '{$get_video->id}' AND is_movie = 0 AND privacy = 0 AND is_short = 0 ORDER BY `id` DESC LIMIT " . (int) $watch_sidebar_initial_limit);
 
 if (empty($related_videos)) {
     // if (!empty($not_in) && !empty($_SESSION['next_video'])) {
@@ -241,7 +225,7 @@ if (empty($related_videos)) {
     //     $db->where('id', $history_ar, 'NOT IN');
     // }
     $db->where('privacy', 0);
-    $related_videos = $db->where('category_id', $get_video->category_id)->where('user_id',$pt->blocked_array , 'NOT IN')->where('is_movie',0)->where('is_short',0)->where('id', $get_video->id, '<>')->get(T_VIDEOS, 20);
+    $related_videos = $db->where('category_id', $get_video->category_id)->where('user_id',$pt->blocked_array , 'NOT IN')->where('is_movie',0)->where('is_short',0)->where('id', $get_video->id, '<>')->get(T_VIDEOS, $watch_sidebar_initial_limit);
 }
 
 if (empty($related_videos)) {
@@ -272,6 +256,7 @@ if (empty($related_videos)) {
 
 
 $video_sidebar  = '';
+$sidebar_videos_shown = 0;
 $next           = 0;
 $list_sidebar   = '';
 $list_user_name = '';
@@ -367,50 +352,31 @@ if (!empty($next_up_videos) && !empty($next_up_videos[0])) {
     array_unshift($related_videos , $next_up_videos[0]);
 }
 foreach ($related_videos as $key => $related_video) {
+    if ($sidebar_videos_shown >= $watch_sidebar_initial_limit) {
+        break;
+    }
     if (empty($next_up_videos) || (!empty($next_up_videos) && !empty($next_up_videos[0]) && $next_up_videos[0]->id != $related_video->id)) {
         $related_video  = PT_GetVideoByID($related_video, 0, 0, 0);
-        if (empty($next_video)) {
-            $next_video = PT_LoadPage('watch/video-sidebar', array(
-                'ID' => $related_video->id,
-                'TITLE' => $related_video->title,
-                'URL' => $related_video->url,
-                'THUMBNAIL' => $related_video->thumbnail,
-                'USER_NAME' => $related_video->owner->name,
-                'VIEWS' => number_format($related_video->views),
-                'TIME' => $related_video->time_alpha,
-                'V_ID' => $related_video->video_id,
-                'GIF' => $related_video->gif,
-                'DURATION' => $related_video->duration,
-                'USER_DATA' => $related_video->owner,
-                'CATEGORY' => $related_video->category_name,
-                'CATEGORY_LINK' => PT_Link('videos/category/'.$related_video->category_id)
-            ));
-        }
-        else{
-            $video_sidebar .= PT_LoadPage('watch/video-sidebar', array(
-                'ID' => $related_video->id,
-                'TITLE' => $related_video->title,
-                'URL' => $related_video->url,
-                'THUMBNAIL' => $related_video->thumbnail,
-                'USER_NAME' => $related_video->owner->name,
-                'VIEWS' => number_format($related_video->views),
-                'TIME' => $related_video->time_alpha,
-                'V_ID' => $related_video->video_id,
-                'GIF' => $related_video->gif,
-                'DURATION' => $related_video->duration,
-                'USER_DATA' => $related_video->owner,
-                'CATEGORY' => $related_video->category_name,
-                'CATEGORY_LINK' => PT_Link('videos/category/'.$related_video->category_id)
-            ));
-        }
+        $video_sidebar .= PT_LoadPage('watch/video-sidebar', array(
+            'ID' => $related_video->id,
+            'TITLE' => $related_video->title,
+            'URL' => $related_video->url,
+            'THUMBNAIL' => $related_video->thumbnail,
+            'USER_NAME' => $related_video->owner->name,
+            'VIEWS' => number_format($related_video->views),
+            'TIME' => $related_video->time_alpha,
+            'V_ID' => $related_video->video_id,
+            'GIF' => $related_video->gif,
+            'DURATION' => $related_video->duration,
+            'USER_DATA' => $related_video->owner,
+            'CATEGORY' => $related_video->category_name,
+            'CATEGORY_LINK' => PT_Link('videos/category/'.$related_video->category_id)
+        ));
+        $sidebar_videos_shown++;
     }
-        
-    // if ($next == 0 &&  $pt->config->autoplay_system == 'on') {
-    //     $next_video = $video_sidebar;
-    //     $video_sidebar = '';
-    // }
     $next++;
 }
+$next_video = '';
 if (empty($video_sidebar)) {
     $pt->have_video_sidebar = false;
 }

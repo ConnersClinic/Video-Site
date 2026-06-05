@@ -18,7 +18,7 @@
 				AND id <> '{$last_id}'
 				AND privacy = 0
 				ORDER BY `id` DESC
-				LIMIT 20";
+				LIMIT 8";
 
 			$related_videos = $db->rawQuery($sql_query);
 			if (count($related_videos) > 0) {

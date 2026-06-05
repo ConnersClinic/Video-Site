@@ -373,6 +373,33 @@ background: #2f2f2f;}
 .video-player-page .watch-channel-meta a {
 	color: #b5d89a;
 }
+.video-player-page .watch-sidebar-panel {
+	background: #1e2228 !important;
+	box-shadow: none;
+	border: 1px solid #2d3540;
+}
+.video-player-page .watch-up-next-heading {
+	color: #e8ece4 !important;
+}
+.video-player-page .watch-autoplay-label {
+	color: #a8b0a0 !important;
+}
+.video-player-page .watch-autoplay-track {
+	background: #3a4038 !important;
+}
+.video-player-page .watch-autoplay-switch input:checked + .watch-autoplay-track {
+	background: #95c655 !important;
+}
+.video-player-page .related-video-wrapper .ra-title .video-title,
+.video-player-page .related-video-wrapper .ra-title .video-title a {
+	color: #e8ece4 !important;
+}
+.video-player-page .load-related-videos button,
+.video-player-page .watch-load-more-btn {
+	background: #252a30 !important;
+	border-color: #2d3540 !important;
+	color: #e8ece4 !important;
+}
 .video-player-page .watch-meta-stats a.watch-category-pill {
 	color: #95c655 !important;
 	background: #2a3324 !important;

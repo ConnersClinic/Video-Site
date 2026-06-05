@@ -491,29 +491,30 @@
                   <div class="clear"></div>
                </div>
             </div>
-            <?php if ($pt->config->autoplay_system == 'on') { ?>
-            <div class="next-video">
-               <div class="next-text pull-left">
-                  <h4>{{LANG up_next}}</h4>
+            <?php if ($pt->have_video_sidebar) { ?>
+            <div class="watch-sidebar-panel">
+               <div class="watch-up-next-header">
+                  <h3 class="watch-section-heading watch-up-next-heading">{{LANG up_next}}</h3>
+                  <?php if ($pt->config->autoplay_system == 'on') { ?>
+                  <div class="watch-autoplay-toggle">
+                     <span class="watch-autoplay-label">{{LANG autoplay}}</span>
+                     <label class="watch-autoplay-switch">
+                        <input id="autoplay" type="checkbox" {{COOKIE}} class="autoplay-video">
+                        <span class="watch-autoplay-track" aria-hidden="true"></span>
+                     </label>
+                  </div>
+                  <?php } ?>
                </div>
-               <div class="pt_mn_wtch_switch pull-right">
-                  <input id="autoplay" type="checkbox" {{COOKIE}} class="tgl autoplay-video">
-                  <label class="tgl-btn" for="autoplay">{{LANG autoplay}}</label>
+               <div class="videos-list watch-up-next-list related-videos" id="next-video">
+                  {{VIDEO_SIDEBAR}}
                </div>
-               <div class="clear"></div>
-            </div>
-            <div class="videos-list" id="next-video">
-               {{VIDEO_NEXT_SIDEBAR}}
+               <div class="load-related-videos">
+                  <button class="btn btn-default watch-load-more-btn" id="load-related-videos" type="button">
+                  <span>{{LANG load_more}}</span><i class="fa fa-circle-o-notch spin hidden"></i>
+                  </button>
+               </div>
             </div>
             <?php } ?>
-            <div class="videos-list related-videos">
-               {{VIDEO_SIDEBAR}}
-            </div>
-            <div class="load-related-videos">
-               <button class="btn btn-default" id="load-related-videos">
-               <span>{{LANG load_more}}</span><i class="fa fa-circle-o-notch spin hidden"></i>
-               </button>
-            </div>
             <?php } ?>
             <?php if($pt->is_wl || $pt->is_list){ ?>
                   <div class="content play-list-container">
@@ -1026,26 +1027,27 @@
 </script>
 <?php } ?>
 <div class="col-md-4 watch-sidebar-col no-padding-left pull-right <?php echo(($pt->is_wl || $pt->is_list) ? '' : 'mobile') ?>">
-   <?php if (!$pt->is_wl && !$pt->is_list) { ?>
-   <div class="content">
-      <div class="next-video">
-         <div class="next-text pull-left">
-            <h4>{{LANG up_next}}</h4>
+   <?php if (!$pt->is_wl && !$pt->is_list && $pt->have_video_sidebar) { ?>
+   <div class="content watch-sidebar-panel">
+      <div class="watch-up-next-header">
+         <h3 class="watch-section-heading watch-up-next-heading">{{LANG up_next}}</h3>
+         <?php if ($pt->config->autoplay_system == 'on') { ?>
+         <div class="watch-autoplay-toggle">
+            <span class="watch-autoplay-label">{{LANG autoplay}}</span>
+            <label class="watch-autoplay-switch">
+               <input id="autoplay-2" type="checkbox" {{COOKIE}} class="autoplay-video">
+               <span class="watch-autoplay-track" aria-hidden="true"></span>
+            </label>
          </div>
-         <div class="pt_mn_wtch_switch pull-right">
-            <input id="autoplay-2" type="checkbox" {{COOKIE}} class="tgl autoplay-video">
-            <label class="tgl-btn" for="autoplay-2">{{LANG autoplay}}</label>
-         </div>
-         <div class="clear"></div>
+         <?php } ?>
       </div>
-      <div class="videos-list" id="next-video">
-         {{VIDEO_NEXT_SIDEBAR}}
-      </div>
-      <br>
-      <div class="related-header">
-      </div>
-      <div class="videos-list related-videos">
+      <div class="videos-list watch-up-next-list related-videos" id="next-video">
          {{VIDEO_SIDEBAR}}
+      </div>
+      <div class="load-related-videos">
+         <button class="btn btn-default watch-load-more-btn" id="load-related-videos" type="button">
+         <span>{{LANG load_more}}</span><i class="fa fa-circle-o-notch spin hidden"></i>
+         </button>
       </div>
    </div>
    <?php }
@@ -2260,7 +2262,7 @@ $('.mejs__jump-forward-button').each(function() {
          })
          .done(function(data) {
            if (data.status == 200) {
-             $(".related-videos").append(data.html);
+             $(".watch-up-next-list").append(data.html);
            }
            else{
              $("#load-related-videos").find('span').text('{{LANG no_more_videos}}');
