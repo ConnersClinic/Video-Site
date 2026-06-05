@@ -34,6 +34,9 @@
       <link rel="stylesheet" href="{{CONFIG theme_url}}/css/night-mode.css?version={{CONFIG version}}" class="night-mode-css">
       <?php endif; ?>
       <link rel="stylesheet" href="{{CONFIG theme_url}}/css/custom.style.css?version={{CONFIG version}}">
+      <?php if ($pt->page == 'watch' && empty($pt->is_movie)) { ?>
+      <link rel="stylesheet" href="{{CONFIG theme_url}}/css/watch-content.css?version={{CONFIG version}}&v=4" id="watch-content-css">
+      <?php } ?>
       <link href="{{CONFIG theme_url}}/css/material.css?version={{CONFIG version}}" rel="stylesheet" type="text/css">
       <link href="{{CONFIG theme_url}}/css/roboto.css?version={{CONFIG version}}" rel="stylesheet">
       <script src="{{CONFIG theme_url}}/js/jquery-3.min.js?version={{CONFIG version}}"></script>

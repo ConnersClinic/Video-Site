@@ -92,11 +92,12 @@
 }
 
 .video-player-page .watch-meta-secondary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 16px;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px 16px !important;
+  width: 100% !important;
 }
 
 .video-player-page .watch-meta-stats {
@@ -133,39 +134,65 @@
 }
 
 .video-player-page .watch-meta-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  margin-left: auto !important;
+  position: static !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
 }
 
-/* Segmented like/dislike pill */
+.video-player-page .pt_video_info.watch-meta-bar .watch-meta-stats {
+  padding-bottom: 0 !important;
+}
+
+/* Segmented like/dislike pill — overrides PlayTube style.css .video-likes flex bar */
 .video-player-page .watch-meta-toolbar .video-likes {
-  display: inline-flex;
-  align-items: stretch;
-  border: 1px solid #e1e6e2;
-  border-radius: var(--watch-radius);
-  background: #ffffff;
-  overflow: hidden;
-  padding: 0;
+  display: inline-flex !important;
+  align-items: stretch !important;
+  position: static !important;
+  float: none !important;
+  margin: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  width: auto !important;
+  border: 1px solid #e1e6e2 !important;
+  border-radius: var(--watch-radius) !important;
+  background: #ffffff !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  color: inherit !important;
 }
 
 .video-player-page .watch-meta-toolbar .video-likes .like-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  margin: 0;
-  border: 0;
-  background: transparent;
-  color: var(--watch-foreground);
-  cursor: pointer;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 14px !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #0b140d !important;
+  cursor: pointer !important;
+  flex: 0 0 auto !important;
 }
 
-.video-player-page .watch-meta-toolbar .video-likes .like-btn + .video-info-element + .like-btn::before,
-.video-player-page .watch-meta-toolbar .video-likes .video-info-element {
-  display: none;
+.video-player-page .watch-meta-toolbar .video-likes .video-info-element,
+.video-player-page .watch-meta-toolbar .video-likes .video-info-element .views-bar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  flex: 0 0 0 !important;
+  position: absolute !important;
+  pointer-events: none !important;
 }
 
 .video-player-page .watch-meta-toolbar .video-likes .like-btn:first-of-type {
@@ -832,5 +859,29 @@
   .video-player-page .watch-channel-compact .publisher-subscribe-button {
     width: 100%;
     margin-left: 0;
+  }
+
+  .video-player-page .watch-meta-secondary {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .video-player-page .watch-meta-toolbar {
+    width: 100% !important;
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .video-player-page .watch-meta-toolbar .video-likes {
+    position: static !important;
+    margin-top: 0 !important;
+    left: auto !important;
+    right: auto !important;
+  }
+
+  .video-player-page .pt_video_info .watch-meta-stats {
+    padding-bottom: 0 !important;
   }
 }

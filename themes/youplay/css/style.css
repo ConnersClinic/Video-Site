@@ -4541,6 +4541,15 @@ body span.icon_pro svg {
 .video-player-page a.watch-cta-strip-btn{display:inline-block!important;padding:10px 20px!important;background:#95c655!important;color:#fff!important;border-radius:8px!important;text-decoration:none!important;font-weight:600!important}
 .video-player-page .watch-content-below-video h3.watch-section-heading{font-size:1.5rem;font-weight:700;margin:0 0 12px}
 .video-player-page .watch-cta-secondary{padding:22px 24px;background:#fff;border:1px solid #dce8cc;border-radius:12px;box-shadow:0 2px 8px rgba(45,62,30,.06);margin:12px 0 32px}
+/* Watch meta toolbar — overrides mobile .video-likes absolute bar in this file */
+.video-player-page .watch-meta-secondary{display:flex!important;align-items:center!important;justify-content:space-between!important;width:100%!important;gap:12px!important}
+.video-player-page .watch-meta-toolbar{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;margin-left:auto!important;position:static!important;width:auto!important}
+.video-player-page .watch-meta-toolbar .video-likes{display:inline-flex!important;position:static!important;margin:0!important;left:auto!important;right:auto!important;width:auto!important;border:1px solid #e1e6e2!important;border-radius:10px!important;background:#fff!important}
+.video-player-page .watch-meta-toolbar .video-likes .video-info-element{display:none!important;width:0!important;height:0!important;overflow:hidden!important;flex:0 0 0!important}
+.video-player-page .watch-meta-toolbar .video-likes .like-btn{flex:0 0 auto!important}
+.video-player-page .watch-meta-stats a.watch-category-pill{display:inline-block!important;padding:4px 10px!important;color:#95c655!important;background:#f0f7e8!important;border-radius:10px!important;text-decoration:none!important;font-weight:600!important;font-size:12px!important}
+.video-player-page .watch-meta-toolbar .watch-action-pill.btn-share{display:inline-flex!important;width:40px!important;height:40px!important;padding:0!important;border:1px solid #e1e6e2!important;border-radius:10px!important;background:#fff!important;color:#0b140d!important;flex:0 0 auto!important}
+.video-player-page .watch-meta-toolbar .watch-action-pill.btn-share svg{margin:0!important;width:18px!important;height:18px!important;fill:#0b140d!important;background:transparent!important;border-radius:0!important;padding:0!important}
 
 
 
