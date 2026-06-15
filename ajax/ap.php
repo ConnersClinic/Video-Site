@@ -4961,6 +4961,23 @@ if ($first == 'transcribe_run_cron') {
     $data = array_merge(array('status' => 200), $result);
 }
 
+if ($first == 'transcribe_reconcile_stuck') {
+    $user_id = !empty($_POST['channel_id']) ? (int) $_POST['channel_id'] : 0;
+    $options = array('run_seo' => !empty($_POST['run_seo']));
+    if ($user_id > 0) {
+        $options['user_id'] = $user_id;
+    }
+    $result = PT_ReconcileStuckTranscriptRecords($options);
+    $fixed = (int) ($result['completed_from_db'] + $result['completed_from_vtt']);
+    $data = array(
+        'status' => 200,
+        'message' => $fixed > 0
+            ? $fixed . ' stuck transcript(s) marked completed (checked ' . $result['checked'] . ')'
+            : 'No stuck processing transcripts needed reconciliation (checked ' . $result['checked'] . ')',
+        'result' => $result,
+    );
+}
+
 if ($first == 'transcribe_load_test_alert') {
     if (!function_exists('PT_GetServerLoadSnapshot')) {
         $data = array('status' => 400, 'message' => 'Load monitor not available');

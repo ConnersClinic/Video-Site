@@ -694,8 +694,14 @@ function PT_ApplyTranscriptToVideoDescription($video_id, $seo_summary) {
 }
 
 function PT_FinalizeTranscriptWithSeo($video, $plain_text, $dest_rel, $language) {
-    global $db;
     $video_id = (int) PT_DbVal($video, 'id');
+    PT_UpsertVideoTranscript($video_id, array(
+        'status' => 'completed',
+        'plain_text' => $plain_text,
+        'vtt_path' => $dest_rel,
+        'language' => $language,
+        'error_message' => '',
+    ));
     $summary_result = PT_GenerateTranscriptSeoSummary($video, $plain_text);
     $seo_summary = '';
     $key_takeaways_db = null;
@@ -706,21 +712,161 @@ function PT_FinalizeTranscriptWithSeo($video, $plain_text, $dest_rel, $language)
     } else {
         $extra_error = !empty($summary_result['error']) ? $summary_result['error'] : 'SEO summary failed';
     }
-    $upsert = array(
-        'status' => 'completed',
-        'plain_text' => $plain_text,
-        'vtt_path' => $dest_rel,
-        'language' => $language,
-        'seo_summary' => $seo_summary,
-        'error_message' => $extra_error,
-    );
-    if ($key_takeaways_db !== null) {
-        $upsert['key_takeaways'] = $key_takeaways_db;
+    $seo_upsert = array('error_message' => $extra_error);
+    if ($seo_summary !== '') {
+        $seo_upsert['seo_summary'] = $seo_summary;
     }
-    PT_UpsertVideoTranscript($video_id, $upsert);
+    if ($key_takeaways_db !== null) {
+        $seo_upsert['key_takeaways'] = $key_takeaways_db;
+    }
+    PT_UpsertVideoTranscript($video_id, $seo_upsert);
     if ($seo_summary !== '') {
         PT_ApplyTranscriptToVideoDescription($video_id, $seo_summary);
     }
+}
+
+function PT_ExpectedTranscriptVttRelPath($video) {
+    return 'upload/transcripts/' . PT_DbVal($video, 'video_id') . '.vtt';
+}
+
+function PT_TranscriptArtifactExists($rel_path) {
+    $rel_path = trim((string) $rel_path);
+    if ($rel_path === '') {
+        return false;
+    }
+    $local = PT_TranscriptRootDir() . $rel_path;
+    if (file_exists($local) && @filesize($local) > 10) {
+        return true;
+    }
+    global $pt;
+    if (!empty($pt->remoteStorage)) {
+        $url = PT_GetMedia($rel_path);
+        if (!empty($url)) {
+            $headers = @get_headers($url, 1);
+            if (!empty($headers[0]) && strpos($headers[0], '200') !== false) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function PT_LoadTranscriptVttContent($rel_path) {
+    $rel_path = trim((string) $rel_path);
+    if ($rel_path === '') {
+        return '';
+    }
+    $local = PT_TranscriptRootDir() . $rel_path;
+    if (file_exists($local)) {
+        $content = @file_get_contents($local);
+        return $content !== false ? $content : '';
+    }
+    global $pt;
+    if (!empty($pt->remoteStorage)) {
+        $url = PT_GetMedia($rel_path);
+        if (!empty($url)) {
+            $content = @file_get_contents($url);
+            return $content !== false ? $content : '';
+        }
+    }
+    return '';
+}
+
+function PT_ReconcileStuckTranscriptRecord($video_id, $options = array()) {
+    global $db;
+    $video_id = (int) $video_id;
+    $row = PT_GetVideoTranscript($video_id);
+    if (empty($row) || PT_DbVal($row, 'status') !== 'processing') {
+        return array('action' => 'none');
+    }
+    $video = $db->arraybuilder()->where('id', $video_id)->getOne(T_VIDEOS);
+    if (empty($video)) {
+        return array('action' => 'none');
+    }
+
+    $plain_text = trim((string) PT_DbVal($row, 'plain_text', ''));
+    $vtt_path = trim((string) PT_DbVal($row, 'vtt_path', ''));
+    if ($plain_text !== '' && $vtt_path !== '') {
+        PT_UpsertVideoTranscript($video_id, array(
+            'status' => 'completed',
+            'error_message' => '',
+        ));
+        return array('action' => 'completed_from_db');
+    }
+
+    if ($vtt_path === '') {
+        $vtt_path = PT_ExpectedTranscriptVttRelPath($video);
+    }
+    if (!PT_TranscriptArtifactExists($vtt_path)) {
+        return array('action' => 'none');
+    }
+
+    $vtt_content = PT_LoadTranscriptVttContent($vtt_path);
+    if ($vtt_content === '') {
+        return array('action' => 'none');
+    }
+    $plain_text = PT_VttToPlainText($vtt_content);
+    $language = !empty(PT_DbVal($row, 'language')) ? PT_DbVal($row, 'language') : 'en';
+    PT_UpsertVideoTranscript($video_id, array(
+        'status' => 'completed',
+        'plain_text' => $plain_text,
+        'vtt_path' => $vtt_path,
+        'language' => $language,
+        'error_message' => '',
+    ));
+
+    $run_seo = !array_key_exists('run_seo', $options) || !empty($options['run_seo']);
+    $needs_seo = trim((string) PT_DbVal($row, 'seo_summary', '')) === '';
+    if ($run_seo && $needs_seo && $plain_text !== '') {
+        $summary_result = PT_GenerateTranscriptSeoSummary($video, $plain_text);
+        if (!empty($summary_result['ok'])) {
+            $seo_upsert = array(
+                'seo_summary' => $summary_result['summary'],
+                'error_message' => '',
+            );
+            $encoded = PT_EncodeKeyTakeawaysForDb(!empty($summary_result['key_takeaways']) ? $summary_result['key_takeaways'] : array());
+            if ($encoded !== null) {
+                $seo_upsert['key_takeaways'] = $encoded;
+            }
+            PT_UpsertVideoTranscript($video_id, $seo_upsert);
+            PT_ApplyTranscriptToVideoDescription($video_id, $summary_result['summary']);
+        }
+    }
+
+    return array('action' => 'completed_from_vtt');
+}
+
+function PT_ReconcileStuckTranscriptRecords($options = array()) {
+    global $db;
+    $user_id = !empty($options['user_id']) ? (int) $options['user_id'] : 0;
+    $sql = "SELECT t.video_id FROM " . T_VIDEO_TRANSCRIPTS . " t";
+    if ($user_id > 0) {
+        $sql .= " INNER JOIN " . T_VIDEOS . " v ON v.id = t.video_id WHERE t.status = 'processing' AND v.user_id = " . $user_id;
+    } else {
+        $sql .= " WHERE t.status = 'processing'";
+    }
+    $rows = $db->arraybuilder()->rawQuery($sql);
+    $result = array(
+        'checked' => 0,
+        'completed_from_db' => 0,
+        'completed_from_vtt' => 0,
+        'unchanged' => 0,
+    );
+    if (empty($rows)) {
+        return $result;
+    }
+    foreach ($rows as $row) {
+        $result['checked']++;
+        $reconciled = PT_ReconcileStuckTranscriptRecord((int) PT_DbVal($row, 'video_id'), $options);
+        if (PT_DbVal($reconciled, 'action') === 'completed_from_db') {
+            $result['completed_from_db']++;
+        } elseif (PT_DbVal($reconciled, 'action') === 'completed_from_vtt') {
+            $result['completed_from_vtt']++;
+        } else {
+            $result['unchanged']++;
+        }
+    }
+    return $result;
 }
 
 function PT_RegenerateSeoSummaryForVideo($video_id) {
@@ -1354,6 +1500,8 @@ function PT_RunTranscriptCronBatch($options = array()) {
     }
 
     $result['stale_reset'] = PT_ResetStaleTranscriptQueueJobs();
+    $reconcile = PT_ReconcileStuckTranscriptRecords();
+    $result['reconciled'] = (int) ($reconcile['completed_from_db'] + $reconcile['completed_from_vtt']);
     $exists = $db->where('name', 'transcript_cron_last_run')->getValue(T_CONFIG, 'COUNT(*)');
     $now = time();
     if ($exists) {
@@ -1411,12 +1559,16 @@ function PT_RunTranscriptCronBatch($options = array()) {
         $stuck = $db->arraybuilder()->where('id', (int) PT_DbVal($queue_row, 'id'))->getOne(T_TRANSCRIPT_QUEUE);
         if (!empty($stuck) && !empty($stuck['processing'])) {
             $db->where('id', (int) PT_DbVal($queue_row, 'id'))->delete(T_TRANSCRIPT_QUEUE);
+            PT_ReconcileStuckTranscriptRecord((int) PT_DbVal($queue_row, 'video_id'), array('run_seo' => true));
         }
     }
 
     $result['message'] = 'Processed ' . $result['processed'] . ' of ' . $result['picked'] . ' job(s)';
     if (!empty($result['stale_reset'])) {
         $result['message'] .= '; reset ' . $result['stale_reset'] . ' stale job(s)';
+    }
+    if (!empty($result['reconciled'])) {
+        $result['message'] .= '; reconciled ' . $result['reconciled'] . ' stuck transcript(s)';
     }
     if (!empty($result['errors'])) {
         $result['message'] .= '; ' . count($result['errors']) . ' error(s)';

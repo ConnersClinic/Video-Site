@@ -231,6 +231,7 @@
                     <br><br>
                     <button type="button" class="btn btn-success" id="enqueue-btn">Enqueue batch</button>
                     <button type="button" class="btn btn-default m-l-10" id="refresh-status-btn">Refresh status</button>
+                    <button type="button" class="btn btn-warning m-l-10" id="reconcile-stuck-btn">Fix stuck processing</button>
                     <br><br>
                     <label for="seo_batch_limit">SEO batch limit</label>
                     <select class="form-control" id="seo_batch_limit">
@@ -348,6 +349,23 @@ $('#enqueue-btn').on('click', function() {
 
 $('#refresh-status-btn').on('click', refreshTranscriptStatus);
 $('#channel_id').on('change', refreshTranscriptStatus);
+
+$('#reconcile-stuck-btn').on('click', function() {
+    var channelId = $('#channel_id').val();
+    if (!confirm('Mark stuck "processing" transcripts as completed when VTT/transcript data already exists?')) {
+        return;
+    }
+    $('#reconcile-stuck-btn').prop('disabled', true).text('Working…');
+    $.post('{{LINK aj/ap/transcribe_reconcile_stuck}}', {
+        channel_id: channelId || '',
+        run_seo: 1
+    }, function(res) {
+        $('#reconcile-stuck-btn').prop('disabled', false).text('Fix stuck processing');
+        var cls = res.status == 200 ? 'alert-success' : 'alert-danger';
+        $('.transcribe-batch-alert').html('<div class="alert ' + cls + '">' + (res.message || '') + '</div>');
+        refreshTranscriptStatus();
+    }, 'json');
+});
 
 $('#test-openai-btn').on('click', function() {
     $.post('{{LINK aj/ap/transcribe_test_openai}}', {}, function(res) {
