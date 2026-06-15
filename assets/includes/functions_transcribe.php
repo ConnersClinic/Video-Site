@@ -876,12 +876,31 @@ function PT_TranscriptStorageDir() {
     return $dir;
 }
 
+function PT_DownloadMediaToTemp($url, $dest) {
+    $in = @fopen($url, 'rb');
+    if ($in === false) {
+        return false;
+    }
+    $out = @fopen($dest, 'wb');
+    if ($out === false) {
+        fclose($in);
+        return false;
+    }
+    $ok = @stream_copy_to_stream($in, $out);
+    fclose($in);
+    fclose($out);
+    return $ok !== false;
+}
+
 function PT_ResolveVideoFileForTranscript($video) {
     global $pt;
     $root = PT_TranscriptRootDir();
     $relative = PT_DbVal($video, 'video_location', '');
     $local = $root . $relative;
     if (file_exists($local)) {
+        if (@filesize($local) < 1024) {
+            return array('path' => '', 'temp' => false, 'error' => 'Local video file is too small or empty: ' . $relative);
+        }
         return array('path' => $local, 'temp' => false);
     }
     $url = PT_GetMedia($relative);
@@ -889,12 +908,14 @@ function PT_ResolveVideoFileForTranscript($video) {
         return array('path' => '', 'temp' => false, 'error' => 'Could not resolve video URL');
     }
     $temp = PT_TranscriptTempDir() . '/video_' . (int) PT_DbVal($video, 'id') . '_' . time() . '.mp4';
-    $data = @file_get_contents($url);
-    if ($data === false || $data === '') {
-        return array('path' => '', 'temp' => false, 'error' => 'Could not download video from storage');
+    if (!PT_DownloadMediaToTemp($url, $temp)) {
+        @unlink($temp);
+        return array('path' => '', 'temp' => false, 'error' => 'Could not download video from storage: ' . $relative);
     }
-    if (@file_put_contents($temp, $data) === false) {
-        return array('path' => '', 'temp' => false, 'error' => 'Could not write temp video file');
+    $size = @filesize($temp);
+    if ($size === false || $size < 1024) {
+        @unlink($temp);
+        return array('path' => '', 'temp' => false, 'error' => 'Downloaded video file is too small or empty (' . (int) $size . ' bytes)');
     }
     return array('path' => $temp, 'temp' => true);
 }
@@ -909,18 +930,56 @@ function PT_VideoDurationSeconds($video) {
     return 0;
 }
 
+function PT_FormatFfmpegError($output, $max_len = 500) {
+    $output = trim((string) $output);
+    if ($output === '') {
+        return '(no FFmpeg output — shell_exec may be disabled or timed out)';
+    }
+    $lines = preg_split('/\r\n|\r|\n/', $output);
+    $meaningful = array();
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '') {
+            continue;
+        }
+        if (stripos($line, 'ffmpeg version') === 0
+            || stripos($line, 'Copyright (c)') !== false
+            || stripos($line, 'built with') === 0
+            || stripos($line, 'configuration:') === 0) {
+            continue;
+        }
+        $meaningful[] = $line;
+    }
+    if (!empty($meaningful)) {
+        return substr(implode(' | ', array_slice($meaningful, -5)), 0, $max_len);
+    }
+    return substr($output, -$max_len);
+}
+
 function PT_ExtractAudioForTranscript($video_path, $temp_wav) {
     global $pt;
     if (empty($pt->config->ffmpeg_binary_file) || !is_executable($pt->config->ffmpeg_binary_file)) {
         return array('ok' => false, 'error' => 'FFmpeg binary is not configured or not executable');
     }
+    if (!file_exists($video_path)) {
+        return array('ok' => false, 'error' => 'Video file not found for audio extraction');
+    }
+    $video_size = @filesize($video_path);
+    if ($video_size === false || $video_size < 1024) {
+        return array('ok' => false, 'error' => 'Video file is too small or unreadable (' . (int) $video_size . ' bytes)');
+    }
     $ffmpeg = escapeshellarg($pt->config->ffmpeg_binary_file);
     $in = escapeshellarg($video_path);
     $out = escapeshellarg($temp_wav);
-    $cmd = "{$ffmpeg} -y -i {$in} -vn -ac 1 -ar 16000 -c:a pcm_s16le {$out} 2>&1";
+    $cmd = "{$ffmpeg} -hide_banner -loglevel error -y -i {$in} -map 0:a:0? -vn -ac 1 -ar 16000 -c:a pcm_s16le {$out} 2>&1";
     $output = shell_exec($cmd);
     if (!file_exists($temp_wav) || filesize($temp_wav) < 1) {
-        return array('ok' => false, 'error' => 'FFmpeg audio extraction failed: ' . substr((string) $output, 0, 500));
+        $detail = PT_FormatFfmpegError($output);
+        if (stripos($detail, 'does not contain any stream') !== false
+            || stripos($detail, 'Output file #0 does not contain any stream') !== false) {
+            return array('ok' => false, 'error' => 'Video has no audio track');
+        }
+        return array('ok' => false, 'error' => 'FFmpeg audio extraction failed: ' . $detail);
     }
     return array('ok' => true);
 }
