@@ -1,0 +1,230 @@
+WEBVTT
+
+00:00:08,850 --> 00:00:19,850
+My RIFE indicates program duration can be changed by changing the duty cycle or duty number.
+
+00:00:19,850 --> 00:00:22,850
+Is that okay? The Italian Robin.
+
+00:00:22,850 --> 00:00:31,850
+So the Italian Robin and the true RIFE program use that same command called duty.
+
+00:00:31,850 --> 00:00:51,850
+So the duty of number is on your Italian Robin has to do with the amount of time that the frequency is on a certain number.
+
+00:00:51,850 --> 00:01:02,850
+So if you're going to want to change the duration of a program, the length of a program, you don't change the duty cycle.
+
+00:01:02,850 --> 00:01:08,850
+You change the command that's called dwell.
+
+00:01:08,850 --> 00:01:21,850
+So dwell is the command on both the true RIFE and the Italian Robin that tells you how long it's going to dwell on a given frequency.
+
+00:01:21,850 --> 00:01:24,850
+So let's say it says dwell 180.
+
+00:01:24,850 --> 00:01:26,850
+Alright, let's do it this way.
+
+00:01:26,850 --> 00:01:30,850
+So let's say the program says dwell 180.
+
+00:01:30,850 --> 00:01:35,850
+Then underneath it it has, I don't know, let's just put in some numbers here.
+
+00:01:36,850 --> 00:01:44,850
+Five, four, six and two, three, four and ten thousand, four hundred and fifty six.
+
+00:01:44,850 --> 00:01:52,850
+So then it's got another line with with some numbers and like this.
+
+00:01:52,850 --> 00:01:56,850
+And then it's got another line with some numbers.
+
+00:01:56,850 --> 00:02:07,850
+That means these are the frequencies that are being dwelled on for 180 seconds.
+
+00:02:07,850 --> 00:02:25,850
+So there are certain commands in the RIFE program that the program itself will ignore the letters dwell and will ignore whatever comes after that on that same line.
+
+00:02:25,850 --> 00:02:36,850
+180. And it doesn't sense that as a frequency that is being run, that's being run or being asked to be run on the following lines.
+
+00:02:36,850 --> 00:02:48,850
+If there's not a command dwell or duty or pulse or things like that, those are certain commands that tell the machine to do certain things.
+
+00:02:48,850 --> 00:02:57,850
+And it's just a number that that's the frequency that is running or will run in the program.
+
+00:02:57,850 --> 00:03:00,850
+Do not mess with these numbers.
+
+00:03:00,850 --> 00:03:05,850
+If you mess with these numbers, you've literally changed your program.
+
+00:03:05,850 --> 00:03:15,850
+What your program is, it consists of duty cycles, dwells, pulse commands, all sorts of different commands.
+
+00:03:15,850 --> 00:03:24,290
+And it consists of the numbers which are the frequencies that are running.
+
+00:03:24,290 --> 00:03:33,290
+Dwelled is how long it stays on a given frequency in numbers of seconds.
+
+00:03:33,290 --> 00:03:38,290
+So this is 180 seconds, dwelling 180 seconds.
+
+00:03:38,290 --> 00:03:43,290
+Everything below that line until the dwell is switched again.
+
+00:03:43,290 --> 00:03:53,290
+And if it says dwell 90, then it has a bunch of other numbers after that.
+
+00:03:53,290 --> 00:04:04,290
+As long as you put a comma between the numbers, that means that's the frequency of 2,345 and the frequency of 4,556.
+
+00:04:04,290 --> 00:04:09,290
+Or you have it on a separate line like I did with these.
+
+00:04:09,290 --> 00:04:12,290
+So that means you're continuing to run that.
+
+00:04:12,290 --> 00:04:15,290
+So now the dwell has changed.
+
+00:04:15,290 --> 00:04:25,290
+The dwell has changed to now it'll only run these two frequencies at 90 seconds each.
+
+00:04:25,290 --> 00:04:27,290
+So that's how those are those commands.
+
+00:04:27,290 --> 00:04:31,290
+I recommend you don't mess with them at all.
+
+00:04:31,290 --> 00:04:38,290
+If you mess with the duty cycle, you're going to screw up the program completely.
+
+00:04:38,290 --> 00:04:48,290
+Do not ever mess with the duty cycle because there are certain rules in writing programs that have to do with duties.
+
+00:04:48,290 --> 00:04:56,290
+So if you go into your program and you're playing with the duty cycle, you could wreck your machine.
+
+00:04:56,290 --> 00:05:00,290
+So it's just as simple as that.
+
+00:05:00,290 --> 00:05:04,290
+With the true right.
+
+00:05:04,290 --> 00:05:09,290
+With either machine, you could just you can burn out, you can, you can load a machine.
+
+00:05:09,290 --> 00:05:13,290
+So you never mess with the duty cycles.
+
+00:05:13,290 --> 00:05:17,140
+Okay.
+
+00:05:17,140 --> 00:05:23,140
+Or you can, but your, your machine is going to not work.
+
+00:05:23,140 --> 00:05:27,140
+And you're going to be calling me to have it fixed.
+
+00:05:27,140 --> 00:05:32,140
+So don't ever mess with the duty cycles.
+
+00:05:32,140 --> 00:05:34,140
+Don't ever mess with the pulses.
+
+00:05:34,140 --> 00:05:41,140
+Don't ever mess you, the only thing that I would say that you could safely play with is the dwell.
+
+00:05:41,140 --> 00:05:45,140
+You can't hurt anything by changing the dwell.
+
+00:05:45,140 --> 00:05:47,140
+Well, let's take that back.
+
+00:05:47,140 --> 00:05:49,140
+You could hurt you by changing the dwell.
+
+00:05:49,140 --> 00:05:55,140
+Technically, I don't ever have anything dwell on anything more than.
+
+00:05:55,140 --> 00:05:58,140
+Usually on an average frequency.
+
+00:05:58,140 --> 00:06:02,140
+There are some frequencies that you can dwell up to 30 minutes.
+
+00:06:02,140 --> 00:06:08,140
+But on the average, you're dwelling less than 300 seconds.
+
+00:06:08,140 --> 00:06:14,140
+So, um, so, but let's say you change this to 18,000.
+
+00:06:14,140 --> 00:06:17,140
+Well, all your program is going to be like 20 hours long, probably.
+
+00:06:17,140 --> 00:06:20,140
+But, um, you, by just by changing that.
+
+00:06:20,140 --> 00:06:27,140
+It's not safe to be dwelling on these frequencies that long.
+
+00:06:27,140 --> 00:06:36,140
+So, um, I just, I realize that you want to get technical and you want to do this yourself.
+
+00:06:36,140 --> 00:06:38,140
+I'm all poor.
+
+00:06:38,140 --> 00:06:39,140
+This is your machine.
+
+00:06:39,140 --> 00:06:41,140
+You do whatever you want to do.
+
+00:06:41,140 --> 00:06:43,140
+But don't do things foolishly.
+
+00:06:43,140 --> 00:06:44,140
+Okay.
+
+00:06:44,140 --> 00:06:49,140
+So, um, don't ever, ever mess with the duty cycles.
+
+00:06:49,140 --> 00:06:54,140
+And if you do mess with the dwells, let's say, let's say you wanted to turn a,
+
+00:06:54,140 --> 00:06:59,140
+let's say you were running a, a flu program, but it was only 90 minutes long.
+
+00:06:59,140 --> 00:07:02,140
+Uh, I want to make this nine hours.
+
+00:07:02,140 --> 00:07:08,140
+Well, you don't just change the dwell and let it dwell on each frequency for 10 minutes.
+
+00:07:08,140 --> 00:07:10,140
+That's not good for you either.
+
+00:07:10,140 --> 00:07:17,140
+So, I just asked me to write a program that's going to make a nine hour flu program.
+
+00:07:17,140 --> 00:07:19,140
+That's what you wanted.
+
+00:07:19,140 --> 00:07:26,140
+So, uh, not giving you about telling you you can't do whatever you want to do with your machine.
+
+00:07:26,140 --> 00:07:30,140
+But if you hurt yourself with your machine, that's on you.
+
+00:07:30,140 --> 00:07:33,140
+So, if you hurt your machine, that's on you too.
+
+00:07:33,140 --> 00:07:36,140
+So, um, just be careful.
+

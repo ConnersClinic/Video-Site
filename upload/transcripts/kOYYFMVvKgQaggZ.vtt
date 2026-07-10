@@ -1,0 +1,254 @@
+WEBVTT
+
+00:00:01,300 --> 00:00:16,300
+And everybody, this is Dr. Cutters. I'm going to go through trouble shooting issue that people are having with that generator null error. They're not getting their computer communicating with their true right machine.
+
+00:00:16,300 --> 00:00:23,300
+So let's walk through some of this. This is typically the error that you'll see cannot connect to the generator.
+
+00:00:23,300 --> 00:00:28,300
+Some things that might be easy to fix. Some things that might be a little bit more difficult to fix.
+
+00:00:28,300 --> 00:00:34,300
+But let's walk through this. Make sure, first of all, that your connections are correct. Make sure that you are connected.
+
+00:00:34,300 --> 00:00:41,300
+You know, your USB port is connected correctly. That it's connected to the back of the right correctly.
+
+00:00:41,300 --> 00:00:48,300
+That it's plugged in the correct way. There's only one way that it does plug into the back of the right.
+
+00:00:48,300 --> 00:00:58,300
+Then it connects to the USB port. Sometimes people end up forcing the USB cable into the wrong port of the computer.
+
+00:00:58,300 --> 00:01:08,300
+Sometimes they force it into the in the wrong direction on the back of the right. There is only one direction that that cable goes into the back of the right.
+
+00:01:08,300 --> 00:01:14,300
+It's kind of a funny shape like a little house in the back that it's got to go up in the correct way.
+
+00:01:14,300 --> 00:01:20,300
+And you could force it in the wrong way. Maybe that's the problem. So make sure your connections are correct.
+
+00:01:20,300 --> 00:01:27,300
+Sometimes the cable itself can burn out and be bad. It is simply a printer cable.
+
+00:01:27,300 --> 00:01:35,300
+So you could try changing it with your printer cable if you have a printer cable at home and see if it's the printer cable, if it's the cable itself.
+
+00:01:35,300 --> 00:01:40,300
+Number two, make sure your right machine is turned on. Sometimes that's a really easy mistake.
+
+00:01:40,300 --> 00:01:45,300
+Oh, I didn't have my machine on. If you don't have your machine on, it's not going to be able to communicate to the machine.
+
+00:01:45,300 --> 00:01:50,300
+You can your computer can only communicate to the machine if your true right machine is turned on.
+
+00:01:50,300 --> 00:01:57,300
+So make sure that the light on the machine is on. Make sure your fuses are to burn out.
+
+00:01:57,300 --> 00:02:03,300
+Look at your other trouble shooting guide that we said you with it. That's in the right course.
+
+00:02:03,300 --> 00:02:08,300
+So make sure that the fuses is not burned out. Something's not burned out of the machine itself.
+
+00:02:08,300 --> 00:02:16,300
+So the machine can actually power up. Also try unplugging your USB cord and plugging it back in.
+
+00:02:16,300 --> 00:02:21,300
+Sometimes it just needs to reboot and reconnect. Maybe that's the issue.
+
+00:02:21,300 --> 00:02:28,300
+You could like I said, try using a different USB port or a different USB cable.
+
+00:02:28,300 --> 00:02:32,300
+None of those are seeming to work. I still can't get it to work. It's still giving me that error.
+
+00:02:32,300 --> 00:02:39,300
+Then it's something a little bit deeper. So your fifth option is to simply reinstall the driver.
+
+00:02:39,300 --> 00:02:48,300
+So like any apparatus that's connected to your computer needs a driver.
+
+00:02:48,300 --> 00:02:55,300
+If you want to try to reinstall the driver, that's really simple. It doesn't affect your program, your personal programs at all.
+
+00:02:55,300 --> 00:03:02,300
+Just go to www.trueright.com backslash123.
+
+00:03:02,300 --> 00:03:08,300
+That automatically takes you a page that looks like this. I did a screenshot of that page.
+
+00:03:08,300 --> 00:03:15,300
+You've got to make sure you see the full face of your computer. You'll see downloads for Windows, downloads for back.
+
+00:03:15,300 --> 00:03:20,300
+Right now we don't want to download the program because we already have the program on there.
+
+00:03:20,300 --> 00:03:22,300
+We just want to download the driver.
+
+00:03:22,300 --> 00:03:31,300
+How you download the driver for that is to go to this little box that says let's go.
+
+00:03:31,300 --> 00:03:38,300
+If you hit let's go there, you'll actually download the driver and it will come into your download folder.
+
+00:03:38,300 --> 00:03:45,300
+In your computer, double-click on it to open it up and then follow the instructions to install the driver.
+
+00:03:45,300 --> 00:03:51,300
+Just like if you're downloading a program, there's instructions to follow and you download the program.
+
+00:03:51,300 --> 00:03:53,300
+You have to install it in your computer.
+
+00:03:53,300 --> 00:04:00,300
+So hit that what, let's go and then download it. You'll see it downloading on your computer.
+
+00:04:00,300 --> 00:04:05,300
+And then once it downloads, double-click on it and open it and then install it.
+
+00:04:05,300 --> 00:04:09,300
+Follow the instructions and prompts that you need to install it.
+
+00:04:09,300 --> 00:04:12,300
+And see if that corrects it many times, that will correct it.
+
+00:04:12,300 --> 00:04:18,300
+Sometimes you'll need to turn your computer off and turn your computer on in order to get that to start working.
+
+00:04:18,300 --> 00:04:21,300
+You'll have to turn your rife on and turn it off to get it to start working.
+
+00:04:21,300 --> 00:04:25,300
+Plug your USB cord plug it back in to get it to start working.
+
+00:04:25,300 --> 00:04:32,300
+So don't be afraid to do things like that just to get it to reboot and to understand the driver and find the driver.
+
+00:04:32,300 --> 00:04:36,300
+Your sixth option is to reload the whole program.
+
+00:04:36,300 --> 00:04:48,300
+So if you go to www.truerife.com, not in the backslash 1, 2, 3, the truerife.com made website, you'll see on the top it'll say support videos.
+
+00:04:48,300 --> 00:04:53,300
+So if you go to support videos, you'll see the product support videos and you'll click on that.
+
+00:04:53,300 --> 00:04:59,300
+And there is the first video out there right now is the simple fix for a generator null error.
+
+00:04:59,300 --> 00:05:09,300
+If you follow that video, it will tell you just to uninstall and to reinstall your program.
+
+00:05:09,300 --> 00:05:12,300
+It's just a two-minute video instruction you how to do that.
+
+00:05:12,300 --> 00:05:16,300
+And Jake explains how to uninstall the truerife program, reinstall it.
+
+00:05:16,300 --> 00:05:27,300
+But if you're going to do that, make sure that you save your personal program that is in your truerife frequency documents.
+
+00:05:27,300 --> 00:05:30,300
+Make sure you save that somewhere.
+
+00:05:30,300 --> 00:05:32,300
+You can save it onto a flash drive.
+
+00:05:32,300 --> 00:05:34,300
+You can save it onto the desktop.
+
+00:05:34,300 --> 00:05:37,300
+Here I just gave you some simple instructions.
+
+00:05:37,300 --> 00:05:44,300
+You go to your truerife computer, go to the documents folder, and under folder, look for the truerife frequencies folder.
+
+00:05:44,300 --> 00:05:48,300
+You'll see your personal program in there.
+
+00:05:48,300 --> 00:05:50,300
+Follow these instructions on this video.
+
+00:05:50,300 --> 00:05:52,300
+Just right click on it, save it.
+
+00:05:52,300 --> 00:05:54,300
+You're copy, eat it.
+
+00:05:54,300 --> 00:05:59,300
+Then you're pasted it, pasted it onto the home screen, or you can paste it onto a flash drive.
+
+00:05:59,300 --> 00:06:05,300
+If you have a flash drive plugged into the computer, just save your personal program somewhere.
+
+00:06:05,300 --> 00:06:07,300
+It's a good idea to do anyhow.
+
+00:06:07,300 --> 00:06:14,300
+Now you can proceed with the following by following the instructions that Jake gives you on that video.
+
+00:06:14,300 --> 00:06:19,300
+From truerife to delete and reinstall the program.
+
+00:06:19,300 --> 00:06:26,300
+Then the last step will be simply to add your personal programs back to the newly installed truerife program.
+
+00:06:26,300 --> 00:06:30,300
+You made this one step that I've given you this with the bunch here.
+
+00:06:30,300 --> 00:06:32,300
+It might not need to be done.
+
+00:06:32,300 --> 00:06:34,300
+It might be actually saved.
+
+00:06:34,300 --> 00:06:40,300
+But you just want to protect yourself from you actually deleting your own personal program that I just said you have flash drive for that.
+
+00:06:40,300 --> 00:06:44,300
+So I'm just trying to save you a step, save you a few headaches.
+
+00:06:44,300 --> 00:06:51,300
+But then you'll just copy wherever you saved that program, whether it be in the desktop or on a flash drive.
+
+00:06:51,300 --> 00:06:59,300
+You'll just copy it again, and then go find the truerife frequency folders, paste it back into there, and then you'll be ready to go.
+
+00:06:59,300 --> 00:07:03,300
+Of course, if you don't feel comfortable doing it here, these procedures, you can ship the computer.
+
+00:07:03,300 --> 00:07:10,300
+It's a power cord and the USB cord that you're using.
+
+00:07:10,300 --> 00:07:15,300
+And the truerife machine back to us, I don't need the bulbs, I don't need the foot bath, anything like that.
+
+00:07:15,300 --> 00:07:19,300
+But you could ship that back to us and we'll try to get that corrected.
+
+00:07:19,300 --> 00:07:21,300
+Now the truth is it might not be any of these things.
+
+00:07:21,300 --> 00:07:24,300
+It might be something actually wrong with your machine.
+
+00:07:24,300 --> 00:07:27,300
+It's not reading something or it might be something wrong with your computer.
+
+00:07:27,300 --> 00:07:30,300
+So if you do get it back to us, I'll check it.
+
+00:07:30,300 --> 00:07:34,300
+And we'll just get it back to you as fast as possible, too.
+
+00:07:34,300 --> 00:07:37,300
+All right, thanks so much.
+
+00:07:37,300 --> 00:07:42,300
+If you have troubles, just give us a call and let us know.
+

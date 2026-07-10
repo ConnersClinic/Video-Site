@@ -1,0 +1,236 @@
+WEBVTT
+
+00:00:01,230 --> 00:00:09,430
+And everybody, this is Dr. Cutters. I got to go through trouble shooting issue that people are having with that generator. No
+
+00:00:10,590 --> 00:00:12,590
+error, they're not getting their
+
+00:00:13,350 --> 00:00:14,150
+computer
+
+00:00:14,150 --> 00:00:18,870
+Communicated with their true-rife machine. So let's walk through some of this.
+
+00:00:18,870 --> 00:00:22,670
+This is typically the error that you'll see cannot connect to the generator
+
+00:00:23,390 --> 00:00:29,350
+Some things that might be easy to fix. Some things that might be a little bit more difficult to fix, but let's walk through this.
+
+00:00:29,350 --> 00:00:36,510
+Make sure, first of all, that your connections are correct. Make sure that you are connected, you know, your USB port is
+
+00:00:37,270 --> 00:00:43,030
+Connected correctly that it's connected to the back of the rife correctly. That it's plugged in the correct way.
+
+00:00:43,030 --> 00:00:51,590
+There's only one way that it does plug into the back of the rife and then it connects to the USB port.
+
+00:00:52,150 --> 00:00:54,790
+Sometimes people end up forcing the USB
+
+00:00:55,510 --> 00:01:00,470
+cable into the wrong port of the computer. Sometimes they force it into the
+
+00:01:00,750 --> 00:01:08,190
+in the wrong direction on the back of the rife. There is only one direction that that cable goes into the back of the rife.
+
+00:01:08,190 --> 00:01:14,470
+It's kind of a funny shape like a little house in the back. That it's got to go up in the correct way.
+
+00:01:14,470 --> 00:01:17,470
+And you could force it in the wrong way. And maybe that's the problem.
+
+00:01:17,750 --> 00:01:24,270
+So make sure your connections are correct. Sometimes the cable itself can burn out and be bad.
+
+00:01:24,430 --> 00:01:25,710
+It is simply a
+
+00:01:26,830 --> 00:01:32,670
+printer cable. So you could try changing it with your printer cable if you have a printer cable at home and see if it's the
+
+00:01:33,230 --> 00:01:35,630
+printer cable, if it's the cable itself.
+
+00:01:36,270 --> 00:01:42,270
+Number two, make sure your rife machine is turned on. Sometimes that's a really easy mistake. Oh, I didn't have my machine on.
+
+00:01:42,270 --> 00:01:45,550
+If you don't have your machine on, it's not going to be able to communicate to the machine.
+
+00:01:46,270 --> 00:01:50,510
+Your computer can only communicate to the machine if your true rife machine is turned on.
+
+00:01:50,510 --> 00:01:53,470
+So make sure that the light on the machine is on.
+
+00:01:54,750 --> 00:02:01,150
+Make sure your fuses are to burn out. Look at your other troubleshooting guide that we sent you with it.
+
+00:02:01,150 --> 00:02:06,270
+That's in the rife course. So make sure that the fuses is not burned out.
+
+00:02:06,270 --> 00:02:10,910
+Something's not burned out on the machine itself. So the machine can actually power up.
+
+00:02:11,790 --> 00:02:18,910
+Also try unplugging your USB cord and plug it back in. Sometimes it just needs to reboot and reconnect.
+
+00:02:19,070 --> 00:02:28,430
+Maybe that's the issue. You could, like I said, try using a different USB port or a different USB cable.
+
+00:02:28,430 --> 00:02:32,030
+None of those are seeming to work. I still can't get it to work. It's still giving me that error.
+
+00:02:32,510 --> 00:02:40,030
+Then it's something a little bit deeper. So your fifth option is to simply reinstall the driver.
+
+00:02:40,030 --> 00:02:47,870
+So like any apparatus that's connected to your computer, it needs a driver.
+
+00:02:48,430 --> 00:02:54,030
+If you want to try to reinstall the driver, that's really simple. It doesn't affect your program,
+
+00:02:54,030 --> 00:03:01,870
+your personal programs at all. Just go to www.trueright.com backslash123.
+
+00:03:02,270 --> 00:03:07,870
+That automatically takes you a page that looks like this. I did a screenshot of that page.
+
+00:03:08,590 --> 00:03:12,750
+And if you're going to make sure you see it on the full face of your computer,
+
+00:03:12,750 --> 00:03:18,830
+you'll see downloads for Windows, downloads for Mac. Right now we don't want to download the program
+
+00:03:18,830 --> 00:03:22,430
+because we already have the program on there. We just want to download the driver.
+
+00:03:22,990 --> 00:03:31,310
+How you download the driver for that is to go to this little box that says, let's go.
+
+00:03:31,310 --> 00:03:38,990
+If you hit let's go there, you'll actually download the driver. It will come into your download folder.
+
+00:03:38,990 --> 00:03:45,470
+At your computer, double-click on it to open it up and then follow the instructions to install the
+
+00:03:45,470 --> 00:03:50,270
+driver. Just like if you're downloading a program, there's instructions to follow and you download
+
+00:03:50,270 --> 00:03:57,630
+the program. You have to install it at your computer. So hit that, let's go and then download it.
+
+00:03:57,630 --> 00:04:03,150
+You'll see it downloading on your computer. And then once it downloads, double-click on it and
+
+00:04:03,230 --> 00:04:08,510
+open it and then install it, follow the instructions and prompts that you need to install it.
+
+00:04:09,470 --> 00:04:14,270
+And see if that corrects it, many times that will correct it. Sometimes you'll need to turn your
+
+00:04:14,270 --> 00:04:18,750
+computer off and turn your computer on in order to get that to start working. You'll have to turn
+
+00:04:18,750 --> 00:04:24,030
+your rife on and turn it off to get it to start working. Plug your USB cord plug it back in to get
+
+00:04:24,030 --> 00:04:28,910
+it start working. So don't be afraid to do things like that to just get it to reboot and to understand
+
+00:04:28,910 --> 00:04:38,110
+the driver and find the driver. Your sixth option is to reload the whole program. So if you go to
+
+00:04:38,110 --> 00:04:46,830
+www.truerife.com, not the backslash 1, 2, 3, the truerife.com made website, you'll see on the top
+
+00:04:46,830 --> 00:04:52,910
+it'll say support videos. So if you go to support videos, you'll see the product support videos and
+
+00:04:52,910 --> 00:04:58,030
+you'll click on that. And there is the first video I'll be there right now is the simple fix for
+
+00:04:58,110 --> 00:05:08,830
+generator, null error. If you follow that video, it will tell you just to uninstall and to reinstall
+
+00:05:08,830 --> 00:05:14,430
+your program. It's just a two-minute video instruction you how to do that. And Jake explains how to
+
+00:05:14,430 --> 00:05:20,430
+uninstall the truerife program, reinstall it. But if you're going to do that, make sure that you save
+
+00:05:20,590 --> 00:05:30,350
+your personal program that is in your truerife frequency documents. Make sure you save that somewhere.
+
+00:05:30,350 --> 00:05:36,030
+You can save it onto a flash drive, you can save it onto the desktop. Here, I just gave you some
+
+00:05:36,030 --> 00:05:42,430
+simple instructions to go to your truerife computer, go to the documents folder and under folder,
+
+00:05:42,430 --> 00:05:48,030
+look for the truerife frequencies folder. You'll see your personal program in there.
+
+00:05:48,830 --> 00:05:52,670
+Follow these instructions on this video. Just right click on it, save it,
+
+00:05:52,670 --> 00:05:58,430
+your copy, eat it, then your pasted it, pasted it onto the home screen, or you can get you can paste
+
+00:05:58,430 --> 00:06:04,110
+it onto a flash drive. If you have a flash drive plugged into the computer, just save your personal
+
+00:06:04,110 --> 00:06:10,830
+program somewhere. It's a good idea to do anyhow. Now you can proceed with the following by following
+
+00:06:10,910 --> 00:06:19,150
+the instructions that Jake gives you on that video. From truerife to delete and reinstall the program.
+
+00:06:19,150 --> 00:06:24,990
+And then the last step will be simply to add your personal programs back to the newly installed
+
+00:06:24,990 --> 00:06:31,550
+truerife program. You made this one step that I'm giving you this with the bot here. Might not
+
+00:06:31,550 --> 00:06:36,350
+need to be done. It might be actually saved, but you just want to protect yourself from you to
+
+00:06:36,350 --> 00:06:40,670
+actually deleting your own personal program that I just said to you a flash drive for that. So
+
+00:06:40,670 --> 00:06:45,790
+I'm just trying to save you a step, save you a few headaches. But then you'll just copy
+
+00:06:46,990 --> 00:06:52,190
+wherever you saved that program, whether it be in the desktop or on a flash drive, you'll just
+
+00:06:52,190 --> 00:06:57,790
+copy it again and then go find the truerife frequencies folders, paste it back into there,
+
+00:06:57,790 --> 00:07:01,790
+and then you'll be ready to go. Of course, if you don't feel comfortable doing any of these
+
+00:07:01,790 --> 00:07:10,030
+procedures, you can ship the computer. It's a power cord and the USB cord that you're using
+
+00:07:10,590 --> 00:07:15,070
+and the truerife machine back to us. I don't need the bulbs, I don't need the foot bath, anything
+
+00:07:15,070 --> 00:07:20,270
+like that, but you can ship that back to us and we'll try to get that corrected. No, the truth is
+
+00:07:20,270 --> 00:07:25,070
+it might not be any of these things. It might be something actually wrong with your machine. It's not
+
+00:07:25,070 --> 00:07:29,310
+reading something or it might be something wrong with your computer. So if you do get it back to us,
+
+00:07:29,310 --> 00:07:36,030
+I'll check it and we'll just get it back to you as fast as possible too. All right, thanks.
+
+00:07:37,070 --> 00:07:42,830
+So much if you have troubles, just give us a call and let us know.
+

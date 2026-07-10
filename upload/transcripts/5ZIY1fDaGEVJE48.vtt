@@ -1,0 +1,455 @@
+WEBVTT
+
+00:00:01,140 --> 00:00:12,140
+And everybody, this is Dr. Kevin Connors, it is October 3rd, 2023, and this video is to discuss the TrueRife software updates.
+
+00:00:12,140 --> 00:00:19,140
+So the TrueRife software has been updated to 6.4.
+
+00:00:19,140 --> 00:00:24,140
+Most of our members, slash patients are running 6.4.
+
+00:00:24,140 --> 00:00:29,140
+Some of those that have come on just lately are 6.2.
+
+00:00:29,140 --> 00:00:32,140
+Some that started this week are 6.4.
+
+00:00:32,140 --> 00:00:37,140
+So most of our patient members are not running 6.4.
+
+00:00:37,140 --> 00:00:40,140
+So this is a problem.
+
+00:00:40,140 --> 00:00:43,140
+Can be a problem. We'll discuss that.
+
+00:00:43,140 --> 00:00:49,140
+So let's walk through this. TrueRife has sent out an email wanting everybody to upgrade to 6.4.
+
+00:00:49,140 --> 00:00:53,140
+And eventually you're going to want to do this upgrade.
+
+00:00:53,140 --> 00:00:58,140
+Now you don't need to do it right away, but eventually you do want to do the upgrade.
+
+00:00:58,140 --> 00:01:08,140
+So let's talk about this. So first of all, if you have an F117, not an F122, consider updating to an F122.
+
+00:01:08,140 --> 00:01:15,140
+Now those who have started with us in the last few years, maybe look what in the world is an F117.
+
+00:01:15,140 --> 00:01:21,140
+Well if you look at the front of your TrueRife machine, the machine itself, not the computer, the machine,
+
+00:01:21,140 --> 00:01:28,140
+it will say F122 or F117, F117 is obviously an older model.
+
+00:01:28,140 --> 00:01:32,140
+I think in 2020 they came up with the F122.
+
+00:01:32,140 --> 00:01:35,140
+I can't remember the date that they came up with and we upgraded immediately.
+
+00:01:35,140 --> 00:01:39,140
+We're the first people there to receive an F122.
+
+00:01:39,140 --> 00:01:45,140
+And all of our patients have used the F122 since then, but the F117 still works just fine.
+
+00:01:45,140 --> 00:01:48,140
+And we have people that are ready.
+
+00:01:48,140 --> 00:01:51,140
+Their programs are the F117 right now.
+
+00:01:51,140 --> 00:01:54,140
+The problem is, is TrueRife has been purchased.
+
+00:01:54,140 --> 00:01:57,140
+The company has been purchased, has been bought out.
+
+00:01:57,140 --> 00:02:04,140
+And the new company is making some really fantastic upgrades to everything that the company is doing.
+
+00:02:04,140 --> 00:02:08,140
+Well what are the things they're doing? They're updating the software.
+
+00:02:08,140 --> 00:02:17,140
+And it does work better. It is more versatile and they're going to be able to add more things to the software in the future.
+
+00:02:17,140 --> 00:02:24,140
+The problem is, is that they don't want to support even repairs on the F117 anymore.
+
+00:02:24,140 --> 00:02:28,140
+So they're asking everyone, they're giving everyone a training offer.
+
+00:02:28,140 --> 00:02:37,140
+So if you send your F117 machine to TrueRife with a little note, say that I want to upgrade to an F122
+
+00:02:37,140 --> 00:02:42,140
+with your address on it, they'll send you an F122 for $1,500.
+
+00:02:42,140 --> 00:02:47,140
+Now please look at their website TrueRife.com to find details on that.
+
+00:02:47,140 --> 00:02:51,140
+Because that's not done through us. That's done through the company TrueRife.
+
+00:02:51,140 --> 00:02:54,140
+And that offer expires in the next month here.
+
+00:02:54,140 --> 00:03:02,140
+So you only have four weeks to decide to update your F117 to F122 for $1,500.
+
+00:03:02,140 --> 00:03:07,140
+After that, it's going to be the full price for the machine. So I highly recommend that you do that.
+
+00:03:07,140 --> 00:03:13,140
+Then after that, we'll need to upgrade your computer, the software, and your computer.
+
+00:03:13,140 --> 00:03:19,140
+So we'll need to upgrade your computer to the new software to currently its version 6.4.
+
+00:03:19,140 --> 00:03:23,140
+And we'll talk about the next steps of doing that.
+
+00:03:23,140 --> 00:03:29,140
+So if you already have an F122, you ignore that last slide.
+
+00:03:29,140 --> 00:03:34,140
+If you already have an F122, make sure to find out what program you're running.
+
+00:03:34,140 --> 00:03:39,140
+There's actually some people that have an F122 that are still running version 5.0.
+
+00:03:39,140 --> 00:03:48,140
+Now we asked everybody, we sent out multiple emails several years ago when they went TrueRife upgraded to version 6.0
+
+00:03:48,140 --> 00:03:57,140
+to upgrade your program. The program is different. The program is different from version 5.0 to 6.0.
+
+00:03:57,140 --> 00:04:01,140
+And we sent out flash drives with the 6.0 software.
+
+00:04:01,140 --> 00:04:06,140
+Well, if you weren't in contact with the clinic for whatever reason, you were doing well or whatever.
+
+00:04:06,140 --> 00:04:14,140
+You didn't use your wife, whatever it was, and you never upgraded to 6.0, then we need to upgrade your programs.
+
+00:04:14,140 --> 00:04:21,140
+There's just no way you can operate on version 5.0 anymore with the F122.
+
+00:04:22,140 --> 00:04:24,140
+So how do I know what version I'm going on?
+
+00:04:24,140 --> 00:04:30,140
+Well, go to the TrueRife program and click the Help tab on the top of the row of tabs there.
+
+00:04:30,140 --> 00:04:37,140
+From the drop down menu, you click the About tab, the drop down from Help.
+
+00:04:37,140 --> 00:04:42,140
+And this will show you what version software you're currently running, either version 5.0,
+
+00:04:42,140 --> 00:04:45,140
+which is old, you really need to upgrade for sure.
+
+00:04:45,140 --> 00:04:55,140
+Version 6.0, which was going on for multiple years, 6.1, which they just updated in March of this year, 6.2.
+
+00:04:55,140 --> 00:05:04,140
+They updated in July of this year, and 6.4, they just updated this week, maybe this last week.
+
+00:05:04,140 --> 00:05:11,140
+So if you're running, if you notice you're running 6.4, do nothing. Turn off this video, you don't need to listen anymore.
+
+00:05:11,140 --> 00:05:21,140
+So just skip everything else from this video. But if you notice you're running 6.2, 6.1, 6.0, or 5.0, then you have to what you need to
+
+00:05:21,140 --> 00:05:24,140
+at least consider following these next steps.
+
+00:05:24,140 --> 00:05:31,140
+So if you're running anything other than 6.4, you may want to upgrade your computer to the new software.
+
+00:05:31,140 --> 00:05:40,140
+You don't have to do anything to the F122 generator, you have to update the computer to the new software currently at 6.4 by following these steps.
+
+00:05:40,140 --> 00:05:47,140
+Now, if you don't need to update the software, if you're running 6.0 and you're having no problems,
+
+00:05:47,140 --> 00:05:53,140
+if you're running your programs on a daily basis, and you don't care, you don't really run any of the other true-rife programs,
+
+00:05:53,140 --> 00:05:57,140
+you can just keep doing what you're doing. You really don't need to do that.
+
+00:05:57,140 --> 00:06:03,140
+But sometime in the future, if you have issues, we may need to upgrade you to the version 6.4.
+
+00:06:03,140 --> 00:06:09,140
+Some people might think, wait, I'm going to have any issues right now. Why do I want to upgrade to the version 6.4?
+
+00:06:09,140 --> 00:06:15,140
+Who knows, they may come up with 6.5 and 6.6 by the time I really need to update.
+
+00:06:15,140 --> 00:06:23,140
+And there's a lot of truth to that. So the vast majority of our members really don't need to do anything.
+
+00:06:23,140 --> 00:06:28,140
+But if you're like, hey, I want the latest software, I want the latest program, I want the latest version,
+
+00:06:28,140 --> 00:06:35,140
+I run a lot of other programs, and I don't want them to not work correctly, then you need to follow the next step.
+
+00:06:35,140 --> 00:06:42,140
+Or you're just like, well, I'd like to stay updated, and I don't want to have problems.
+
+00:06:42,140 --> 00:06:46,140
+Well, then you need to follow the next step. So what are the next steps?
+
+00:06:46,140 --> 00:06:53,140
+The next step is upgrade your software to version 6.4. How do we do that? How do we do that? Well, you have two choices.
+
+00:06:53,140 --> 00:07:02,140
+You could just upgrade from TrueRive's website, because they're offering a free upgrade to 6.4 until October 31st.
+
+00:07:02,140 --> 00:07:08,140
+But the problem is, if you do that, you're going to lose all your personal programs that we created for you.
+
+00:07:08,140 --> 00:07:15,140
+If you created your own programs, they're going to be gone too. Anything that's not from TrueRive's website is going to be gone.
+
+00:07:15,140 --> 00:07:22,140
+So then you'd have to ship the computer back to us for us to replace your personal programs.
+
+00:07:22,140 --> 00:07:29,140
+So we don't recommend you do that. But number two, you still have to ship the computer back to us so that we'll do the upgrade for you,
+
+00:07:29,140 --> 00:07:35,140
+and we'll put the latest software on, and we'll place all your programs back on your computer.
+
+00:07:35,140 --> 00:07:41,140
+So, really do number two. So if you're going to do the upgrade, do number two.
+
+00:07:41,140 --> 00:07:48,140
+Send us your computer back and let us do the upgrade. I'll do the 6.4 upgrade on your computer.
+
+00:07:48,140 --> 00:07:55,140
+I'll put your programs back on your computer and everything. So, because regardless, you still need to ship us the computer back,
+
+00:07:55,140 --> 00:08:03,140
+whether you do the upgrade from TrueRive or not. So unfortunately, we can't do this for free. It takes time. My time. I'm the one who has to do this.
+
+00:08:03,140 --> 00:08:12,140
+But our normal fee for TrueRive upgrade is 225 dollars, but we're doing it for just $85 to tell December 1st.
+
+00:08:12,140 --> 00:08:17,140
+So I'll show you how to get to the link on our store to pay for that.
+
+00:08:17,140 --> 00:08:24,140
+We'll have it on the members site in the TrueRive site too, that you can jump to that and pay for that.
+
+00:08:24,140 --> 00:08:28,140
+But you'll have to pay for the shipping of the computer back to us.
+
+00:08:28,140 --> 00:08:37,140
+I don't need your... I don't need your... anything but the computer in the charging cord would be helpful,
+
+00:08:37,140 --> 00:08:44,140
+because depending on what type of computer you have. But that's all I need. I don't need the machine. I don't need the bulb.
+
+00:08:44,140 --> 00:08:49,140
+I don't need anything else I just need your computer. So just you have to ship that back to us.
+
+00:08:49,140 --> 00:08:53,140
+It's possible complications. So here's some possible complications.
+
+00:08:53,140 --> 00:09:00,140
+If you see that you're running version 5.0, when you do that checking the version that you're running,
+
+00:09:00,140 --> 00:09:06,140
+you're really not eligible for the discounted fee since I need to upgrade your personal program to the 6.4 software as well.
+
+00:09:06,140 --> 00:09:12,140
+I have to redo your whole program while the duty cycles are run for anything version 6 or higher.
+
+00:09:12,140 --> 00:09:17,140
+So the 225 dollar fee would apply if you're running version 5.0.
+
+00:09:18,140 --> 00:09:23,140
+If your computer is older or not allowing the 6.4 upgrade,
+
+00:09:23,140 --> 00:09:27,140
+you may need to just go ahead and purchase a new computer from us.
+
+00:09:27,140 --> 00:09:32,140
+So if you're like, you know my computer is kind of old, I've been using it a long time.
+
+00:09:32,140 --> 00:09:37,140
+Maybe I should just upgrade my computer. Well the cost of the new computer is $795.
+
+00:09:37,140 --> 00:09:45,140
+It's a true right computer. So it's 8 gig. All the specs are on the store of the computer.
+
+00:09:45,140 --> 00:09:49,140
+But then you don't have to pay the $85 or the 225.
+
+00:09:49,140 --> 00:09:57,140
+We'll do everything. It's all included. We'll put your program out there and you'll get a new computer from us.
+
+00:09:57,140 --> 00:10:03,140
+So if you choose not to upgrade to an F122, so if you still have the F117,
+
+00:10:03,140 --> 00:10:07,140
+you choose not to upgrade to an F122. Hey, I don't have the money for that right now.
+
+00:10:07,140 --> 00:10:10,140
+Hey, what I'm running is working. I don't want to upgrade.
+
+00:10:10,140 --> 00:10:16,140
+Remember, none of this applies to you because you cannot upgrade to version 6.4.
+
+00:10:16,140 --> 00:10:20,140
+A version 6.4 does not work on the F117.
+
+00:10:20,140 --> 00:10:26,140
+But remember, just true right, if it's going to no longer support the F117.
+
+00:10:26,140 --> 00:10:32,140
+So if you have problems with your machine, well, they won't fix it anymore.
+
+00:10:32,140 --> 00:10:40,140
+So such is life when the company is bought out. Mike's out there anymore.
+
+00:10:40,140 --> 00:10:46,140
+I wish I could have bought the company. I didn't know it was for sale and I probably couldn't afford it in the house.
+
+00:10:46,140 --> 00:10:49,140
+So I think the company is doing a lot of really good things.
+
+00:10:49,140 --> 00:10:53,140
+I really like the doctor who holds it at Jake that works there.
+
+00:10:53,140 --> 00:10:57,140
+They've really been doing nothing but trying to help everybody out.
+
+00:10:57,140 --> 00:11:04,140
+And I do understand that they're trying to streamline things and they can't keep employees to be able to repair the old units.
+
+00:11:04,140 --> 00:11:08,140
+And maybe they can't get the parts anymore. There's all sorts of issues with it.
+
+00:11:08,140 --> 00:11:11,140
+They're trying to get everybody into the best equipment possible.
+
+00:11:11,140 --> 00:11:15,140
+They're trying to do it at the least expense for them.
+
+00:11:15,140 --> 00:11:19,140
+So I think they're doing a great job. So I'm happy with what they're doing.
+
+00:11:20,140 --> 00:11:24,140
+So we get a summary. If you have an F117, try it.
+
+00:11:24,140 --> 00:11:31,140
+If you can't afford to upgrade it to an F122, their offer only applies till the end of October of 2023.
+
+00:11:31,140 --> 00:11:35,140
+You have to go to their website. You'll get all the details and how to do that.
+
+00:11:35,140 --> 00:11:40,140
+But it's as simple as just shipping it back to them with a note with your name on it and your address.
+
+00:11:40,140 --> 00:11:46,140
+So they know who they got it from and maybe a phone number so they can call and charge your credit card.
+
+00:11:46,140 --> 00:11:51,140
+And then they will ship it back, ship you a brand new unit.
+
+00:11:51,140 --> 00:12:01,140
+And then you'll have to upgrade to the 6.4 software so that you'll have to send us your laptop.
+
+00:12:01,140 --> 00:12:10,140
+If you have an F122 and see that you are running anything other than version 6.4 software,
+
+00:12:10,140 --> 00:12:13,140
+you can just keep running things as usual and tell you a problem.
+
+00:12:13,140 --> 00:12:19,140
+Then we can update you to 6.4. Maybe it'll be 6.5 or 6.6 by that time.
+
+00:12:19,140 --> 00:12:27,140
+It does make sense. I'm probably not going to upgrade mine right now because they're probably going to have a new one.
+
+00:12:27,140 --> 00:12:30,140
+That's how they really need to. It does make sense.
+
+00:12:30,140 --> 00:12:37,140
+But if you want to get it upgraded to version 6.4 software, ship the computer to us and we'll do everything for you.
+
+00:12:37,140 --> 00:12:41,140
+Here's the link on our store for the upgrade.
+
+00:12:41,140 --> 00:12:48,140
+And I explained it on that link again. Here's our address to send your computer to.
+
+00:12:48,140 --> 00:12:55,140
+I know this is complicated but understand all things work together for good, right?
+
+00:12:55,140 --> 00:13:01,140
+Even silly little things like computer updates. We just have to trust God in this.
+
+00:13:01,140 --> 00:13:04,140
+Who would recommend should really send in their computer?
+
+00:13:04,140 --> 00:13:11,140
+Hey, if you're doing really well with your cancer treatment and you feel like you're in a pretty stable.
+
+00:13:11,140 --> 00:13:15,140
+Well, then do the upgrade so you can be without the right for a week.
+
+00:13:15,140 --> 00:13:19,140
+By the time it ships to us and we ship it back, I'll try to flip it the same day.
+
+00:13:19,140 --> 00:13:21,140
+I'll do my best because of how many we get at these.
+
+00:13:21,140 --> 00:13:23,140
+But I'm going to try to get these back.
+
+00:13:23,140 --> 00:13:28,140
+So as soon as we get them in, unless it's a Friday afternoon or something, it'll go out that same day.
+
+00:13:28,140 --> 00:13:30,140
+That's my goal. I can't promise you anything.
+
+00:13:30,140 --> 00:13:33,140
+But if you're doing really well, you can do it without your right for a week.
+
+00:13:33,140 --> 00:13:35,140
+Then do the update.
+
+00:13:35,140 --> 00:13:41,140
+But if you're like, hey, I just started and I'm not doing so well or I'm in a critical situation,
+
+00:13:41,140 --> 00:13:47,140
+then just keep running. If your program is running, just keep doing it until you get to that point where you're stable
+
+00:13:47,140 --> 00:13:51,140
+and I can do without my right for a few days, then do the update.
+
+00:13:51,140 --> 00:13:53,140
+That's what I would do. That's my recommendation.
+
+00:13:53,140 --> 00:13:59,140
+All right. I'll have more details and we'll talk more about this on the Zoom call for those that are full members.
+
+00:13:59,140 --> 00:14:05,140
+And if there's any other details for just the right members, I'll place it on the frequency healing course.
+
+00:14:05,140 --> 00:14:07,140
+Thanks so much. Bye-bye.
+
