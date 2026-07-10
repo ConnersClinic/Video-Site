@@ -8,6 +8,7 @@
 /upload/import/
 /upload/tmp/
 /upload/temp/
+/upload/transcripts/
 
 # Generated changes and import files
 /changes/
