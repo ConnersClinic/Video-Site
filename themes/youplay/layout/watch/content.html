@@ -538,7 +538,7 @@
                            <div class="playlist-progress">{{VID_INDEX}} / {{LIST_COUNT}} {{LANG videos}}</div>
                         </div>
                      </div>
-                     <div class="videos-list play-list-cont" id="next-video" role="list" aria-label="{{LIST_NAME}}">{{LIST_SIDEBAR}}</div>
+                     <div class="videos-list play-list-cont <?php echo($pt->is_list ? 'playlist-video-crop' : ''); ?>" id="next-video" role="list" aria-label="{{LIST_NAME}}">{{LIST_SIDEBAR}}</div>
                   </div>
             <?php } ?>
          </div>
@@ -1029,7 +1029,7 @@
    })
 </script>
 <?php } ?>
-<div class="col-md-4 watch-sidebar-col no-padding-left pull-right <?php echo(($pt->is_wl || $pt->is_list) ? '' : 'mobile') ?>">
+<div class="col-md-4 watch-sidebar-col no-padding-left pull-right <?php echo(($pt->is_wl || $pt->is_list) ? 'watch-related-after-playlist' : 'mobile') ?>">
    <?php if (!$pt->is_wl && !$pt->is_list && $pt->have_video_sidebar) { ?>
    <div class="content watch-sidebar-panel">
       <div class="watch-up-next-header">
@@ -2334,13 +2334,26 @@ $('.mejs__jump-forward-button').each(function() {
       <?php if ($pt->is_wl || $pt->is_list) { ?>
       function syncPlaylistHeight() {
          var playlistWrapper = $('.play-list-cont-wrapper');
+         var relatedVideos = $('.watch-related-after-playlist');
          if (window.innerWidth >= 992) {
             var playerShellHeight = $('.watch-player-shell').outerHeight() || $('.player-video').height();
             var playlistTop = playlistWrapper[0].getBoundingClientRect().top;
             var heightToFold = window.innerHeight - playlistTop - 24;
             playlistWrapper.height(Math.max(playerShellHeight, heightToFold));
+
+            if (relatedVideos.length) {
+               var watchPage = playlistWrapper.closest('.video-player-page');
+               var playlistOffset = playlistWrapper.offset();
+               var pageOffset = watchPage.offset();
+               relatedVideos.css({
+                  top: (playlistOffset.top + playlistWrapper.outerHeight() + 24 - pageOffset.top) + 'px',
+                  left: (playlistOffset.left - pageOffset.left) + 'px',
+                  width: playlistWrapper.outerWidth() + 'px'
+               });
+            }
          } else {
             playlistWrapper.css('height', '');
+            relatedVideos.css({top: '', left: '', width: ''});
          }
       }
       syncPlaylistHeight();

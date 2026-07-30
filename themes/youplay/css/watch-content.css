@@ -1471,6 +1471,11 @@ html:has(.video-player-page) {
   object-fit: cover;
 }
 
+.video-player-page .play-list-cont.playlist-video-crop .video-thumb img {
+  transform: scale(1.28);
+  transform-origin: left center;
+}
+
 .video-player-page .play-list-cont .video-title {
   float: none;
   flex: 1 1 auto;
@@ -1505,6 +1510,7 @@ html:has(.video-player-page) {
 .video-player-page .play-list-cont .video-duration {
   margin-top: 5px;
   border-radius: 4px;
+  color: #ffffff !important;
 }
 
 .video-player-page .playlist-drag-handle,
@@ -1560,6 +1566,10 @@ html:has(.video-player-page) {
 }
 
 @media (min-width: 992px) {
+  .video-player-page {
+    position: relative;
+  }
+
   .video-player-page .play-list-player {
     display: block;
     position: relative;
@@ -1586,6 +1596,13 @@ html:has(.video-player-page) {
   .video-player-page .play-list-container {
     height: 100%;
   }
+
+  .video-player-page .watch-related-after-playlist {
+    position: absolute;
+    float: none !important;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 @media (max-width: 991px) {
@@ -1605,6 +1622,13 @@ html:has(.video-player-page) {
     height: clamp(420px, 62vh, 600px) !important;
     min-height: 420px;
     max-height: none;
+  }
+
+  .video-player-page .watch-related-after-playlist {
+    position: static;
+    width: 100%;
+    margin: 0;
+    padding: 0;
   }
 }
 
