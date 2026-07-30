@@ -1359,8 +1359,8 @@ body.fab_open .fixed-action-btn {z-index: 1150;}
 /*Home Page*/
 .container-full {width: 100%;}
 .container-home {margin: auto;width: 100%;max-width: 1400px;padding: 0 15px;}
-body.pt-page-home {background: #282C30;}
-body.pt-page-home .pt_feat_vid_innr:before {background: linear-gradient(360deg, #282C30 0%, rgb(255 255 255 / 0%) 100%);}
+body.pt-page-home {background: #f0f2f5;}
+body.pt-page-home .pt_feat_vid_innr:before {background: linear-gradient(360deg, #f0f2f5 0%, rgb(255 255 255 / 0%) 100%);}
 .pt_home_top_m {margin: -150px 0 0;position: relative;}
 .video-player-page .last_hr:last-child hr{display:none;}
 .home-page-categories .title h4 {display: flex;align-items: center;margin: 0;}
