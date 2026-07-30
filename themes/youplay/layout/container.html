@@ -30,12 +30,12 @@
       <link rel="stylesheet" href="{{CONFIG theme_url}}/js/lib/sweetalert2/dist/sweetalert2.min.css?version={{CONFIG version}}">
       <link rel="stylesheet" href="{{CONFIG theme_url}}/js/lib/notifIt/notifIt/css/notifIt.min.css?version={{CONFIG version}}">
       <link rel="stylesheet" href="{{CONFIG theme_url}}/css/style.css?version={{CONFIG version}}&v=17" id="style-css">
-      <?php if ($pt->mode == 'night' || $pt->config->night_mode == 'night'): ?>
-      <link rel="stylesheet" href="{{CONFIG theme_url}}/css/night-mode.css?version={{CONFIG version}}" class="night-mode-css">
-      <?php endif; ?>
       <link rel="stylesheet" href="{{CONFIG theme_url}}/css/custom.style.css?version={{CONFIG version}}">
       <?php /* Preload for soft nav, but only apply it on non-movie watch pages. */ ?>
       <link rel="stylesheet" href="{{CONFIG theme_url}}/css/watch-content.css?version={{CONFIG version}}&v=16" id="watch-content-css" media="<?php echo ($pt->page == 'watch' && empty($pt->is_movie)) ? 'all' : 'not all'; ?>">
+      <?php if ($pt->mode == 'night' || $pt->config->night_mode == 'night'): ?>
+      <link rel="stylesheet" href="{{CONFIG theme_url}}/css/night-mode.css?version={{CONFIG version}}&v=2" class="night-mode-css">
+      <?php endif; ?>
       <link href="{{CONFIG theme_url}}/css/material.css?version={{CONFIG version}}" rel="stylesheet" type="text/css">
       <link href="{{CONFIG theme_url}}/css/roboto.css?version={{CONFIG version}}" rel="stylesheet">
       <script src="{{CONFIG theme_url}}/js/jquery-3.min.js?version={{CONFIG version}}"></script>
@@ -655,11 +655,12 @@
 
                if ($(this).prop( "checked" ) === true) {
                  mode = 'night';
+                 $(".night-mode-css").remove();
                  $('<link>',{
                    rel:'stylesheet',
-                   href:'{{CONFIG theme_url}}/css/night-mode.css',
+                   href:'{{CONFIG theme_url}}/css/night-mode.css?version={{CONFIG version}}&v=2',
                    class:'night-mode-css'
-                 }).insertAfter('link#style-css');
+                 }).insertAfter('link#watch-content-css');
                  $('.logo-img img').attr('src', '{{CONFIG theme_url}}/img/logo-light.png?cache=<?php echo($pt->config->logo_cache) ?>');
                }
                else{
