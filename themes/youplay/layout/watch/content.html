@@ -525,17 +525,18 @@
                                  <path fill="none" d="M0 0h24v24H0z"/>
                                  <path fill="currentColor" d="M19.376 12.416L8.777 19.482A.5.5 0 0 1 8 19.066V4.934a.5.5 0 0 1 .777-.416l10.599 7.066a.5.5 0 0 1 0 .832z"/>
                               </svg>
+                              <span class="playlist-heading-text">
                               <?php if ($pt->is_wl) { ?>
-                              &nbsp;&nbsp;{{LANG watch_later}} - {{USER name}}
+                              {{LANG watch_later}} <span class="playlist-owner-name">— {{USER name}}</span>
                               <?php }else{ ?>
-                              &nbsp;&nbsp;{{LIST_NAME}} - {{LIST_OWNERNAME}}
+                              {{LIST_NAME}} <span class="playlist-owner-name">— {{LIST_OWNERNAME}}</span>
                               <?php } ?>
-                              
+                              </span>
                            </h4>
-                           <div class="checkbox checkbox-info">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{VID_INDEX}}/{{LIST_COUNT}} {{LANG videos}}</div>
+                           <div class="playlist-progress">{{VID_INDEX}} / {{LIST_COUNT}} {{LANG videos}}</div>
                         </div>
                      </div>
-                     <div class="videos-list play-list-cont" id="next-video">{{LIST_SIDEBAR}}</div>
+                     <div class="videos-list play-list-cont" id="next-video" role="list" aria-label="{{LIST_NAME}}">{{LIST_SIDEBAR}}</div>
                   </div>
             <?php } ?>
          </div>
@@ -1178,22 +1179,46 @@
    opacity: 0;
    }
 </style>
+<?php if ($pt->is_wl || !empty($pt->list_owner)) { ?>
 <script type="text/javascript">
    $.getScript('{{CONFIG theme_url}}/js/Sortable.min.js', function(data, textStatus) {
       var el = document.getElementById('next-video');
+      if (!el || !el.querySelector('.playlist-drag-handle') || typeof Sortable === 'undefined') {
+         return;
+      }
       var sortable = Sortable.create(el,{
+         handle: '.playlist-drag-handle',
+         animation: 150,
+         delay: 180,
+         delayOnTouchOnly: true,
+         touchStartThreshold: 8,
+         fallbackTolerance: 5,
+         ghostClass: 'playlist-item-ghost',
+         chosenClass: 'playlist-item-chosen',
          onEnd: function (/**Event*/evt) {
+            if (evt.oldIndex === evt.newIndex) {
+               return;
+            }
             var video_array = [];
-            $('[data-litsitem-id]').each(function(i, obj) {
+            var items = $(el).find('[data-litsitem-id]');
+            items.each(function(i, obj) {
                video_array[i] = $(obj).attr('data-video-id');
-               if (i == $('[data-litsitem-id]').length-1) {
-                  $.post('{{LINK aj/lists?type=list&a=sort}}', {video_array: video_array,type:'wl'}, function(data, textStatus, xhr) {});
+               var number = $(obj).find('.vid-number-cont span');
+               if (!number.find('.fa-circle').length) {
+                  number.text(i + 1);
+               }
+               if (i == items.length - 1) {
+                  $.post('{{LINK aj/lists?type=list&a=sort}}', {
+                     video_array: video_array,
+                     type: '<?php echo($pt->is_wl ? 'wl' : 'list'); ?>'
+                  }, function(data, textStatus, xhr) {});
                }
             });
          }
       });
    });
 </script>
+<?php } ?>
 <?php } ?>
 <?php if ($pt->config->download_videos == 'on' && empty($pt->get_video->daily) && empty($pt->get_video->vimeo) && empty($pt->get_video->youtube) && $pt->get_video->converted == 1 && $pt->get_video->age == false && $pt->video_approved == true) { ?>
 <?php if ($pt->get_video->sell_video == 0 || (($pt->is_paid > 0 || $pt->get_video->sell_video == 0) && $pt->config->stock_videos == 'on' && $pt->get_video->is_stock == 1)) { ?>
@@ -2318,9 +2343,19 @@ $('.mejs__jump-forward-button').each(function() {
          $.get('{{LINK aj/ads/rad-transaction}}', function(data){ /* pass */ });
        });
    
-       if ($('[data-litsitem-id]').length > 4) {
-         var listItemtopPos = $("div[data-litsitem-id=<?php echo $pt->get_id; ?>]").offset();
-         $('.play-list-cont').scrollTop((listItemtopPos.top - 170));
+      var playlistContainer = $('.play-list-cont');
+      if (playlistContainer.find('[data-litsitem-id]').length > 4) {
+         var currentListItemId = <?php echo json_encode((string) $pt->get_id); ?>;
+         var currentListItem = playlistContainer.find('[data-litsitem-id]').filter(function() {
+            return $(this).attr('data-litsitem-id') === currentListItemId;
+         }).first();
+
+         if (currentListItem.length) {
+            var centeredScrollTop = currentListItem.position().top +
+                                    playlistContainer.scrollTop() -
+                                    ((playlistContainer.innerHeight() - currentListItem.outerHeight()) / 2);
+            playlistContainer.scrollTop(Math.max(0, centeredScrollTop));
+         }
        }
    
       $('#save-button').on('click', function(event) {
