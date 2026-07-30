@@ -2332,12 +2332,19 @@ $('.mejs__jump-forward-button').each(function() {
    
    $(function () {
       <?php if ($pt->is_wl || $pt->is_list) { ?>
-      $(".play-list-cont-wrapper").height(($(".player-video").height()));
-      $(".play-list-cont").height(($(".player-video").height()-60));
-      $(window).resize(function(event) {
-       $(".play-list-cont-wrapper").height(($(".player-video").height()));
-       $(".play-list-cont").height(($(".player-video").height()-60));
-      });
+      function syncPlaylistHeight() {
+         var playlistWrapper = $('.play-list-cont-wrapper');
+         if (window.innerWidth >= 992) {
+            var playerShellHeight = $('.watch-player-shell').outerHeight() || $('.player-video').height();
+            var playlistTop = playlistWrapper[0].getBoundingClientRect().top;
+            var heightToFold = window.innerHeight - playlistTop - 24;
+            playlistWrapper.height(Math.max(playerShellHeight, heightToFold));
+         } else {
+            playlistWrapper.css('height', '');
+         }
+      }
+      syncPlaylistHeight();
+      $(window).off('resize.playlistHeight').on('resize.playlistHeight', syncPlaylistHeight);
       <?php } ?>
 
        $('.rad-transaction').click(function(event) {
