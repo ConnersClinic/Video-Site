@@ -1315,44 +1315,72 @@ html:has(.video-player-page) {
 }
 
 .video-player-page .play-list-container .pt_plist_hdr {
-  padding: 14px 16px;
-  background: var(--watch-primary);
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #89bb4b 0%, var(--watch-primary) 100%);
 }
 
 .video-player-page .pt_plist_hdr .next-text h4 {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 12px;
   min-width: 0;
   margin: 0;
   color: #ffffff;
-  font-size: 16px;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 .video-player-page .pt_plist_hdr .next-text h4 > svg {
-  width: 20px;
-  height: 20px;
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
   flex: 0 0 auto;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .video-player-page .playlist-heading-text {
+  display: block;
+  padding-top: 1px;
   min-width: 0;
+  flex: 1 1 auto;
+}
+
+.video-player-page .playlist-name {
+  display: block;
   overflow: hidden;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .video-player-page .playlist-owner-name {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
   font-weight: 400;
-  opacity: 0.85;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .video-player-page .playlist-progress {
-  margin: 4px 0 0 30px;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 12px;
-  line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  margin: 8px 0 0 48px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(32, 62, 17, 0.18);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .video-player-page .play-list-cont {
@@ -1527,9 +1555,14 @@ html:has(.video-player-page) {
     padding: 0;
   }
 
-  .video-player-page .play-list-cont {
+  .video-player-page .play-list-container {
     height: auto !important;
-    max-height: min(56vh, 480px);
+  }
+
+  .video-player-page .play-list-cont {
+    height: clamp(420px, 62vh, 600px) !important;
+    min-height: 420px;
+    max-height: none;
   }
 }
 

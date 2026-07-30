@@ -527,9 +527,11 @@
                               </svg>
                               <span class="playlist-heading-text">
                               <?php if ($pt->is_wl) { ?>
-                              {{LANG watch_later}} <span class="playlist-owner-name">— {{USER name}}</span>
+                              <span class="playlist-name">{{LANG watch_later}}</span>
+                              <span class="playlist-owner-name">{{USER name}}</span>
                               <?php }else{ ?>
-                              {{LIST_NAME}} <span class="playlist-owner-name">— {{LIST_OWNERNAME}}</span>
+                              <span class="playlist-name">{{LIST_NAME}}</span>
+                              <span class="playlist-owner-name">{{LIST_OWNERNAME}}</span>
                               <?php } ?>
                               </span>
                            </h4>
