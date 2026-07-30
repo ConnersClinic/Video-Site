@@ -1558,8 +1558,9 @@ html:has(.video-player-page) {
 
 @media (min-width: 992px) {
   .video-player-page .play-list-player {
-    display: flex;
-    align-items: flex-start;
+    display: block;
+    position: relative;
+    overflow: visible;
   }
 
   .video-player-page .play-list-player > .player-video {
@@ -1568,6 +1569,9 @@ html:has(.video-player-page) {
   }
 
   .video-player-page .pt_playlist_right_vid_side {
+    position: absolute;
+    top: 0;
+    right: 0;
     float: none !important;
     width: 33.33333333%;
     margin-left: 0;
