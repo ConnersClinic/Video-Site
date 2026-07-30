@@ -924,3 +924,46 @@ code {
 .nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-bN97Pc-sM5MNb span {
 	color: #3c4043 !important;
 }
+
+/* Watch playlist */
+.video-player-page .play-list-cont-wrapper {
+    border-color: #353a37;
+    background: #242826;
+}
+
+.video-player-page .play-list-cont {
+    color: #ffffff !important;
+    background: #242826;
+    scrollbar-color: #69716c #242826;
+}
+
+.video-player-page .play-list-cont .side-barlist-wrapper {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.video-player-page .play-list-cont .side-barlist-wrapper:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.video-player-page .play-list-cont .vid-number-cont {
+    color: rgba(255, 255, 255, 0.68);
+}
+
+.video-player-page .play-list-cont .playlist-video-title a {
+    color: #f4f6f3 !important;
+}
+
+.video-player-page .play-list-cont .video-publisher {
+    color: rgba(255, 255, 255, 0.66) !important;
+}
+
+.video-player-page .playlist-drag-handle,
+.video-player-page .play-list-cont .ptrm-vid-renderer {
+    color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.video-player-page .playlist-drag-handle:hover,
+.video-player-page .play-list-cont .ptrm-vid-renderer:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.12);
+}
