@@ -27,7 +27,8 @@
 
 # Sensitive local configuration
 /config.php
-/db.php
+#/db.php
+#/merge.php
 .env
 .env.*
 !.env.example
