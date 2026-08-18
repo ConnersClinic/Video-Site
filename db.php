@@ -1794,6 +1794,8 @@ $progress = 100;
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <script>
 AOS.init({
@@ -1813,10 +1815,67 @@ $(function () {
         'verify'
     ];
 
+    const stepLabels = {
+        prepare:    'Prepare Main',
+        commit:     'Create Commit',
+        push_main:  'Push Main',
+        push_super: 'Promote to Super',
+        deploy:     'Update Production',
+        verify:     'Verify Deployment'
+    };
+
     let deploying = false;
 
+    /*
+    |--------------------------------------------------------------------------
+    | SweetAlert Toast
+    |--------------------------------------------------------------------------
+    */
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4500,
+        timerProgressBar: true,
+        didOpen: function (toast) {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+        }
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
+
     function escapeHtml(value) {
-        return $('<div>').text(value == null ? '' : String(value)).html();
+        return $('<div>')
+            .text(value == null ? '' : String(value))
+            .html();
+    }
+
+    function getStepLabel(step) {
+        return stepLabels[step] || step;
+    }
+
+    function setDeployingState(state) {
+
+        deploying = state;
+
+        $('#deployProductionBtn')
+            .prop('disabled', state);
+
+        $('#deploySpinner')
+            .toggleClass('d-none', !state);
+
+        $('.deploy-button-text')
+            .text(
+                state
+                    ? 'Deployment Running...'
+                    : 'Deploy Main to Production'
+            );
     }
 
     function resetSteps() {
@@ -1837,26 +1896,53 @@ $(function () {
             .html('');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Step Running
+    |--------------------------------------------------------------------------
+    */
+
     function setRunning(step) {
 
-        const $step = $('.deploy-step[data-step="' + step + '"]');
+        const $step =
+            $('.deploy-step[data-step="' + step + '"]');
 
         $step
             .removeClass('success failed')
             .addClass('running');
 
         $step.find('.step-status').html(
-            '<span class="spinner-border spinner-border-sm"></span>'
+            '<span class="spinner-border spinner-border-sm" role="status"></span>'
         );
 
         $step.find('.step-message')
-            .show()
-            .text('Processing...');
+            .html(
+                '<i class="bi bi-hourglass-split me-1"></i>' +
+                'Processing...'
+            )
+            .show();
+
+        /*
+         * Scroll current step into view if needed.
+         */
+        if ($step.length) {
+            $step[0].scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Step Success
+    |--------------------------------------------------------------------------
+    */
 
     function setSuccess(step, response) {
 
-        const $step = $('.deploy-step[data-step="' + step + '"]');
+        const $step =
+            $('.deploy-step[data-step="' + step + '"]');
 
         $step
             .removeClass('running failed')
@@ -1866,16 +1952,30 @@ $(function () {
             '<i class="bi bi-check-circle-fill"></i>'
         );
 
-        let message = response.message || 'Completed';
+        let message =
+            escapeHtml(response.message || 'Completed successfully.');
 
         if (
             response.data &&
             response.data.commit
         ) {
             message +=
-                '<br><code>' +
+                '<br>' +
+                '<code class="d-inline-block mt-1">' +
                 escapeHtml(response.data.commit) +
                 '</code>';
+        }
+
+        if (
+            response.data &&
+            response.data.message &&
+            step === 'commit'
+        ) {
+            message +=
+                '<br>' +
+                '<small class="opacity-75">' +
+                escapeHtml(response.data.message) +
+                '</small>';
         }
 
         $step.find('.step-message')
@@ -1883,9 +1983,16 @@ $(function () {
             .show();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Step Failure
+    |--------------------------------------------------------------------------
+    */
+
     function setFailed(step, response) {
 
-        const $step = $('.deploy-step[data-step="' + step + '"]');
+        const $step =
+            $('.deploy-step[data-step="' + step + '"]');
 
         $step
             .removeClass('running success')
@@ -1896,23 +2003,52 @@ $(function () {
         );
 
         let message =
-            response.message ||
-            'Deployment step failed.';
+            escapeHtml(
+                response.message ||
+                'Deployment step failed.'
+            );
 
         if (
             response.data &&
             response.data.output
         ) {
-            message +=
-                '<br><small>' +
-                escapeHtml(response.data.output) +
-                '</small>';
+            message += `
+                <pre
+                    class="mt-2 mb-0 p-2 rounded bg-dark text-light"
+                    style="
+                        white-space:pre-wrap;
+                        max-height:220px;
+                        overflow:auto;
+                        font-size:11px;
+                    "
+                >${escapeHtml(response.data.output)}</pre>
+            `;
+        }
+
+        if (
+            response.data &&
+            response.data.command
+        ) {
+            message += `
+                <div class="mt-2">
+                    <small>
+                        Command:
+                        <code>${escapeHtml(response.data.command)}</code>
+                    </small>
+                </div>
+            `;
         }
 
         $step.find('.step-message')
             .html(message)
             .show();
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Final Success
+    |--------------------------------------------------------------------------
+    */
 
     function finishDeployment(response) {
 
@@ -1926,65 +2062,176 @@ $(function () {
             .removeClass('d-none failed')
             .addClass('deploy-result success')
             .html(`
-                <div class="fw-bold text-success mb-2">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    Deployment Successful
-                </div>
+                <div class="d-flex align-items-start gap-3">
 
-                <div class="soft-muted">
-                    Main, remote main, super and production
-                    are all running the same commit.
-                </div>
+                    <div class="fs-3 text-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
 
-                ${
-                    commit
-                    ? '<span class="deploy-sha">' +
-                      escapeHtml(commit) +
-                      '</span>'
-                    : ''
-                }
+                    <div class="flex-grow-1">
+
+                        <div class="fw-bold text-success mb-2">
+                            Deployment Successful
+                        </div>
+
+                        <div class="soft-muted">
+                            Local main, origin/main, origin/super
+                            and production are all running the
+                            same Git commit.
+                        </div>
+
+                        ${
+                            commit
+                                ? `
+                                    <div class="mt-3">
+                                        <small class="soft-muted">
+                                            Production Commit
+                                        </small>
+
+                                        <span class="deploy-sha">
+                                            ${escapeHtml(commit)}
+                                        </span>
+                                    </div>
+                                `
+                                : ''
+                        }
+
+                    </div>
+
+                </div>
             `);
+
+        /*
+         * Success toast
+         */
+
+        Toast.fire({
+            icon: 'success',
+            title: 'Production deployed successfully'
+        });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Final Failure
+    |--------------------------------------------------------------------------
+    */
+
     function failDeployment(step, response) {
+
+        const label = getStepLabel(step);
 
         $('#deploymentFinalResult')
             .removeClass('d-none success')
             .addClass('deploy-result failed')
             .html(`
-                <div class="fw-bold text-danger mb-2">
-                    <i class="bi bi-x-circle-fill me-2"></i>
-                    Deployment Stopped
-                </div>
+                <div class="d-flex align-items-start gap-3">
 
-                <div>
-                    Failed at:
-                    <strong>${escapeHtml(step)}</strong>
-                </div>
+                    <div class="fs-3 text-danger">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </div>
 
-                <div class="soft-muted mt-1">
-                    ${escapeHtml(
-                        response.message ||
-                        'Unknown deployment error.'
-                    )}
+                    <div class="flex-grow-1">
+
+                        <div class="fw-bold text-danger mb-2">
+                            Deployment Stopped
+                        </div>
+
+                        <div>
+                            Failed at:
+                            <strong>
+                                ${escapeHtml(label)}
+                            </strong>
+                        </div>
+
+                        <div class="soft-muted mt-2">
+                            ${escapeHtml(
+                                response.message ||
+                                'Unknown deployment error.'
+                            )}
+                        </div>
+
+                    </div>
+
                 </div>
             `);
+
+        Toast.fire({
+            icon: 'error',
+            title:
+                escapeHtml(label) +
+                ': ' +
+                escapeHtml(
+                    response.message ||
+                    'Deployment failed'
+                )
+        });
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Parse AJAX Error
+    |--------------------------------------------------------------------------
+    */
+
+    function parseAjaxError(xhr) {
+
+        let response = {
+            success: false,
+            status: xhr.status || 400,
+            message: 'Server request failed.',
+            data: {}
+        };
+
+        if (xhr.responseJSON) {
+            return xhr.responseJSON;
+        }
+
+        if (xhr.responseText) {
+
+            try {
+
+                const parsed =
+                    JSON.parse(xhr.responseText);
+
+                if (parsed) {
+                    response = parsed;
+                }
+
+            } catch (e) {
+
+                response.message =
+                    xhr.status
+                        ? 'Server returned HTTP ' + xhr.status + '.'
+                        : 'Invalid response received from server.';
+
+                response.data = {
+                    output: xhr.responseText
+                };
+            }
+        }
+
+        return response;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Run Deployment Step
+    |--------------------------------------------------------------------------
+    */
 
     function runStep(index) {
 
+        /*
+         * All steps completed
+         */
+
         if (index >= steps.length) {
 
-            deploying = false;
-
-            $('#deployProductionBtn')
-                .prop('disabled', false);
-
-            $('#deploySpinner')
-                .addClass('d-none');
+            setDeployingState(false);
 
             $('.deploy-button-text')
-                .text('Deploy Main to Production');
+                .text('Deploy Again');
 
             return;
         }
@@ -1997,9 +2244,13 @@ $(function () {
 
             url: '/merge.php',
 
-            type: 'POST',
+            method: 'POST',
 
             dataType: 'json',
+
+            timeout: 120000,
+
+            cache: false,
 
             data: {
                 action: step
@@ -2009,20 +2260,36 @@ $(function () {
                 'X-Requested-With': 'XMLHttpRequest'
             },
 
+            /*
+            |--------------------------------------------------------------------------
+            | Success
+            |--------------------------------------------------------------------------
+            */
+
             success: function (response) {
 
-                if (!response.success) {
+                if (
+                    !response ||
+                    response.success !== true
+                ) {
 
-                    setFailed(step, response);
-                    failDeployment(step, response);
+                    const errorResponse =
+                        response || {
+                            success: false,
+                            message: 'Invalid server response.'
+                        };
 
-                    deploying = false;
+                    setFailed(
+                        step,
+                        errorResponse
+                    );
 
-                    $('#deployProductionBtn')
-                        .prop('disabled', false);
+                    failDeployment(
+                        step,
+                        errorResponse
+                    );
 
-                    $('#deploySpinner')
-                        .addClass('d-none');
+                    setDeployingState(false);
 
                     $('.deploy-button-text')
                         .text('Retry Deployment');
@@ -2030,53 +2297,95 @@ $(function () {
                     return;
                 }
 
-                setSuccess(step, response);
+                setSuccess(
+                    step,
+                    response
+                );
+
+                /*
+                 * Final verification completed.
+                 */
 
                 if (step === 'verify') {
-                    finishDeployment(response);
+
+                    finishDeployment(
+                        response
+                    );
                 }
 
                 /*
-                 * Small delay so admin can visually
-                 * see each completed step.
+                 * Continue to next deployment action.
                  */
+
                 setTimeout(function () {
-                    runStep(index + 1);
-                }, 350);
+
+                    runStep(
+                        index + 1
+                    );
+
+                }, 400);
             },
 
-            error: function (xhr) {
+            /*
+            |--------------------------------------------------------------------------
+            | Error
+            |--------------------------------------------------------------------------
+            */
 
-                let response = {
-                    success: false,
-                    message: 'Server request failed.'
-                };
+            error: function (
+                xhr,
+                textStatus,
+                errorThrown
+            ) {
 
-                try {
+                let response =
+                    parseAjaxError(xhr);
 
-                    const parsed =
-                        JSON.parse(xhr.responseText);
+                /*
+                 * Handle request timeout separately.
+                 */
 
-                    response = parsed;
+                if (textStatus === 'timeout') {
 
-                } catch (e) {
-
-                    if (xhr.responseText) {
-                        response.message =
-                            xhr.responseText;
-                    }
+                    response = {
+                        success: false,
+                        status: 400,
+                        message:
+                            'The deployment request timed out. ' +
+                            'Check the server before retrying.',
+                        data: {}
+                    };
                 }
 
-                setFailed(step, response);
-                failDeployment(step, response);
+                /*
+                 * Network failure
+                 */
 
-                deploying = false;
+                if (
+                    xhr.status === 0 &&
+                    textStatus !== 'timeout'
+                ) {
 
-                $('#deployProductionBtn')
-                    .prop('disabled', false);
+                    response = {
+                        success: false,
+                        status: 400,
+                        message:
+                            'Unable to connect to the deployment server.',
+                        data: {}
+                    };
+                }
 
-                $('#deploySpinner')
-                    .addClass('d-none');
+                setFailed(
+                    step,
+                    response
+                );
+
+                failDeployment(
+                    step,
+                    response
+                );
+
+                setDeployingState(false);
 
                 $('.deploy-button-text')
                     .text('Retry Deployment');
@@ -2084,41 +2393,180 @@ $(function () {
         });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Deployment Button
+    |--------------------------------------------------------------------------
+    */
+
     $('#deployProductionBtn').on('click', function () {
 
         if (deploying) {
+
+            Toast.fire({
+                icon: 'info',
+                title: 'Deployment is already running'
+            });
+
             return;
         }
 
-        const confirmed = confirm(
-            'Deploy main to production?\n\n' +
-            'This will:\n' +
-            '1. Stage all main changes\n' +
-            '2. Commit them\n' +
-            '3. Push main\n' +
-            '4. FORCE main → super\n' +
-            '5. Update production\n\n' +
-            'Any commits existing only on super will be overwritten.'
-        );
+        /*
+         * SweetAlert confirmation
+         */
 
-        if (!confirmed) {
-            return;
-        }
+        Swal.fire({
 
-        deploying = true;
+            title: 'Deploy to Production?',
 
-        resetSteps();
+            html: `
+                <div class="text-start">
 
-        $('#deployProductionBtn')
-            .prop('disabled', true);
+                    <p class="mb-3">
+                        This will promote the current
+                        <strong>main</strong>
+                        development version to production.
+                    </p>
 
-        $('#deploySpinner')
-            .removeClass('d-none');
+                    <div
+                        class="p-3 rounded-3 bg-light text-dark"
+                        style="font-size:14px;"
+                    >
 
-        $('.deploy-button-text')
-            .text('Deployment Running...');
+                        <div class="d-flex gap-2 mb-3">
+                            <strong>1.</strong>
+                            <div>
+                                <strong>Prepare Main</strong>
+                                <div class="text-muted small">
+                                    Switch to main and stage all files
+                                </div>
+                            </div>
+                        </div>
 
-        runStep(0);
+                        <div class="d-flex gap-2 mb-3">
+                            <strong>2.</strong>
+                            <div>
+                                <strong>Create Commit</strong>
+                                <div class="text-muted small">
+                                    Create automatic dated Git commit
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mb-3">
+                            <strong>3.</strong>
+                            <div>
+                                <strong>Push Main</strong>
+                                <div class="text-muted small">
+                                    main → origin/main
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mb-3">
+                            <strong>4.</strong>
+                            <div>
+                                <strong>Promote to Super</strong>
+                                <div class="text-muted small">
+                                    FORCE main → origin/super
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mb-3">
+                            <strong>5.</strong>
+                            <div>
+                                <strong>Update Production</strong>
+                                <div class="text-muted small">
+                                    Production becomes origin/super
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <strong>6.</strong>
+                            <div>
+                                <strong>Verify Deployment</strong>
+                                <div class="text-muted small">
+                                    Compare all Git commit SHAs
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="alert alert-danger mt-3 mb-0 text-start"
+                        style="font-size:13px;"
+                    >
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+
+                        <strong>Important:</strong>
+
+                        any commits that exist only on
+                        <code>super</code>
+                        will be overwritten by
+                        <code>main</code>.
+                    </div>
+
+                </div>
+            `,
+
+            icon: 'warning',
+
+            showCancelButton: true,
+
+            confirmButtonText:
+                '<i class="bi bi-rocket-takeoff me-2"></i>' +
+                'Deploy Now',
+
+            cancelButtonText:
+                '<i class="bi bi-x-lg me-2"></i>' +
+                'Cancel',
+
+            confirmButtonColor: '#198754',
+
+            cancelButtonColor: '#6c757d',
+
+            reverseButtons: true,
+
+            focusCancel: true,
+
+            allowOutsideClick: false,
+
+            allowEscapeKey: true,
+
+            showLoaderOnConfirm: false,
+
+            customClass: {
+                popup: 'rounded-4',
+                confirmButton: 'px-4 py-2',
+                cancelButton: 'px-4 py-2'
+            },
+
+            width: 600
+
+        }).then(function (result) {
+
+            if (!result.isConfirmed) {
+                return;
+            }
+
+            /*
+             * Start deployment.
+             */
+
+            resetSteps();
+
+            setDeployingState(true);
+
+            Toast.fire({
+                icon: 'info',
+                title: 'Production deployment started'
+            });
+
+            runStep(0);
+        });
     });
 
 });
